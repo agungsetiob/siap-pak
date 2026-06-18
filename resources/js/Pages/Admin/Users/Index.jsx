@@ -38,11 +38,13 @@ export default function Index({ auth, users, rooms, errors: pageErrors }) {
         });
     };
 
-    const handleDelete = (id) => {
-        if (confirm('Yakin ingin menghapus akun pengguna ini?')) {
+    const handleToggleStatus = (id, isActive) => {
+        const action = isActive ? "menonaktifkan" : "mengaktifkan";
+        if (confirm(`Yakin ingin ${action} akun pengguna ini?`)) {
             router.delete(route('users.destroy', id));
         }
     };
+
 
     return (
         <AuthenticatedLayout
@@ -53,7 +55,7 @@ export default function Index({ auth, users, rooms, errors: pageErrors }) {
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                    
+
                     {pageErrors.error && (
                         <div className="mb-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-sm">
                             <p>{pageErrors.error}</p>
@@ -66,8 +68,8 @@ export default function Index({ auth, users, rooms, errors: pageErrors }) {
                                 <h3 className="text-lg font-bold text-gray-800">Daftar Akun Sistem</h3>
                                 <p className="text-sm text-gray-500">Kelola akses Admin dan perwakilan Unit/Ruangan.</p>
                             </div>
-                            <button 
-                                onClick={openModal} 
+                            <button
+                                onClick={openModal}
                                 className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-semibold transition"
                             >
                                 + Tambah Akun
@@ -88,7 +90,16 @@ export default function Index({ auth, users, rooms, errors: pageErrors }) {
                                 <tbody>
                                     {users.data.map((user) => (
                                         <tr key={user.id} className="border-b hover:bg-gray-50">
-                                            <td className="px-6 py-4 font-bold text-gray-900">{user.name}</td>
+                                            <td className="px-6 py-4">
+                                                <div className="font-bold text-gray-900 flex items-center gap-2">
+                                                    {user.name}
+                                                    {!user.is_active && (
+                                                        <span className="bg-red-100 text-red-800 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase">
+                                                            Nonaktif
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </td>
                                             <td className="px-6 py-4">
                                                 <div className="text-blue-600">{user.email}</div>
                                                 <div className="text-xs text-gray-500 font-mono">{user.phone_number || 'Tanpa No. HP'}</div>
@@ -104,11 +115,18 @@ export default function Index({ auth, users, rooms, errors: pageErrors }) {
                                             </td>
                                             <td className="px-6 py-4 text-center">
                                                 {user.id !== auth.user.id && (
-                                                    <button onClick={() => handleDelete(user.id)} className="text-red-600 hover:underline font-medium">
-                                                        Hapus
+                                                    <button
+                                                        onClick={() => handleToggleStatus(user.id, user.is_active)}
+                                                        className={`${user.is_active
+                                                            ? "text-yellow-600 hover:underline font-medium"
+                                                            : "text-green-600 hover:underline font-medium"
+                                                            }`}
+                                                    >
+                                                        {user.is_active ? "Nonaktifkan" : "Aktifkan"}
                                                     </button>
                                                 )}
                                             </td>
+
                                         </tr>
                                     ))}
                                     {users.data.length === 0 && (
@@ -145,7 +163,7 @@ export default function Index({ auth, users, rooms, errors: pageErrors }) {
                             <TextInput id="name" type="text" className="mt-1 block w-full bg-gray-50" value={data.name} onChange={(e) => setData('name', e.target.value)} required />
                             <InputError message={errors.name} className="mt-2" />
                         </div>
-                        
+
                         <div>
                             <InputLabel htmlFor="email" value="Email (Digunakan untuk Login)" />
                             <TextInput id="email" type="email" className="mt-1 block w-full bg-gray-50" value={data.email} onChange={(e) => setData('email', e.target.value)} required />

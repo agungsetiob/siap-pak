@@ -49,10 +49,15 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         if ($user->id === auth()->id()) {
-            return back()->withErrors(['error' => 'Anda tidak bisa menghapus akun Anda sendiri.']);
+            return back()->withErrors(['error' => 'Anda tidak bisa menonaktifkan akun Anda sendiri.']);
         }
         
-        $user->delete();
-        return back()->with('success', 'Akun berhasil dihapus.');
+        $user->update([
+            'is_active' => !$user->is_active
+        ]);
+
+        $statusMessage = $user->is_active ? 'diaktifkan kembali' : 'dinonaktifkan';
+
+        return back()->with('success', "Akun pengguna berhasil {$statusMessage}.");
     }
 }
