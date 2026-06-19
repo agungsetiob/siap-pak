@@ -11,14 +11,14 @@ return new class extends Migration
         Schema::create('equipments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('room_id')->constrained('rooms')->cascadeOnDelete();
-            $table->string('inventory_number')->unique(); // Nomor inventaris RS
-            $table->string('name'); // Nama alat
-            $table->string('brand')->nullable(); // Merk/Tipe
-            $table->string('serial_number')->nullable(); // Nomor seri
+            $table->string('inventory_number')->unique();
+            $table->string('name');
+            $table->string('brand')->nullable();
+            $table->string('serial_number')->nullable();
             $table->enum('condition', ['baik', 'rusak_ringan', 'rusak_berat'])->default('baik');
-            $table->date('next_calibration_date')->nullable(); // Digunakan untuk trigger notifikasi
+            $table->date('next_calibration_date')->nullable();
             $table->timestamps();
-            $table->softDeletes(); // Mencegah data hilang jika alat dihapus/afkir
+            $table->softDeletes();
         });
     }
 

@@ -6,25 +6,24 @@ use App\Models\Calibration;
 use App\Models\Equipment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
 
 class CalibrationController extends Controller
 {
 
     public function index()
     {
-        // 1. Ambil riwayat kalibrasi global (semua alat)
         $calibrations = Calibration::with(['equipment.room', 'admin'])
             ->latest('calibration_date')
             ->paginate(15);
 
-        // 2. Ambil alat yang jadwal kalibrasinya mendekati H-30 atau sudah lewat
         $upcomingCalibrations = Equipment::with('room')
             ->whereNotNull('next_calibration_date')
             ->whereDate('next_calibration_date', '<=', now()->addDays(30))
             ->orderBy('next_calibration_date', 'asc')
             ->get();
 
-        return \Inertia\Inertia::render('Admin/Calibrations/Index', [
+        return Inertia::render('Admin/Calibrations/Index', [
             'calibrations' => $calibrations,
             'upcomingCalibrations' => $upcomingCalibrations,
         ]);
@@ -37,7 +36,7 @@ class CalibrationController extends Controller
             'calibration_date' => 'required|date',
             'next_calibration_date' => 'required|date|after:calibration_date',
             'result' => 'required|in:laik,tidak_laik,laik_dengan_catatan',
-            'certificate_file' => 'nullable|mimes:pdf,jpg,png|max:2048', // Max 2MB
+            'certificate_file' => 'nullable|mimes:pdf,jpg,png|max:2048',
             'notes' => 'nullable|string',
         ]);
 
@@ -66,9 +65,37 @@ class CalibrationController extends Controller
         return back()->with('success', 'Riwayat kalibrasi berhasil ditambahkan.');
     }
 
+    public function update(Request $request, \App\Models\Calibration $calibration)
+    {
+        $request->validate([
+            'calibration_date' => 'required|date',
+            'next_calibration_date' => 'required|date|after:calibration_date',
+            'result' => 'required|string',
+            'notes' => 'nullable|string',
+        ]);
+
+        $calibration->update([
+            'calibration_date' => $request->calibration_date,
+            'next_calibration_date' => $request->next_calibration_date,
+            'result' => $request->result,
+            'notes' => $request->notes,
+        ]);
+
+        $equipment = $calibration->equipment;
+        $latestCalibration = $equipment->calibrations()->latest('calibration_date')->first();
+
+        // Jika kalibrasi yang diedit ini adalah yang paling baru, update juga master alatnya!
+        if ($latestCalibration && $latestCalibration->id === $calibration->id) {
+            $equipment->update([
+                'next_calibration_date' => $request->next_calibration_date
+            ]);
+        }
+
+        return back()->with('success', 'Riwayat kalibrasi berhasil diperbaiki.');
+    }
+
     public function destroy(Calibration $calibration)
     {
-        // Hapus file fisik jika ada
         if ($calibration->certificate_file) {
             Storage::disk('public')->delete($calibration->certificate_file);
         }

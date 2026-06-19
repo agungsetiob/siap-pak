@@ -1,6 +1,7 @@
 import React from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router } from '@inertiajs/react';
+import { formatDate } from '@/Helpers/date';
 
 export default function Index({ auth, calibrations, upcomingCalibrations }) {
     
@@ -65,7 +66,7 @@ export default function Index({ auth, calibrations, upcomingCalibrations }) {
                                                         <td className="px-6 py-4 font-medium">{eq.room?.name}</td>
                                                         <td className="px-6 py-4">
                                                             <span className={`font-bold ${days < 0 ? 'text-red-600' : 'text-orange-600'}`}>
-                                                                {new Date(eq.next_calibration_date).toLocaleDateString('id-ID')}
+                                                                {formatDate(eq.next_calibration_date)}
                                                             </span>
                                                             <br/>
                                                             <span className="text-xs text-gray-500">
@@ -111,7 +112,7 @@ export default function Index({ auth, calibrations, upcomingCalibrations }) {
                                 <tbody>
                                     {calibrations.data.map((cal) => (
                                         <tr key={cal.id} className="border-b hover:bg-gray-50">
-                                            <td className="px-6 py-4 font-medium">{new Date(cal.calibration_date).toLocaleDateString('id-ID')}</td>
+                                            <td className="px-6 py-4 font-medium">{formatDate(cal.calibration_date)}</td>
                                             <td className="px-6 py-4">
                                                 <Link href={route('equipments.show', cal.equipment_id)} className="font-bold text-blue-600 hover:underline">
                                                     {cal.equipment?.name}

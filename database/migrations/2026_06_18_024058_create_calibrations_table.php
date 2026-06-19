@@ -12,19 +12,14 @@ return new class extends Migration
             $table->id();
             $table->foreignId('equipment_id')->constrained('equipments')->cascadeOnDelete();
             // Optional: hubungkan ke report_id jika kalibrasi ini berawal dari tiket laporan/pemeliharaan
-            $table->foreignId('report_id')->nullable()->constrained('reports')->nullOnDelete(); 
-            
-            $table->string('certificate_number')->unique()->nullable(); // Nomor Sertifikat Kalibrasi
-            $table->string('certificate_file')->nullable(); // Alamat/Path file sertifikat (PDF)
-            $table->string('testing_institution')->nullable(); // Lembaga penguji, contoh: BPFK, Vendor Swasta, dll.
-            
-            $table->date('calibration_date'); // Tanggal pelaksanaan kalibrasi
-            $table->date('next_calibration_date'); // Tanggal kalibrasi berikutnya
-            
-            // Hasil akhir kalibrasi
+            $table->foreignId('report_id')->nullable()->constrained('reports')->nullOnDelete();          
+            $table->string('certificate_number')->unique()->nullable();
+            $table->string('certificate_file')->nullable();
+            $table->string('testing_institution')->nullable();           
+            $table->date('calibration_date');
+            $table->date('next_calibration_date');
             $table->enum('result', ['laik', 'tidak_laik', 'laik_dengan_catatan'])->default('laik');
-            $table->text('notes')->nullable(); // Keterangan tambahan atau catatan hasil ukur
-            
+            $table->text('notes')->nullable();            
             $table->foreignId('created_by')->constrained('users')->cascadeOnDelete(); // Admin yang menginput data
             $table->timestamps();
         });

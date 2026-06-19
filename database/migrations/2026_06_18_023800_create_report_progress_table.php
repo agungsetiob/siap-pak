@@ -13,8 +13,8 @@ return new class extends Migration
             $table->foreignId('report_id')->constrained('reports')->cascadeOnDelete();
             $table->foreignId('updated_by')->constrained('users')->cascadeOnDelete(); // Admin yang melakukan update
             $table->enum('status_snapshot', ['menunggu', 'diproses', 'selesai', 'dibatalkan']);
-            $table->text('notes')->nullable(); // Catatan perbaikan (misal: "Menunggu sparepart dari teknisi luar")
-            $table->timestamps(); // Berlaku sebagai tanggal update progress
+            $table->text('notes')->nullable();
+            $table->timestamps();
         });
     }
 

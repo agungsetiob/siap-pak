@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Equipment;
+use App\Models\EquipmentMovement;
 use App\Models\Room;
 use Illuminate\Http\Request;
+use \Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class EquipmentController extends Controller
@@ -89,15 +91,21 @@ class EquipmentController extends Controller
         $equipment->load([
             'room', 
             'calibrations' => function($q) { $q->latest('calibration_date'); },
-            'reports' => function($q) { $q->latest()->take(5); }
+            'reports' => function($q) { $q->latest()->take(5); },
+            'movements.fromRoom',
+            'movements.toRoom',
+            'movements.mover',
+            'qr'
         ]);
 
+        $rooms = Room::orderBy('name')->get(['id', 'name']);
+
         return Inertia::render('Admin/Equipments/Show', [
-            'equipment' => $equipment
+            'equipment' => $equipment,
+            'rooms' => $rooms
         ]);
     }
 
-    // Menampilkan daftar alat yang sudah dihapus
     public function trashed(Request $request)
     {
         $query = Equipment::onlyTrashed()->with('room');
@@ -114,7 +122,6 @@ class EquipmentController extends Controller
         ]);
     }
 
-    // Mengembalikan alat dari tong sampah
     public function restore($id)
     {
         $equipment = Equipment::onlyTrashed()->findOrFail($id);
@@ -123,12 +130,38 @@ class EquipmentController extends Controller
         return redirect()->route('equipments.index')->with('success', 'Alat kesehatan berhasil dikembalikan (Restore).');
     }
 
-    // Menghapus alat secara permanen (Optional)
     public function forceDelete($id)
     {
         $equipment = Equipment::onlyTrashed()->findOrFail($id);
         $equipment->forceDelete();
 
         return redirect()->back()->with('success', 'Alat dihapus secara permanen dari database.');
+    }
+
+    public function move(Request $request, Equipment $equipment)
+    {
+        $request->validate([
+            'to_room_id' => 'required|exists:rooms,id|different:' . $equipment->room_id,
+            'notes' => 'nullable|string',
+        ], [
+            'to_room_id.different' => 'Ruangan tujuan tidak boleh sama dengan ruangan alat saat ini.'
+        ]);
+
+        DB::transaction(function () use ($request, $equipment) {
+            EquipmentMovement::create([
+                'equipment_id' => $equipment->id,
+                'from_room_id' => $equipment->room_id,
+                'to_room_id' => $request->to_room_id,
+                'moved_by' => auth()->id(),
+                'moved_at' => now(),
+                'notes' => $request->notes,
+            ]);
+
+            $equipment->update([
+                'room_id' => $request->to_room_id
+            ]);
+        });
+
+        return back()->with('success', 'Alat kesehatan berhasil dipindahkan ke ruangan baru.');
     }
 }

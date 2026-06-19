@@ -9,11 +9,30 @@ import PrimaryButton from "@/Components/PrimaryButton";
 import SecondaryButton from "@/Components/SecondaryButton";
 import { formatDate } from "@/Helpers/date";
 
-export default function Show({ auth, equipment }) {
+export default function Show({ auth, equipment, rooms }) {
+    const isAdmin = auth.user.role === "admin";
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isMoveModalOpen, setIsMoveModalOpen] = useState(false);
+    
+    // STATE BARU: Untuk mendeteksi apakah sedang mode Edit Kalibrasi
+    const [isEditCalibration, setIsEditCalibration] = useState(false);
+
+    const {
+        data: moveData,
+        setData: setMoveData,
+        post: postMove,
+        processing: moveProcessing,
+        errors: moveErrors,
+        reset: resetMove,
+    } = useForm({
+        to_room_id: "",
+        notes: "",
+    });
 
     const { data, setData, post, processing, errors, reset, clearErrors } =
         useForm({
+            id: "", // Tambahan: untuk menyimpan ID kalibrasi yang mau di-edit
+            _method: "post", // Tambahan: Trik Laravel untuk handle file upload saat Update
             certificate_number: "",
             testing_institution: "",
             calibration_date: "",
@@ -23,20 +42,51 @@ export default function Show({ auth, equipment }) {
             certificate_file: null,
         });
 
-    const openModal = () => {
+    // FUNGSI MODIFIKASI: Menangani Buka Modal (Tambah maupun Edit)
+    const openModal = (calibration = null) => {
         clearErrors();
-        reset();
+        if (calibration) {
+            // Mode EDIT
+            setIsEditCalibration(true);
+            setData({
+                id: calibration.id,
+                _method: "put", // Paksa Laravel membacanya sebagai route PUT
+                certificate_number: calibration.certificate_number || "",
+                testing_institution: calibration.testing_institution || "",
+                // Potong tanggal agar sesuai format browser YYYY-MM-DD
+                calibration_date: calibration.calibration_date ? calibration.calibration_date.substring(0, 10) : "",
+                next_calibration_date: calibration.next_calibration_date ? calibration.next_calibration_date.substring(0, 10) : "",
+                result: calibration.result || "laik",
+                notes: calibration.notes || "",
+                certificate_file: null, // Jangan tampilkan file lama, kosongkan untuk upload baru
+            });
+        } else {
+            // Mode TAMBAH BARU
+            setIsEditCalibration(false);
+            reset();
+            setData("_method", "post"); // Kembalikan ke normal
+        }
         setIsModalOpen(true);
     };
 
+    // FUNGSI MODIFIKASI: Menangani Submit Form (Tambah maupun Edit)
     const submit = (e) => {
         e.preventDefault();
-        post(route("calibrations.store", equipment.id), {
-            onSuccess: () => {
-                setIsModalOpen(false);
-                reset();
-            },
-        });
+        if (isEditCalibration) {
+            post(route("calibrations.update", data.id), {
+                onSuccess: () => {
+                    setIsModalOpen(false);
+                    reset();
+                },
+            });
+        } else {
+            post(route("calibrations.store", equipment.id), {
+                onSuccess: () => {
+                    setIsModalOpen(false);
+                    reset();
+                },
+            });
+        }
     };
 
     const handleDelete = (id) => {
@@ -69,7 +119,15 @@ export default function Show({ auth, equipment }) {
         );
     };
 
-    const isAdmin = auth.user.role === 'admin';
+    const handleMoveSubmit = (e) => {
+        e.preventDefault();
+        postMove(route("equipments.move", equipment.id), {
+            onSuccess: () => {
+                setIsMoveModalOpen(false);
+                resetMove();
+            },
+        });
+    };
 
     return (
         <AuthenticatedLayout
@@ -95,12 +153,93 @@ export default function Show({ auth, equipment }) {
                     {/* INFO ALAT */}
                     <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div className="md:col-span-2 space-y-2">
-                            <h3 className="text-2xl font-bold text-gray-900">
-                                {equipment.name}
-                            </h3>
-                            <p className="text-gray-500 font-mono">
-                                {equipment.inventory_number}
-                            </p>
+                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+                                <div>
+                                    <h3 className="text-2xl font-bold text-gray-900">
+                                        {equipment.name}
+                                    </h3>
+                                    <p className="text-gray-500 font-mono mt-1">
+                                        {equipment.inventory_number}
+                                    </p>
+                                </div>
+
+                                {/* Container tombol di kanan */}
+                                <div className="flex flex-row items-center gap-3 mt-3 sm:mt-0">
+                                    {isAdmin && (
+                                        <button
+                                            onClick={() =>
+                                                setIsMoveModalOpen(true)
+                                            }
+                                            className="px-4 py-2 bg-orange-500 text-white rounded shadow-sm hover:bg-orange-600 font-semibold text-sm transition"
+                                        >
+                                            <svg
+                                                className="w-4 h-4 inline mr-2"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth="2"
+                                                    d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"
+                                                />
+                                            </svg>
+                                            Pindah Ruangan
+                                        </button>
+                                    )}
+
+                                    {/* Tombol Generate & Cetak QR */}
+                                    {!equipment.qr ? (
+                                        <Link
+                                            href={route(
+                                                "equipments.generateQr",
+                                                equipment.id,
+                                            )}
+                                            method="post"
+                                            as="button"
+                                            className="px-4 py-2 bg-purple-600 text-white rounded shadow-sm hover:bg-purple-700 font-semibold text-sm transition"
+                                        >
+                                            Generate QR Code
+                                        </Link>
+                                    ) : (
+                                        <div className="flex flex-col items-center bg-white p-2 rounded border shadow-sm">
+                                            <img
+                                                src={route(
+                                                    "qr.render",
+                                                    equipment.qr.qr_code,
+                                                )}
+                                                alt={`QR Code ${equipment.name}`}
+                                                className="w-20 h-20"
+                                            />
+                                            <a
+                                                href={route(
+                                                    "qr.render",
+                                                    equipment.qr.qr_code,
+                                                )}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-[11px] font-bold text-purple-600 hover:text-purple-800 hover:underline mt-2 flex items-center"
+                                            >
+                                                <svg
+                                                    className="w-3 h-3 mr-1"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    viewBox="0 0 24 24"
+                                                >
+                                                    <path
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        strokeWidth="2"
+                                                        d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
+                                                    />
+                                                </svg>
+                                                Cetak QR
+                                            </a>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
                             <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
                                 <div>
                                     <span className="text-gray-500 block">
@@ -186,11 +325,7 @@ export default function Show({ auth, equipment }) {
                                                 className="border-b hover:bg-gray-50"
                                             >
                                                 <td className="px-6 py-4 font-medium">
-                                                    {new Date(
-                                                        rep.created_at,
-                                                    ).toLocaleDateString(
-                                                        "id-ID",
-                                                    )}
+                                                    {formatDate(rep.created_at)}
                                                 </td>
                                                 <td className="px-6 py-4 font-mono text-blue-600">
                                                     {rep.ticket_number}
@@ -268,7 +403,7 @@ export default function Show({ auth, equipment }) {
                             </h3>
                             {isAdmin && (
                                 <button
-                                    onClick={openModal}
+                                    onClick={() => openModal()} // Panggil tanpa argumen untuk Tambah
                                     className="px-4 py-2 bg-blue-600 text-white rounded shadow-sm hover:bg-blue-700 text-sm font-semibold"
                                 >
                                     + Tambah Riwayat Kalibrasi
@@ -305,7 +440,9 @@ export default function Show({ auth, equipment }) {
                                                 className="border-b hover:bg-gray-50"
                                             >
                                                 <td className="px-6 py-4">
-                                                    {cal.calibration_date}
+                                                    {formatDate(
+                                                        cal.calibration_date,
+                                                    )}
                                                 </td>
                                                 <td className="px-6 py-4 font-medium text-gray-900">
                                                     {cal.testing_institution ||
@@ -349,16 +486,25 @@ export default function Show({ auth, equipment }) {
                                                 </td>
                                                 <td className="px-6 py-4 text-center">
                                                     {isAdmin ? (
-                                                        <button
-                                                            onClick={() =>
-                                                                handleDelete(
-                                                                    cal.id,
-                                                                )
-                                                            }
-                                                            className="text-red-600 hover:underline"
-                                                        >
-                                                            Hapus
-                                                        </button>
+                                                        <>
+                                                            {/* TOMBOL EDIT DITAMBAHKAN DI SINI */}
+                                                            <button
+                                                                onClick={() => openModal(cal)}
+                                                                className="text-blue-600 hover:underline mr-4 font-medium"
+                                                            >
+                                                                Edit
+                                                            </button>
+                                                            <button
+                                                                onClick={() =>
+                                                                    handleDelete(
+                                                                        cal.id,
+                                                                    )
+                                                                }
+                                                                className="text-red-600 hover:underline font-medium"
+                                                            >
+                                                                Hapus
+                                                            </button>
+                                                        </>
                                                     ) : (
                                                         <span className="text-gray-400">
                                                             -
@@ -383,10 +529,80 @@ export default function Show({ auth, equipment }) {
                             </table>
                         </div>
                     </div>
+
+                    {/* RIWAYAT PERPINDAHAN / MUTASI ALAT */}
+                    <div className="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100 mb-6">
+                        <div className="p-6 border-b border-gray-100 bg-gray-50">
+                            <h3 className="text-lg font-bold text-gray-900">
+                                Riwayat Perpindahan / Mutasi
+                            </h3>
+                        </div>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-sm text-left text-gray-600">
+                                <thead className="bg-white border-b text-gray-700 uppercase text-xs">
+                                    <tr>
+                                        <th className="px-6 py-4">
+                                            Waktu Pindah
+                                        </th>
+                                        <th className="px-6 py-4">
+                                            Dari Ruangan
+                                        </th>
+                                        <th className="px-6 py-4">
+                                            Ke Ruangan
+                                        </th>
+                                        <th className="px-6 py-4">
+                                            Dipindahkan Oleh
+                                        </th>
+                                        <th className="px-6 py-4">
+                                            Keterangan
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {equipment.movements &&
+                                        equipment.movements.map((move) => (
+                                            <tr
+                                                key={move.id}
+                                                className="border-b hover:bg-gray-50"
+                                            >
+                                                <td className="px-6 py-4 font-medium">
+                                                    {formatDate(move.moved_at)}
+                                                </td>
+                                                <td className="px-6 py-4 text-red-600 font-medium">
+                                                    {move.from_room?.name ||
+                                                        "Gudang/Awal"}
+                                                </td>
+                                                <td className="px-6 py-4 text-green-600 font-medium">
+                                                    {move.to_room?.name}
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    {move.mover?.name}
+                                                </td>
+                                                <td className="px-6 py-4 italic text-gray-500">
+                                                    {move.notes || "-"}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    {(!equipment.movements ||
+                                        equipment.movements.length === 0) && (
+                                        <tr>
+                                            <td
+                                                colSpan="5"
+                                                className="px-6 py-8 text-center text-gray-500"
+                                            >
+                                                Belum ada riwayat perpindahan
+                                                untuk alat ini.
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            {/* MODAL TAMBAH KALIBRASI */}
+            {/* MODAL TAMBAH & EDIT KALIBRASI */}
             <Modal
                 show={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
@@ -394,7 +610,7 @@ export default function Show({ auth, equipment }) {
             >
                 <form onSubmit={submit} className="p-6">
                     <h2 className="text-xl font-bold text-gray-900 border-b pb-3 mb-4">
-                        Input Hasil Kalibrasi
+                        {isEditCalibration ? "Update Hasil Kalibrasi" : "Input Hasil Kalibrasi"}
                     </h2>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -501,7 +717,7 @@ export default function Show({ auth, equipment }) {
                         <div>
                             <InputLabel
                                 htmlFor="certificate_file"
-                                value="Upload Dokumen Sertifikat (PDF/JPG)"
+                                value={isEditCalibration ? "Update Sertifikat (Opsional)" : "Upload Dokumen Sertifikat (PDF/JPG)"}
                             />
                             <input
                                 id="certificate_file"
@@ -515,6 +731,9 @@ export default function Show({ auth, equipment }) {
                                 }
                                 accept=".pdf,.jpg,.jpeg,.png"
                             />
+                            {isEditCalibration && (
+                                <p className="text-xs text-gray-400 mt-1">Biarkan kosong jika tidak ingin mengubah file sertifikat.</p>
+                            )}
                             <InputError
                                 message={errors.certificate_file}
                                 className="mt-2"
@@ -547,7 +766,105 @@ export default function Show({ auth, equipment }) {
                         >
                             {processing
                                 ? "Menyimpan..."
-                                : "Simpan Data Kalibrasi"}
+                                : isEditCalibration ? "Update Data Kalibrasi" : "Simpan Data Kalibrasi"}
+                        </PrimaryButton>
+                    </div>
+                </form>
+            </Modal>
+
+            {/* MODAL PINDAH RUANGAN */}
+            <Modal
+                show={isMoveModalOpen}
+                onClose={() => setIsMoveModalOpen(false)}
+                maxWidth="md"
+            >
+                <form onSubmit={handleMoveSubmit} className="p-6">
+                    <h2 className="text-xl font-bold text-gray-900 border-b pb-3 mb-4">
+                        Mutasi Alat ke Ruangan Lain
+                    </h2>
+
+                    <div className="space-y-4">
+                        <div className="bg-gray-50 p-3 rounded-md border text-sm">
+                            <span className="text-gray-500">
+                                Lokasi Saat Ini:{" "}
+                            </span>
+                            <strong className="text-gray-900">
+                                {equipment.room?.name || "Belum ada ruangan"}
+                            </strong>
+                        </div>
+
+                        <div>
+                            <InputLabel
+                                htmlFor="to_room_id"
+                                value="Pindah Ke Ruangan"
+                            />
+                            <select
+                                id="to_room_id"
+                                className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm mt-1 block w-full bg-white"
+                                value={moveData.to_room_id}
+                                onChange={(e) =>
+                                    setMoveData("to_room_id", e.target.value)
+                                }
+                                required
+                            >
+                                <option value="">
+                                    -- Pilih Ruangan Tujuan --
+                                </option>
+                                {rooms &&
+                                    rooms.map((room) => (
+                                        <option
+                                            key={room.id}
+                                            value={room.id}
+                                            disabled={
+                                                room.id === equipment.room_id
+                                            }
+                                        >
+                                            {room.name}{" "}
+                                            {room.id === equipment.room_id
+                                                ? "(Lokasi Saat Ini)"
+                                                : ""}
+                                        </option>
+                                    ))}
+                            </select>
+                            <InputError
+                                message={moveErrors.to_room_id}
+                                className="mt-2"
+                            />
+                        </div>
+
+                        <div>
+                            <InputLabel
+                                htmlFor="move_notes"
+                                value="Keterangan / Alasan Pindah (Opsional)"
+                            />
+                            <textarea
+                                id="move_notes"
+                                className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm mt-1 block w-full bg-white"
+                                rows="3"
+                                value={moveData.notes}
+                                onChange={(e) =>
+                                    setMoveData("notes", e.target.value)
+                                }
+                                placeholder="Contoh: Dipinjam sementara untuk ruang operasi..."
+                            ></textarea>
+                            <InputError
+                                message={moveErrors.notes}
+                                className="mt-2"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="mt-6 flex justify-end gap-3">
+                        <SecondaryButton
+                            onClick={() => setIsMoveModalOpen(false)}
+                        >
+                            Batal
+                        </SecondaryButton>
+                        <PrimaryButton
+                            className="bg-orange-500 hover:bg-orange-600 focus:bg-orange-600"
+                            disabled={moveProcessing}
+                        >
+                            {moveProcessing ? "Memproses..." : "Pindahkan Alat"}
                         </PrimaryButton>
                     </div>
                 </form>

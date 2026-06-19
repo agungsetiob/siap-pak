@@ -57,7 +57,9 @@ export default function Index({ auth, equipments, rooms, filters }) {
                 brand: equipment.brand || "",
                 serial_number: equipment.serial_number || "",
                 condition: equipment.condition,
-                next_calibration_date: equipment.next_calibration_date || "",
+                next_calibration_date: equipment.next_calibration_date 
+                    ? equipment.next_calibration_date.substring(0, 10) 
+                    : "",
             });
         } else {
             setIsEditing(false);
@@ -455,19 +457,25 @@ export default function Index({ auth, equipments, rooms, filters }) {
                             <TextInput
                                 id="next_calibration_date"
                                 type="date"
-                                className="mt-1 block w-full md:w-1/2 bg-gray-50"
+                                className={`mt-1 block w-full md:w-1/2 ${isEditing ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-gray-50'}`}
                                 value={data.next_calibration_date}
                                 onChange={(e) =>
-                                    setData(
-                                        "next_calibration_date",
-                                        e.target.value,
-                                    )
+                                    setData("next_calibration_date", e.target.value)
                                 }
+                                disabled={isEditing} 
                             />
-                            <p className="text-xs text-gray-500 mt-1">
-                                Biarkan kosong jika alat tidak memerlukan
-                                kalibrasi rutin.
-                            </p>
+                            
+                            {isEditing ? (
+                                <p className="text-xs text-red-500 mt-1 font-medium">
+                                    <svg className="w-3 h-3 inline mr-1 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                                    Untuk mengubah tanggal kalibrasi, gunakan menu "Tambah Riwayat Kalibrasi" di Halaman Detail.
+                                </p>
+                            ) : (
+                                <p className="text-xs text-gray-500 mt-1">
+                                    Biarkan kosong jika alat tidak memerlukan kalibrasi rutin.
+                                </p>
+                            )}
+
                             <InputError
                                 message={errors.next_calibration_date}
                                 className="mt-2"

@@ -10,8 +10,8 @@ return new class extends Migration
     {
         Schema::create('rooms', function (Blueprint $table) {
             $table->id();
-            $table->string('name'); // Contoh: IGD, ICU, Poli Gigi
-            $table->string('code')->unique()->nullable(); // Kode ruangan jika ada
+            $table->string('name');
+            $table->string('code')->unique()->nullable();
             $table->timestamps();
         });
     }

@@ -28,7 +28,7 @@ class Equipment extends Model
     protected function casts(): array
     {
         return [
-            'next_calibration_date' => 'date',
+            'next_calibration_date' => 'datetime',
         ];
     }
 
@@ -47,11 +47,20 @@ class Equipment extends Model
         return $this->hasMany(Calibration::class);
     }
 
+    public function movements()
+    {
+        return $this->hasMany(EquipmentMovement::class)->orderBy('moved_at', 'desc');
+    }
+
     /**
      * Shortcut untuk mendapatkan data kalibrasi terakhir dari alat ini.
      */
     public function latestCalibration(): HasOne
     {
         return $this->hasOne(Calibration::class)->latestOfMany('calibration_date');
+    }
+    public function qr()
+    {
+        return $this->hasOne(EquipmentQr::class);
     }
 }
