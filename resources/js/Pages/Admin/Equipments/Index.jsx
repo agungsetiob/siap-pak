@@ -105,7 +105,7 @@ export default function Index({ auth, equipments, rooms, filters }) {
                 </h2>
             }
         >
-            <Head title="Alat Kesehatan - SIAP PAK" />
+            <Head title="Alat Kesehatan - SIMAK" />
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">

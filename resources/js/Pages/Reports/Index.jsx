@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import { Head, useForm, Link } from "@inertiajs/react";
+import { Head, useForm, Link, router } from "@inertiajs/react";
 import Modal from "@/Components/Modal";
-import TextInput from "@/Components/TextInput";
 import InputLabel from "@/Components/InputLabel";
 import InputError from "@/Components/InputError";
 import PrimaryButton from "@/Components/PrimaryButton";
@@ -64,7 +63,7 @@ export default function Index({ auth, reports, equipments }) {
                 </h2>
             }
         >
-            <Head title="Laporan - SIAP PAK" />
+            <Head title="Laporan - SIMAK" />
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -83,12 +82,12 @@ export default function Index({ auth, reports, equipments }) {
 
                             {/* Tombol Buat Laporan HANYA muncul untuk Ruangan */}
                             {/* {isRuangan && ( */}
-                                <button
-                                    onClick={openModal}
-                                    className="px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold shadow-sm transition"
-                                >
-                                    + Buat Laporan
-                                </button>
+                            <button
+                                onClick={openModal}
+                                className="px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold shadow-sm transition"
+                            >
+                                + Buat Laporan
+                            </button>
                             {/* )} */}
                         </div>
 
@@ -191,6 +190,18 @@ export default function Index({ auth, reports, equipments }) {
                                     )}
                                 </tbody>
                             </table>
+                        </div>
+                        {/* Pagination */}
+                        <div className="mt-6 flex flex-wrap gap-1 justify-end">
+                            {reports.links.map((link, index) => (
+                                <button
+                                    key={index}
+                                    onClick={() => link.url && router.get(link.url)}
+                                    disabled={!link.url}
+                                    className={`px-3 py-1.5 border rounded-md text-sm transition-colors ${link.active ? 'bg-gray-800 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'} ${!link.url && 'opacity-40 cursor-not-allowed'}`}
+                                    dangerouslySetInnerHTML={{ __html: link.label }}
+                                />
+                            ))}
                         </div>
                     </div>
                 </div>

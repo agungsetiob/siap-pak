@@ -31,6 +31,7 @@ class CalibrationController extends Controller
     public function store(Request $request, Equipment $equipment)
     {
         $request->validate([
+            'report_id' => 'nullable|exists:reports,id',
             'certificate_number' => 'nullable|string|max:255',
             'testing_institution' => 'nullable|string|max:255',
             'calibration_date' => 'required|date',
@@ -47,6 +48,7 @@ class CalibrationController extends Controller
 
         // Simpan riwayat kalibrasi
         $equipment->calibrations()->create([
+            'report_id' => $request->report_id,
             'certificate_number' => $request->certificate_number,
             'certificate_file' => $filePath,
             'testing_institution' => $request->testing_institution,
@@ -65,9 +67,10 @@ class CalibrationController extends Controller
         return back()->with('success', 'Riwayat kalibrasi berhasil ditambahkan.');
     }
 
-    public function update(Request $request, \App\Models\Calibration $calibration)
+    public function update(Request $request, Calibration $calibration)
     {
         $request->validate([
+            'report_id' => 'nullable|exists:reports,id',
             'calibration_date' => 'required|date',
             'next_calibration_date' => 'required|date|after:calibration_date',
             'result' => 'required|string',
@@ -75,6 +78,7 @@ class CalibrationController extends Controller
         ]);
 
         $calibration->update([
+            'report_id' => $request->report_id,
             'calibration_date' => $request->calibration_date,
             'next_calibration_date' => $request->next_calibration_date,
             'result' => $request->result,

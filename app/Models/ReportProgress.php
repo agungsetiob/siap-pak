@@ -4,9 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class ReportProgress extends Model
 {
+    use HasFactory;
     protected $table = 'report_progress';
 
     protected $fillable = [

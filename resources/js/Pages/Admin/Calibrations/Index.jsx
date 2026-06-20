@@ -31,7 +31,7 @@ export default function Index({ auth, calibrations, upcomingCalibrations }) {
             user={auth.user}
             header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Manajemen Kalibrasi</h2>}
         >
-            <Head title="Jadwal & Riwayat Kalibrasi - SIAP PAK" />
+            <Head title="Jadwal & Riwayat Kalibrasi - SIMAK" />
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8">

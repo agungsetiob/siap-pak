@@ -18,7 +18,7 @@ export default function Trashed({ auth, equipments }) {
 
     return (
         <AuthenticatedLayout user={auth.user} header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Tong Sampah: Alat Kesehatan</h2>}>
-            <Head title="Arsip Alat - SIAP PAK" />
+            <Head title="Arsip Alat - SIMAK" />
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">

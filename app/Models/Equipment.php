@@ -8,22 +8,22 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 
+#[Fillable([
+    'room_id',
+    'inventory_number',
+    'name',
+    'brand',
+    'serial_number',
+    'condition',
+    'next_calibration_date',
+])]
 class Equipment extends Model
 {
     use HasFactory, SoftDeletes;
 
     protected $table = 'equipments';
-
-    protected $fillable = [
-        'room_id',
-        'inventory_number',
-        'name',
-        'brand',
-        'serial_number',
-        'condition',
-        'next_calibration_date',
-    ];
 
     protected function casts(): array
     {

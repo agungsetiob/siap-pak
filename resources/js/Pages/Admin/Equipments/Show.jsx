@@ -31,8 +31,9 @@ export default function Show({ auth, equipment, rooms }) {
 
     const { data, setData, post, processing, errors, reset, clearErrors } =
         useForm({
-            id: "", // Tambahan: untuk menyimpan ID kalibrasi yang mau di-edit
-            _method: "post", // Tambahan: Trik Laravel untuk handle file upload saat Update
+            id: "",
+            _method: "post",
+            report_id: "",
             certificate_number: "",
             testing_institution: "",
             calibration_date: "",
@@ -53,7 +54,7 @@ export default function Show({ auth, equipment, rooms }) {
                 _method: "put", // Paksa Laravel membacanya sebagai route PUT
                 certificate_number: calibration.certificate_number || "",
                 testing_institution: calibration.testing_institution || "",
-                // Potong tanggal agar sesuai format browser YYYY-MM-DD
+                report_id: calibration.report_id || "",
                 calibration_date: calibration.calibration_date ? calibration.calibration_date.substring(0, 10) : "",
                 next_calibration_date: calibration.next_calibration_date ? calibration.next_calibration_date.substring(0, 10) : "",
                 result: calibration.result || "laik",
@@ -146,7 +147,7 @@ export default function Show({ auth, equipment, rooms }) {
                 </div>
             }
         >
-            <Head title={`Detail ${equipment.name} - SIAP PAK`} />
+            <Head title={`Detail ${equipment.name} - SIMAK`} />
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
@@ -440,8 +441,16 @@ export default function Show({ auth, equipment, rooms }) {
                                                 className="border-b hover:bg-gray-50"
                                             >
                                                 <td className="px-6 py-4">
-                                                    {formatDate(
-                                                        cal.calibration_date,
+                                                    <div className="font-bold text-gray-900">
+                                                        {formatDate(cal.calibration_date)}
+                                                    </div>
+                                                    {cal.report && (
+                                                        <Link 
+                                                            href={route('reports.show', cal.report.id)} 
+                                                            className="text-[11px] bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full inline-block mt-1 hover:underline"
+                                                        >
+                                                            Terkait: {cal.report.ticket_number}
+                                                        </Link>
                                                     )}
                                                 </td>
                                                 <td className="px-6 py-4 font-medium text-gray-900">
@@ -738,6 +747,30 @@ export default function Show({ auth, equipment, rooms }) {
                                 message={errors.certificate_file}
                                 className="mt-2"
                             />
+                        </div>
+                        {/* Input Pilihan Tiket Referensi */}
+                        <div className="md:col-span-2">
+                            <InputLabel
+                                htmlFor="report_id"
+                                value="Referensi Tiket Perbaikan (Opsional)"
+                            />
+                            <select
+                                id="report_id"
+                                className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm mt-1 block w-full bg-white"
+                                value={data.report_id}
+                                onChange={(e) => setData("report_id", e.target.value)}
+                            >
+                                <option value="">-- Tidak Terkait Tiket Manapun --</option>
+                                {equipment.reports && equipment.reports.map((rep) => (
+                                    <option key={rep.id} value={rep.id}>
+                                        {rep.ticket_number} - {rep.description.substring(0, 50)}... ({formatDate(rep.created_at)})
+                                    </option>
+                                ))}
+                            </select>
+                            <p className="text-xs text-gray-500 mt-1">
+                                Pilih tiket jika kalibrasi ini dilakukan sebagai tindak lanjut dari laporan kerusakan.
+                            </p>
+                            <InputError message={errors.report_id} className="mt-2" />
                         </div>
                         <div className="md:col-span-2">
                             <InputLabel

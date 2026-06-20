@@ -20,7 +20,7 @@ export default function AuthenticatedLayout({ header, children }) {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between h-16">
                         <div className="flex">
-                            {/* Logo & Branding SIAP PAK */}
+                            {/* Logo & Branding SIMAK */}
                             <div className="shrink-0 flex items-center">
                                 <Link
                                     href={route("dashboard")}
@@ -30,7 +30,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                         +
                                     </div>
                                     <span className="font-bold text-xl tracking-tight text-gray-800">
-                                        SIAP PAK
+                                        SIMAK
                                     </span>
                                 </Link>
                             </div>

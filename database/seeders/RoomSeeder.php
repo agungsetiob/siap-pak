@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use App\Models\Room;
 
 class RoomSeeder extends Seeder
 {
@@ -12,25 +13,26 @@ class RoomSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('rooms')->insert([
-            [
-                'name' => 'IGD',
-                'code' => 'IGD',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'name' => 'ICU',
-                'code' => 'ICU',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'name' => 'Poli Gigi',
-                'code' => 'PG',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-        ]);
+        // DB::table('rooms')->insert([
+        //     [
+        //         'name' => 'IGD',
+        //         'code' => 'IGD',
+        //         'created_at' => now(),
+        //         'updated_at' => now(),
+        //     ],
+        //     [
+        //         'name' => 'ICU',
+        //         'code' => 'ICU',
+        //         'created_at' => now(),
+        //         'updated_at' => now(),
+        //     ],
+        //     [
+        //         'name' => 'Poli Gigi',
+        //         'code' => 'PG',
+        //         'created_at' => now(),
+        //         'updated_at' => now(),
+        //     ],
+        // ]);
+        Room::factory()->count(30)->create();
     }
 }

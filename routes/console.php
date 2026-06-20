@@ -32,7 +32,7 @@ Schedule::call(function () {
     }
 
     if ($message !== "") {
-        $header = "⚠️ *Sistem Notifikasi SIAP PAK*\n\n";
+        $header = "⚠️ *Sistem Notifikasi SIMAK*\n\n";
         $footer = "\nMohon segera persiapkan dokumen dan hubungi vendor terkait.";
         $fonnte->sendMessage($adminPhone, $header . $message . $footer);
     }

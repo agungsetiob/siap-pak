@@ -51,7 +51,7 @@ export default function Index({ auth, users, rooms, errors: pageErrors }) {
             user={auth.user}
             header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Manajemen Pengguna</h2>}
         >
-            <Head title="Manajemen Pengguna - SIAP PAK" />
+            <Head title="Manajemen Pengguna - SIMAK" />
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">

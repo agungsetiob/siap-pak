@@ -89,9 +89,11 @@ class EquipmentController extends Controller
         }
 
         $equipment->load([
-            'room', 
+            'room',
+            'calibrations.report',
             'calibrations' => function($q) { $q->latest('calibration_date'); },
-            'reports' => function($q) { $q->latest()->take(5); },
+            'calibrations.admin',
+            'reports' => function($q) { $q->latest()->take(7); },
             'movements.fromRoom',
             'movements.toRoom',
             'movements.mover',

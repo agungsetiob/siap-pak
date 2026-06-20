@@ -65,7 +65,7 @@ export default function Index({ auth, rooms, filters, errors: pageErrors }) {
             user={auth.user}
             header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Master Ruangan / Unit</h2>}
         >
-            <Head title="Master Ruangan - SIAP PAK" />
+            <Head title="Master Ruangan - SIMAK" />
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">

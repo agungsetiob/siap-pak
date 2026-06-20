@@ -58,7 +58,7 @@ export default function Show({ auth, report }) {
                 </div>
             }
         >
-            <Head title={`Tiket ${report.ticket_number} - SIAP PAK`} />
+            <Head title={`Tiket ${report.ticket_number} - SIMAK`} />
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
