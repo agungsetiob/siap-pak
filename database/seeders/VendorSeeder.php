@@ -1,0 +1,23 @@
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Seeder;
+
+class VendorSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     */
+    public function run(): void
+    {
+        \App\Models\Vendor::factory(10)->create();
+
+        \App\Models\Equipment::factory(50)->create([
+            'vendor_id' => \App\Models\Vendor::query()
+                ->inRandomOrder()
+                ->value('id'),
+        ]);
+    }
+}

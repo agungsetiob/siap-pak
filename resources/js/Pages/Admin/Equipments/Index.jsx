@@ -9,7 +9,7 @@ import PrimaryButton from "@/Components/PrimaryButton";
 import SecondaryButton from "@/Components/SecondaryButton";
 import { formatDate } from "@/Helpers/date";
 
-export default function Index({ auth, equipments, rooms, filters }) {
+export default function Index({ auth, equipments, rooms, vendors, filters }) {
     const [search, setSearch] = useState(filters?.search || "");
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -34,6 +34,8 @@ export default function Index({ auth, equipments, rooms, filters }) {
         serial_number: "",
         condition: "baik",
         next_calibration_date: "",
+        price: 0,
+        vendor_id: "",
     });
 
     const handleSearch = (e) => {
@@ -60,6 +62,8 @@ export default function Index({ auth, equipments, rooms, filters }) {
                 next_calibration_date: equipment.next_calibration_date 
                     ? equipment.next_calibration_date.substring(0, 10) 
                     : "",
+                price: equipment.price || 0,
+                vendor_id: equipment.vendor_id || "",
             });
         } else {
             setIsEditing(false);
@@ -405,6 +409,39 @@ export default function Index({ auth, equipments, rooms, filters }) {
                                 message={errors.condition}
                                 className="mt-2"
                             />
+                        </div>
+
+                        {/* --- TAMBAHAN: INPUT HARGA & VENDOR --- */}
+                        <div>
+                            <InputLabel htmlFor="price" value="Harga / Nilai Aset (Rp)" />
+                            <TextInput
+                                id="price"
+                                type="number"
+                                min="0"
+                                className="mt-1 block w-full bg-gray-50"
+                                value={data.price}
+                                onChange={(e) => setData("price", e.target.value)}
+                                placeholder="Cth: 15000000"
+                            />
+                            <InputError message={errors.price} className="mt-2" />
+                        </div>
+
+                        <div>
+                            <InputLabel htmlFor="vendor_id" value="Vendor / Supplier" />
+                            <select
+                                id="vendor_id"
+                                className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm mt-1 block w-full bg-gray-50"
+                                value={data.vendor_id}
+                                onChange={(e) => setData("vendor_id", e.target.value)}
+                            >
+                                <option value="">-- Pilih Vendor (Opsional) --</option>
+                                {vendors && vendors.map((vendor) => (
+                                    <option key={vendor.id} value={vendor.id}>
+                                        {vendor.name}
+                                    </option>
+                                ))}
+                            </select>
+                            <InputError message={errors.vendor_id} className="mt-2" />
                         </div>
 
                         {/* Input: Merk/Brand */}

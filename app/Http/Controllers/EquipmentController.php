@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Equipment;
 use App\Models\EquipmentMovement;
 use App\Models\Room;
+use App\Models\Vendor;
 use Illuminate\Http\Request;
 use \Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -31,10 +32,12 @@ class EquipmentController extends Controller
         }
 
         $equipments = $query->latest()->paginate(10)->withQueryString();
+        $vendors = Vendor::orderBy('name')->get(['id', 'name']);
 
         return Inertia::render('Admin/Equipments/Index', [
             'equipments' => $equipments,
             'rooms' => $rooms,
+            'vendors' => $vendors,
             'filters' => $request->only(['search']),
         ]);
     }
@@ -49,6 +52,8 @@ class EquipmentController extends Controller
             'serial_number' => 'nullable|string|max:255',
             'condition' => 'required|in:baik,rusak_ringan,rusak_berat',
             'next_calibration_date' => 'nullable|date',
+            'price' => 'nullable|numeric|min:0',
+            'vendor_id' => 'nullable|exists:vendors,id',
         ]);
 
         Equipment::create($validated);
@@ -66,6 +71,8 @@ class EquipmentController extends Controller
             'serial_number' => 'nullable|string|max:255',
             'condition' => 'required|in:baik,rusak_ringan,rusak_berat',
             'next_calibration_date' => 'nullable|date',
+            'price' => 'nullable|numeric|min:0',
+            'vendor_id' => 'nullable|exists:vendors,id',
         ]);
 
         $equipment->update($validated);
@@ -97,7 +104,8 @@ class EquipmentController extends Controller
             'movements.fromRoom',
             'movements.toRoom',
             'movements.mover',
-            'qr'
+            'qr',
+            'vendor',
         ]);
 
         $rooms = Room::orderBy('name')->get(['id', 'name']);

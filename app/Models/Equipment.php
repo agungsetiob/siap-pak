@@ -16,6 +16,8 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
     'name',
     'brand',
     'serial_number',
+    'vendor_id',
+    'price',
     'condition',
     'next_calibration_date',
 ])]
@@ -29,6 +31,7 @@ class Equipment extends Model
     {
         return [
             'next_calibration_date' => 'datetime',
+            'price' => 'integer',
         ];
     }
 
@@ -62,5 +65,10 @@ class Equipment extends Model
     public function qr()
     {
         return $this->hasOne(EquipmentQr::class);
+    }
+
+    public function vendor(): BelongsTo
+    {
+        return $this->belongsTo(Vendor::class);
     }
 }

@@ -7,6 +7,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\VendorController;
 use App\Http\Controllers\QrController;
 use Illuminate\Support\Facades\Route;
 
@@ -67,6 +68,8 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::post('/equipments/{equipment}/move', [EquipmentController::class, 'move'])->name('equipments.move');
 
     Route::post('/equipments/{equipment}/generate-qr', [QrController::class, 'generate'])->name('equipments.generateQr');
+
+    Route::resource('vendors', VendorController::class)->except(['create', 'show', 'edit']);
 });
 
 require __DIR__.'/auth.php';

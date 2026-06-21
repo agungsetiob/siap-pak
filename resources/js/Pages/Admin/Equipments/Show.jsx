@@ -13,7 +13,7 @@ export default function Show({ auth, equipment, rooms }) {
     const isAdmin = auth.user.role === "admin";
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isMoveModalOpen, setIsMoveModalOpen] = useState(false);
-    
+
     // STATE BARU: Untuk mendeteksi apakah sedang mode Edit Kalibrasi
     const [isEditCalibration, setIsEditCalibration] = useState(false);
 
@@ -274,6 +274,26 @@ export default function Show({ auth, equipment, rooms }) {
                                         {equipment.condition.replace("_", " ")}
                                     </span>
                                 </div>
+                                <div>
+                                    <span className="text-gray-500 block">
+                                        Vendor / Supplier
+                                    </span>
+                                    <span className="font-medium text-blue-700">
+                                        {equipment.vendor?.name || "-"}
+                                    </span>
+                                </div>
+                                <div>
+                                    <span className="text-gray-500 block">
+                                        Nilai Aset (Harga)
+                                    </span>
+                                    <span className="font-bold text-green-700">
+                                        {new Intl.NumberFormat("id-ID", {
+                                            style: "currency",
+                                            currency: "IDR",
+                                            minimumFractionDigits: 0,
+                                        }).format(equipment.price || 0)}
+                                    </span>
+                                </div>
                             </div>
                         </div>
                         <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 flex flex-col justify-center items-center text-center">
@@ -283,8 +303,8 @@ export default function Show({ auth, equipment, rooms }) {
                             <p className="text-xl font-bold text-blue-600">
                                 {equipment.next_calibration_date
                                     ? formatDate(
-                                          equipment.next_calibration_date,
-                                      )
+                                        equipment.next_calibration_date,
+                                    )
                                     : "Belum Terjadwal"}
                             </p>
                         </div>
@@ -351,17 +371,16 @@ export default function Show({ auth, equipment, rooms }) {
                                                 <td className="px-6 py-4 text-center">
                                                     <span
                                                         className={`px-2 py-1 rounded-full text-xs font-bold uppercase tracking-wider
-                                                    ${
-                                                        rep.status === "selesai"
-                                                            ? "bg-green-100 text-green-800"
-                                                            : rep.status ===
-                                                                "menunggu"
-                                                              ? "bg-red-100 text-red-800"
-                                                              : rep.status ===
-                                                                  "diproses"
-                                                                ? "bg-yellow-100 text-yellow-800"
-                                                                : "bg-gray-100 text-gray-800"
-                                                    }`}
+                                                    ${rep.status === "selesai"
+                                                                ? "bg-green-100 text-green-800"
+                                                                : rep.status ===
+                                                                    "menunggu"
+                                                                    ? "bg-red-100 text-red-800"
+                                                                    : rep.status ===
+                                                                        "diproses"
+                                                                        ? "bg-yellow-100 text-yellow-800"
+                                                                        : "bg-gray-100 text-gray-800"
+                                                            }`}
                                                     >
                                                         {rep.status}
                                                     </span>
@@ -381,16 +400,16 @@ export default function Show({ auth, equipment, rooms }) {
                                         ))}
                                     {(!equipment.reports ||
                                         equipment.reports.length === 0) && (
-                                        <tr>
-                                            <td
-                                                colSpan="7"
-                                                className="px-6 py-8 text-center text-gray-500"
-                                            >
-                                                Belum ada riwayat perbaikan atau
-                                                perawatan untuk alat ini.
-                                            </td>
-                                        </tr>
-                                    )}
+                                            <tr>
+                                                <td
+                                                    colSpan="7"
+                                                    className="px-6 py-8 text-center text-gray-500"
+                                                >
+                                                    Belum ada riwayat perbaikan atau
+                                                    perawatan untuk alat ini.
+                                                </td>
+                                            </tr>
+                                        )}
                                 </tbody>
                             </table>
                         </div>
@@ -445,8 +464,8 @@ export default function Show({ auth, equipment, rooms }) {
                                                         {formatDate(cal.calibration_date)}
                                                     </div>
                                                     {cal.report && (
-                                                        <Link 
-                                                            href={route('reports.show', cal.report.id)} 
+                                                        <Link
+                                                            href={route('reports.show', cal.report.id)}
                                                             className="text-[11px] bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full inline-block mt-1 hover:underline"
                                                         >
                                                             Terkait: {cal.report.ticket_number}
@@ -524,16 +543,16 @@ export default function Show({ auth, equipment, rooms }) {
                                         ))}
                                     {(!equipment.calibrations ||
                                         equipment.calibrations.length ===
-                                            0) && (
-                                        <tr>
-                                            <td
-                                                colSpan="6"
-                                                className="px-6 py-8 text-center text-gray-500"
-                                            >
-                                                Belum ada data kalibrasi.
-                                            </td>
-                                        </tr>
-                                    )}
+                                        0) && (
+                                            <tr>
+                                                <td
+                                                    colSpan="6"
+                                                    className="px-6 py-8 text-center text-gray-500"
+                                                >
+                                                    Belum ada data kalibrasi.
+                                                </td>
+                                            </tr>
+                                        )}
                                 </tbody>
                             </table>
                         </div>
@@ -594,16 +613,16 @@ export default function Show({ auth, equipment, rooms }) {
                                         ))}
                                     {(!equipment.movements ||
                                         equipment.movements.length === 0) && (
-                                        <tr>
-                                            <td
-                                                colSpan="5"
-                                                className="px-6 py-8 text-center text-gray-500"
-                                            >
-                                                Belum ada riwayat perpindahan
-                                                untuk alat ini.
-                                            </td>
-                                        </tr>
-                                    )}
+                                            <tr>
+                                                <td
+                                                    colSpan="5"
+                                                    className="px-6 py-8 text-center text-gray-500"
+                                                >
+                                                    Belum ada riwayat perpindahan
+                                                    untuk alat ini.
+                                                </td>
+                                            </tr>
+                                        )}
                                 </tbody>
                             </table>
                         </div>

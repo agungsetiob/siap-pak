@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Equipment;
 use App\Models\Report;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class DashboardController extends Controller
@@ -36,7 +35,6 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        // 1. Grafik Tren Laporan Bulanan (6 Bulan Terakhir)
         $monthlyTrends = Report::selectRaw("DATE_FORMAT(created_at, '%Y-%m') as month_year, DATE_FORMAT(created_at, '%b') as month_name, COUNT(*) as total")
             ->groupBy('month_year', 'month_name')
             ->orderBy('month_year', 'asc')
@@ -49,7 +47,6 @@ class DashboardController extends Controller
                 ];
             });
 
-        // 2. Grafik Komposisi Kondisi Alat Kesehatan
         $conditionDistribution = Equipment::selectRaw("`condition`, COUNT(*) as total")
             ->groupBy('condition')
             ->get()
@@ -65,12 +62,29 @@ class DashboardController extends Controller
                 ];
             });
 
+        $totalInvestment = Equipment::sum('price');
+
+        $investmentPerRoom = \App\Models\Room::withSum('equipments as total_investment', 'price')
+            ->having('total_investment', '>', 0)
+            ->orderByDesc('total_investment')
+            ->get();
+
+        $investmentPerVendor = \App\Models\Vendor::withSum('equipments as total_investment', 'price')
+            ->having('total_investment', '>', 0)
+            ->orderByDesc('total_investment')
+            ->get();
+
         return Inertia::render('Dashboard/Admin', [
             'stats' => $stats,
             'recentReports' => $recentReports,
             'chartData' => [
                 'monthlyTrends' => $monthlyTrends,
                 'conditionDistribution' => $conditionDistribution,
+            ],
+            'investments' => [
+                'total' => $totalInvestment,
+                'perRoom' => $investmentPerRoom,
+                'perVendor' => $investmentPerVendor,
             ]
         ]);
     }
@@ -80,8 +94,8 @@ class DashboardController extends Controller
         $stats = [
             'my_equipments' => Equipment::where('room_id', $user->room_id)->count(),
             'my_active_reports' => Report::where('reported_by', $user->id)
-                                         ->whereIn('status', ['menunggu', 'diproses'])
-                                         ->count(),
+                ->whereIn('status', ['menunggu', 'diproses'])
+                ->count(),
         ];
 
         $myReports = Report::with('equipment')

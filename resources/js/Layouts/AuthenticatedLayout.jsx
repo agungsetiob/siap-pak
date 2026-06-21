@@ -61,6 +61,9 @@ export default function AuthenticatedLayout({ header, children }) {
                                         >
                                             Master Ruangan
                                         </NavLink>
+                                        <NavLink href={route('vendors.index')} active={route().current('vendors.*')}>
+                                            Master Vendor
+                                        </NavLink>
                                         <NavLink
                                             href={route("calibrations.index")}
                                             active={route().current(
@@ -111,13 +114,13 @@ export default function AuthenticatedLayout({ header, children }) {
                                             {/* Badge Angka Merah */}
                                             {usePage().props.auth.unread_count >
                                                 0 && (
-                                                <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/4 -translate-y-1/4 bg-red-600 rounded-full">
-                                                    {
-                                                        usePage().props.auth
-                                                            .unread_count
-                                                    }
-                                                </span>
-                                            )}
+                                                    <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/4 -translate-y-1/4 bg-red-600 rounded-full">
+                                                        {
+                                                            usePage().props.auth
+                                                                .unread_count
+                                                        }
+                                                    </span>
+                                                )}
                                         </button>
                                     </Dropdown.Trigger>
 

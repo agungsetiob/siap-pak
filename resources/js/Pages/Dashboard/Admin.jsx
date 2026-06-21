@@ -2,10 +2,10 @@ import React from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { formatRupiah } from '@/Helpers/rupiah';
 
-export default function Admin({ auth, stats, recentReports, chartData }) {
-    
-    // Warna untuk Pie Chart Kondisi Alat
+export default function Admin({ auth, stats, recentReports, chartData, investments }) {
+
     const COLORS = ['#10B981', '#F59E0B', '#EF4444'];
 
     const getStatusBadge = (status) => {
@@ -29,7 +29,7 @@ export default function Admin({ auth, stats, recentReports, chartData }) {
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-                    
+
                     {/* Banner Selamat Datang */}
                     <div className="bg-gradient-to-r from-blue-600 to-blue-800 rounded-lg shadow-lg p-6 text-white flex justify-between items-center">
                         <div>
@@ -132,6 +132,59 @@ export default function Admin({ auth, stats, recentReports, chartData }) {
                                         <span className="font-bold text-gray-800">{item.value} Unit</span>
                                     </div>
                                 ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* --- LAPORAN NILAI INVESTASI ASET --- */}
+                    <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden mt-8">
+                        <div className="p-6 bg-gradient-to-r from-green-600 to-green-800 text-white flex justify-between items-center">
+                            <div>
+                                <h3 className="text-lg font-bold">Total Nilai Investasi Alat Kesehatan</h3>
+                                <p className="text-green-100 text-sm mt-1">Akumulasi keseluruhan aset yang terdaftar di sistem.</p>
+                            </div>
+                            <div className="text-3xl font-extrabold tracking-tight">
+                                {formatRupiah(investments.total)}
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x border-t border-gray-100">
+                            {/* Tabel Investasi Per Ruangan */}
+                            <div className="p-6">
+                                <h4 className="text-md font-bold text-gray-800 mb-4 flex items-center">
+                                    <svg className="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+                                    Distribusi Nilai Per Ruangan
+                                </h4>
+                                <div className="space-y-3 max-h-64 overflow-y-auto pr-2">
+                                    {investments.perRoom.map((room) => (
+                                        <div key={room.id} className="flex justify-between items-center border-b border-gray-50 pb-2">
+                                            <span className="text-sm font-medium text-gray-700">{room.name}</span>
+                                            <span className="text-sm font-bold text-green-700">{formatRupiah(room.total_investment)}</span>
+                                        </div>
+                                    ))}
+                                    {investments.perRoom.length === 0 && (
+                                        <p className="text-sm text-gray-500 italic">Belum ada data harga alat per ruangan.</p>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Tabel Investasi Per Vendor */}
+                            <div className="p-6">
+                                <h4 className="text-md font-bold text-gray-800 mb-4 flex items-center">
+                                    <svg className="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                                    Distribusi Nilai Per Vendor
+                                </h4>
+                                <div className="space-y-3 max-h-64 overflow-y-auto pr-2">
+                                    {investments.perVendor.map((vendor) => (
+                                        <div key={vendor.id} className="flex justify-between items-center border-b border-gray-50 pb-2">
+                                            <span className="text-sm font-medium text-gray-700">{vendor.name}</span>
+                                            <span className="text-sm font-bold text-blue-700">{formatRupiah(vendor.total_investment)}</span>
+                                        </div>
+                                    ))}
+                                    {investments.perVendor.length === 0 && (
+                                        <p className="text-sm text-gray-500 italic">Belum ada data harga alat dari vendor.</p>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </div>
