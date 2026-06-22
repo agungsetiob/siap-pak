@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Equipment;
 use App\Models\EquipmentQr;
+use App\Models\Room;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -42,12 +43,10 @@ class QrController extends Controller
             }
         ])->findOrFail($qr->equipment_id);
 
-        // --- LOGIKA WARNING KALIBRASI DINAMIS (ACUAN: TABEL EQUIPMENTS) ---
         $calibrationWarning = false;
         $daysToCalibration = null;
         $warningMessage = '';
 
-        // Kita langsung cek dari data master alat, bukan dari relasi calibrations
         if (!empty($equipment->next_calibration_date)) {
             Carbon::setLocale('id');
             $nextCalibrationDate = Carbon::parse($equipment->next_calibration_date);
@@ -61,7 +60,6 @@ class QrController extends Controller
                 $warningMessage = "ALAT TELAH MELEWATI BATAS KALIBRASI (" . abs($daysToCalibration) . " hari yang lalu)!";
             }
         } else {
-            // Jika kosong di tabel peralatan
             $calibrationWarning = true;
             $warningMessage = "Jadwal kalibrasi berikutnya belum diatur di sistem master.";
         }
@@ -85,9 +83,59 @@ class QrController extends Controller
         $qrImage = QrCode::format('svg')
             ->size(300)
             ->errorCorrection('H')
-            ->merge(public_path('logo_tanbu.png'), 0.25, true)
+            ->merge(public_path('/logo_tanbu.png'), 0.25, true)
             ->generate($scanUrl);
 
         return response($qrImage)->header('Content-Type', 'image/svg+xml');
+    }
+
+    public function batchGenerate(Request $request)
+    {
+        $request->validate([
+            'mode' => 'required|in:all_missing,by_room',
+            'room_id' => 'required_if:mode,by_room|nullable|exists:rooms,id'
+        ]);
+
+        $query = Equipment::whereDoesntHave('qr');
+
+        if ($request->mode === 'by_room') {
+            $query->where('room_id', $request->room_id);
+        }
+
+        $equipments = $query->get();
+
+        if ($equipments->isEmpty()) {
+            return back()->withErrors(['error' => 'Tidak ada alat yang butuh QR Code pada kriteria ini (Semua sudah punya).']);
+        }
+
+        $equipments->each(function ($equipment) {
+            EquipmentQr::create([
+                'equipment_id' => $equipment->id,
+                'qr_code' => Str::random(20),
+                'generated_at' => now(),
+            ]);
+        });
+
+        return back()->with('success', $equipments->count() . ' QR Code berhasil di-generate secara massal!');
+    }
+
+    public function printBatch(Request $request)
+    {
+        $query = Equipment::with(['qr', 'room'])->whereHas('qr');
+
+        if ($request->filled('room_id')) {
+            $query->where('room_id', $request->room_id);
+        }
+
+        $equipments = $query->orderBy('room_id')->orderBy('name')->get();
+
+        if ($equipments->isEmpty()) {
+            return back()->withErrors(['error' => 'Tidak ada QR Code yang bisa dicetak pada kriteria ini. Pastikan Anda sudah Generate QR terlebih dahulu.']);
+        }
+
+        return Inertia::render('Admin/Equipments/PrintQr', [
+            'equipments' => $equipments,
+            'room' => $request->filled('room_id') ? Room::find($request->room_id) : null
+        ]);
     }
 }

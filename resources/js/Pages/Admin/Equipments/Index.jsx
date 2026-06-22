@@ -100,6 +100,33 @@ export default function Index({ auth, equipments, rooms, vendors, filters }) {
 
     const isAdmin = auth.user.role === "admin";
 
+    const [isBatchQrModalOpen, setIsBatchQrModalOpen] = useState(false);
+    
+    const { data: qrData, setData: setQrData, post: postBatchQr, processing: qrProcessing, errors: qrErrors, reset: resetQr } = useForm({
+        mode: 'all_missing',
+        room_id: '',
+    });
+
+    const handleBatchQrSubmit = (e) => {
+        e.preventDefault();
+        postBatchQr(route('equipments.batchGenerateQr'), {
+            onSuccess: () => {
+                setIsBatchQrModalOpen(false);
+                resetQr();
+            }
+        });
+    };
+
+    const [isPrintQrModalOpen, setIsPrintQrModalOpen] = useState(false);
+    const [printRoomId, setPrintRoomId] = useState('');
+
+    const handlePrintSubmit = (e) => {
+        e.preventDefault();
+        const url = route('equipments.printBatchQr', printRoomId ? { room_id: printRoomId } : {});
+        window.open(url, '_blank');
+        setIsPrintQrModalOpen(false);
+    };
+
     return (
         <AuthenticatedLayout
             user={auth.user}
@@ -147,6 +174,20 @@ export default function Index({ auth, equipments, rooms, vendors, filters }) {
                                         className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-semibold transition whitespace-nowrap"
                                     >
                                         + Tambah Alat
+                                    </button>
+                                    <button 
+                                        onClick={() => setIsBatchQrModalOpen(true)} 
+                                        className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 font-semibold transition whitespace-nowrap"
+                                    >
+                                        <svg className="w-4 h-4 inline mr-1 -mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
+                                        Batch QR
+                                    </button>
+                                    <button 
+                                        onClick={() => setIsPrintQrModalOpen(true)} 
+                                        className="px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 font-semibold transition whitespace-nowrap flex items-center"
+                                    >
+                                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+                                        Cetak QR
                                     </button>
                                 </div>
                             )}
@@ -530,6 +571,96 @@ export default function Index({ auth, equipments, rooms, vendors, filters }) {
                             disabled={processing}
                         >
                             {processing ? "Menyimpan..." : "Simpan Data"}
+                        </PrimaryButton>
+                    </div>
+                </form>
+            </Modal>
+            {/* MODAL BATCH GENERATE QR */}
+            <Modal show={isBatchQrModalOpen} onClose={() => setIsBatchQrModalOpen(false)} maxWidth="md">
+                <form onSubmit={handleBatchQrSubmit} className="p-6">
+                    <h2 className="text-xl font-bold text-gray-900 border-b pb-3 mb-4">Generate QR Code Massal</h2>
+                    
+                    <p className="text-sm text-gray-500 mb-4">
+                        Sistem hanya akan membuatkan QR Code untuk alat yang <strong>belum memiliki QR Code</strong>. Alat yang sudah punya tidak akan ditimpa/berubah.
+                    </p>
+
+                    <div className="space-y-4">
+                        <div>
+                            <InputLabel htmlFor="mode" value="Target Generate" />
+                            <select 
+                                id="mode" 
+                                className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm mt-1 block w-full bg-gray-50"
+                                value={qrData.mode} 
+                                onChange={(e) => setQrData('mode', e.target.value)}
+                            >
+                                <option value="all_missing">Semua Alat yang Belum Punya QR</option>
+                                <option value="by_room">Pilih Berdasarkan Ruangan</option>
+                            </select>
+                        </div>
+
+                        {qrData.mode === 'by_room' && (
+                            <div className="animate-pulse duration-75">
+                                <InputLabel htmlFor="room_id" value="Pilih Ruangan" />
+                                <select 
+                                    id="room_id" 
+                                    className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm mt-1 block w-full bg-white"
+                                    value={qrData.room_id} 
+                                    onChange={(e) => setQrData('room_id', e.target.value)}
+                                    required={qrData.mode === 'by_room'}
+                                >
+                                    <option value="">-- Pilih Ruangan --</option>
+                                    {rooms && rooms.map((room) => (
+                                        <option key={room.id} value={room.id}>
+                                            {room.name}
+                                        </option>
+                                    ))}
+                                </select>
+                                <InputError message={qrErrors.room_id} className="mt-2" />
+                            </div>
+                        )}
+                        <InputError message={qrErrors.error} className="mt-2" />
+                    </div>
+
+                    <div className="mt-6 flex justify-end gap-3">
+                        <SecondaryButton onClick={() => setIsBatchQrModalOpen(false)}>Batal</SecondaryButton>
+                        <PrimaryButton className="bg-purple-600 hover:bg-purple-700 focus:bg-purple-700" disabled={qrProcessing}>
+                            {qrProcessing ? 'Memproses...' : 'Mulai Generate'}
+                        </PrimaryButton>
+                    </div>
+                </form>
+            </Modal>
+            {/* MODAL CETAK QR MASSAL */}
+            <Modal show={isPrintQrModalOpen} onClose={() => setIsPrintQrModalOpen(false)} maxWidth="sm">
+                <form onSubmit={handlePrintSubmit} className="p-6">
+                    <h2 className="text-xl font-bold text-gray-900 border-b pb-3 mb-4">Cetak Label Stiker QR</h2>
+                    
+                    <p className="text-sm text-gray-500 mb-4">
+                        Pilih ruangan untuk mencetak label QR. Halaman cetak akan terbuka di tab baru.
+                    </p>
+
+                    <div className="space-y-4">
+                        <div>
+                            <InputLabel htmlFor="print_room_id" value="Filter Ruangan (Opsional)" />
+                            <select 
+                                id="print_room_id" 
+                                className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm mt-1 block w-full bg-white"
+                                value={printRoomId} 
+                                onChange={(e) => setPrintRoomId(e.target.value)}
+                            >
+                                <option value="">-- Cetak Semua Ruangan --</option>
+                                {rooms && rooms.map((room) => (
+                                    <option key={room.id} value={room.id}>
+                                        {room.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div className="mt-6 flex justify-end gap-3">
+                        <SecondaryButton type="button" onClick={() => setIsPrintQrModalOpen(false)}>Batal</SecondaryButton>
+                        <PrimaryButton className="bg-teal-600 hover:bg-teal-700 focus:bg-teal-700">
+                            Buka Pratinjau Cetak
                         </PrimaryButton>
                     </div>
                 </form>

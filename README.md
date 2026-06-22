@@ -56,3 +56,9 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+cetak qr sekalian banyak - udah
+import excel alat
+jadwal pemeliharaan
+export laporan kegiatan excel
+format aspak laporan alkes
