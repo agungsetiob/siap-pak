@@ -10,18 +10,37 @@ class RoomController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Room::withCount('equipments'); // Hitung jumlah alat di tiap ruangan
+        $query = Room::withCount('equipments')
+            ->with(['equipments' => function ($q) {
+                $q->select('id','room_id','price'); // ambil harga untuk hitung nilai
+            }]);
 
         if ($request->has('search')) {
-            $query->where('name', 'like', '%' . $request->search . '%')
+            $query->where(function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
                   ->orWhere('code', 'like', '%' . $request->search . '%');
+            });
         }
 
         $rooms = $query->latest()->paginate(10)->withQueryString();
 
+        $totalRooms = Room::count();
+        $roomWithMostEquipments = Room::withCount('equipments')
+            ->orderByDesc('equipments_count')
+            ->first();
+
+        $roomWithHighestValue = Room::withSum('equipments', 'price')
+            ->orderByDesc('equipments_sum_price')
+            ->first();
+
         return Inertia::render('Admin/Rooms/Index', [
             'rooms' => $rooms,
             'filters' => $request->only(['search']),
+            'stats' => [
+                'total_rooms' => $totalRooms,
+                'most_equipments' => $roomWithMostEquipments,
+                'highest_value' => $roomWithHighestValue,
+            ],
         ]);
     }
 
@@ -51,9 +70,8 @@ class RoomController extends Controller
 
     public function destroy(Room $room)
     {
-        // Cegah penghapusan jika ruangan masih memiliki alat
         if ($room->equipments()->count() > 0) {
-            return redirect()->back()->withErrors(['error' => 'Tidak dapat menghapus ruangan yang masih memiliki alat kesehatan.']);
+            return redirect()->back()->with('error', 'Tidak dapat menghapus ruangan yang masih memiliki alat kesehatan.');
         }
 
         $room->delete();

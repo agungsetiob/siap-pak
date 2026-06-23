@@ -32,10 +32,10 @@ export default function Ruangan({ auth, stats, myReports, roomName, chartData })
             user={auth.user}
             header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Dashboard Ruangan</h2>}
         >
-            <Head title="Dashboard - SIMAK" />
+            <Head title="Dashboard" />
 
-            <div className="py-12">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+            <div className="py-2">
+                <div className="max-w-8xl mx-auto sm:px-4 lg:px-4 space-y-3">
                     
                     {/* Banner */}
                     <div className="bg-white rounded-lg shadow-sm border-l-4 border-blue-600 p-6 flex justify-between items-center">

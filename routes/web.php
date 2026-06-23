@@ -75,7 +75,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     Route::post('/equipments/{equipment}/generate-qr', [QrController::class, 'generate'])->name('equipments.generateQr');
     Route::post('/equipments/batch-generate-qr', [QrController::class, 'batchGenerate'])->name('equipments.batchGenerateQr');
-    Route::get('/equipments/print-qr-batch', [\App\Http\Controllers\QrController::class, 'printBatch'])->name('equipments.printBatchQr');
+    Route::get('/equipments/print-qr-batch', [QrController::class, 'printBatch'])->name('equipments.printBatchQr');
 
     Route::resource('vendors', VendorController::class)->except(['create', 'show', 'edit']);
 

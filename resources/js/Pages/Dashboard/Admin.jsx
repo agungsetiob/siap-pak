@@ -25,10 +25,10 @@ export default function Admin({ auth, stats, recentReports, chartData, investmen
             user={auth.user}
             header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Dashboard Manajemen SIMAK</h2>}
         >
-            <Head title="Dashboard Admin - SIMAK" />
+            <Head title="Dashboard Admin" />
 
-            <div className="py-12">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+            <div className="py-2">
+                <div className="max-w-8xl mx-auto sm:px-4 lg:px-4 space-y-3">
 
                     {/* Banner Selamat Datang */}
                     <div className="bg-gradient-to-r from-blue-600 to-blue-800 rounded-lg shadow-lg p-6 text-white flex justify-between items-center">

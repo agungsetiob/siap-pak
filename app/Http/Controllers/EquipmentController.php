@@ -194,7 +194,7 @@ class EquipmentController extends Controller
             Excel::import(new EquipmentsImport, $request->file('import_file'));
             return back()->with('success', 'Data alat berhasil diimport dari Excel!');
         } catch (\Exception $e) {
-            return back()->withErrors(['import_file' => 'Gagal mengimport: ' . $e->getMessage()]);
+            return back()->with(['error' => 'Gagal mengimport: ' . $e->getMessage()]);
         }
     }
 }
