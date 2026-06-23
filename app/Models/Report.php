@@ -23,6 +23,7 @@ class Report extends Model
         'status',
         'estimated_completion',
         'resolved_at',
+        'room_approved_at',
     ];
 
     protected function casts(): array
@@ -31,6 +32,7 @@ class Report extends Model
             'estimated_completion' => 'date',
             'resolved_at' => 'datetime',
             'cost' => 'integer',
+            'room_approved_at' => 'datetime',
         ];
     }
 

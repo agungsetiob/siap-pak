@@ -71,4 +71,9 @@ class Equipment extends Model
     {
         return $this->belongsTo(Vendor::class);
     }
+
+    public function maintenanceSchedules()
+    {
+        return $this->hasMany(MaintenanceSchedule::class);
+    }
 }

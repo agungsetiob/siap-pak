@@ -74,7 +74,7 @@ class SendCalibrationReminder extends Command
 
         $footer = "\n\nMohon segera mempersiapkan dokumen dan menghubungi vendor terkait.";
 
-        $fonnte->sendMessage(
+        $fonnte->send(
             $adminPhone,
             $header . $message . $footer
         );

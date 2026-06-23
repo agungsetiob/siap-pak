@@ -18,7 +18,8 @@ use Illuminate\Notifications\Notifiable;
         'password',
         'role',
         'room_id',
-        'is_active',])]
+        'is_active',
+        'signature_path',])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {

@@ -19,15 +19,11 @@ class ReportController extends Controller
 
         $query = Report::with(['equipment.room', 'reporter', 'progressLogs.user'])->latest();
 
-        // Logika pemisahan data berdasarkan Role
         if ($user->role === 'ruangan') {
-            // Ruangan hanya melihat laporannya sendiri
             $query->where('reported_by', $user->id);
 
-            // Siapkan data alat HANYA yang ada di ruangan tersebut untuk form dropdown
             $equipments = Equipment::where('room_id', $user->room_id)->get(['id', 'name', 'inventory_number']);
         } else {
-            // Admin melihat semua alat dari semua ruangan
             $equipments = Equipment::with('room')->get(['id', 'name', 'inventory_number', 'room_id']);
         }
 
@@ -41,7 +37,6 @@ class ReportController extends Controller
 
     public function store(Request $request)
     {
-        // Hanya ruangan yang bisa membuat laporan (sesuaikan dengan kebijakan)
         $request->validate([
             'equipment_id' => 'required|exists:equipments,id',
             'type' => 'required|in:kerusakan,pemeliharaan',
@@ -55,7 +50,6 @@ class ReportController extends Controller
 
     public function updateProgress(Request $request, Report $report)
     {
-        // Pastikan route ini dilindungi middleware admin
         $request->validate([
             'status' => 'required|in:diproses,selesai,dibatalkan',
             'notes' => 'required|string',
@@ -69,18 +63,45 @@ class ReportController extends Controller
         return redirect()->back()->with('success', 'Progress laporan berhasil diperbarui dan notifikasi telah dikirim.');
     }
 
-    // Tambahkan method ini di dalam ReportController
     public function show(Report $report)
     {
-        // Load semua relasi yang dibutuhkan untuk halaman detail
         $report->load(['equipment.room', 'reporter.room', 'progressLogs.user', 'calibrationData']);
 
-        // Otorisasi: Jika yang login adalah 'ruangan', pastikan itu laporannya sendiri
         if (Auth::user()->role === 'ruangan' && $report->reported_by !== Auth::id()) {
             abort(403, 'Anda tidak memiliki akses untuk melihat tiket laporan ruangan lain.');
         }
 
         return Inertia::render('Reports/Show', [
+            'report' => $report,
+        ]);
+    }
+
+    public function approve(Request $request, Report $report)
+    {
+        $user = auth()->user();
+
+        if (empty($user->signature_path)) {
+            return back()->withErrors(['error' => 'Gagal menyetujui. Anda wajib meng-upload tanda tangan di menu Profil terlebih dahulu.']);
+        }
+
+        $report->update([
+            'room_approved_at' => now(),
+        ]);
+
+        $report->progressLogs()->create([
+            'updated_by' => $user->id,
+            'status_snapshot' => 'disetujui_ruangan',
+            'notes' => 'Pihak ruangan telah memverifikasi alat dan menyetujui hasil perbaikan.',
+        ]);
+
+        return back()->with('success', 'Laporan berhasil disetujui dan ditandatangani.');
+    }
+
+    public function print(Report $report)
+    {
+        $report->load(['equipment.room', 'reporter.room', 'progressLogs.user']);
+
+        return Inertia::render('Reports/Print', [
             'report' => $report,
         ]);
     }

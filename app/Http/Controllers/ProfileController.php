@@ -6,6 +6,7 @@ use App\Http\Requests\ProfileUpdateRequest;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
@@ -59,5 +60,26 @@ class ProfileController extends Controller
         $request->session()->regenerateToken();
 
         return Redirect::to('/');
+    }
+
+    public function updateSignature(Request $request)
+    {
+        $request->validate([
+            'signature_file' => 'required|image|mimes:png,jpg,jpeg|max:1024',
+        ]);
+
+        $user = auth()->user();
+
+        if ($user->signature_path) {
+            Storage::disk('public')->delete($user->signature_path);
+        }
+
+        $path = $request->file('signature_file')->store('signatures', 'public');
+
+        $user->update([
+            'signature_path' => $path
+        ]);
+
+        return back()->with('success', 'Tanda tangan Anda berhasil di-upload.');
     }
 }

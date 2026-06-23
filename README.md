@@ -59,6 +59,6 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 
 cetak qr sekalian banyak - udah
 import excel alat
-jadwal pemeliharaan
-export laporan kegiatan excel
+jadwal pemeliharaan -udah
+cetak laporan kegiatan- udah
 format aspak laporan alkes

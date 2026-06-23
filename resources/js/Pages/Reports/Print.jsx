@@ -1,0 +1,164 @@
+import React, { useEffect } from 'react';
+import { Head } from '@inertiajs/react';
+import { formatDate } from "@/Helpers/date";
+
+export default function Print({ report }) {
+    
+    // Otomatis muncul dialog print setelah halaman selesai dimuat
+    useEffect(() => {
+        setTimeout(() => {
+            window.print();
+        }, 1000);
+    }, []);
+
+    return (
+        <div className="bg-white min-h-screen text-black font-sans">
+            <Head title={`Cetak Berita Acara - ${report.ticket_number}`} />
+
+            {/* HEADER KONTROL (Disembunyikan saat dicetak ke kertas) */}
+            <div className="print:hidden p-6 bg-gray-100 border-b border-gray-300 flex justify-between items-center mb-6">
+                <div>
+                    <h1 className="text-2xl font-bold text-gray-800">Pratinjau Cetak Berita Acara</h1>
+                    <p className="text-gray-600 mt-1">No. Tiket: {report.ticket_number}</p>
+                </div>
+                <div className="flex gap-3">
+                    <button onClick={() => window.close()} className="px-4 py-2 bg-gray-400 text-white rounded font-bold shadow hover:bg-gray-500">
+                        Tutup Tab
+                    </button>
+                    <button onClick={() => window.print()} className="px-6 py-2 bg-blue-600 text-white rounded font-bold shadow hover:bg-blue-700 flex items-center">
+                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+                        Cetak Sekarang
+                    </button>
+                </div>
+            </div>
+
+            {/* ========================================== */}
+            {/* AREA KERTAS CETAK A4 */}
+            {/* ========================================== */}
+            <div className="w-full max-w-4xl mx-auto p-8 bg-white text-sm leading-relaxed">
+                
+                {/* KOP SURAT RESMI */}
+                <div className="border-b-4 border-double border-black pb-4 mb-6 flex items-center">
+                    <img src="/logo_tanbu.png" alt="Logo RS" className="w-20 h-20 object-contain mr-4" onError={(e) => { e.target.style.display = 'none'; }} />
+                    <div>
+                        <h1 className="text-xl font-extrabold uppercase tracking-tight">RSUD dr. H. Andi Abdurrahman Noor</h1>
+                        <p className="text-sm font-semibold text-gray-800">Instalasi Pemeliharaan Sarana Rumah Sakit (IPSRS)</p>
+                        <p className="text-xs text-gray-600 italic mt-0.5">Jl. H.M. Amin, Kecamatan Simpang Empat, Kabupaten Tanah Bumbu, Kalimantan Selatan</p>
+                    </div>
+                </div>
+
+                <div className="text-center mb-6">
+                    <h2 className="text-lg font-bold underline uppercase tracking-wide">BERITA ACARA & LEMBAR KERJA PERBAIKAN</h2>
+                    <p className="text-xs font-mono mt-1">No. Tiket: {report.ticket_number}</p>
+                </div>
+
+                {/* GRID INFORMASI UTAMA */}
+                <div className="grid grid-cols-2 gap-6 border border-black p-4 rounded-lg mb-6">
+                    <div className="space-y-2 border-r border-gray-300 pr-4">
+                        <h3 className="font-bold border-b pb-1 text-gray-700 uppercase text-xs">I. Informasi Laporan</h3>
+                        <p><span className="text-gray-500 inline-block w-28">Jenis Kendala</span>: <span className="font-semibold capitalize">{report.type}</span></p>
+                        <p><span className="text-gray-500 inline-block w-28">Waktu Lapor</span>: <span>{formatDate(report.created_at)}</span></p>
+                        <p><span className="text-gray-500 inline-block w-28">Status Akhir</span>: <span className="font-bold uppercase text-blue-800">{report.status.replace('_', ' ')}</span></p>
+                        <p><span className="text-gray-500 inline-block w-28">User Pelapor</span>: <span>{report.reporter?.name}</span></p>
+                        <div className="mt-2">
+                            <span className="text-gray-500 block mb-1">Deskripsi Kerusakan awal:</span>
+                            <div className="p-2 bg-gray-50 rounded border text-xs italic whitespace-pre-wrap">{report.description}</div>
+                        </div>
+                    </div>
+                    <div className="space-y-2 pl-2">
+                        <h3 className="font-bold border-b pb-1 text-gray-700 uppercase text-xs">II. Spesifikasi Alat Kesehatan</h3>
+                        <p><span className="text-gray-500 inline-block w-28">Nama Alat</span>: <span className="font-bold text-gray-900">{report.equipment?.name}</span></p>
+                        <p><span className="text-gray-500 inline-block w-28">No. Inventaris</span>: <span className="font-mono bg-gray-100 px-1 rounded font-bold">{report.equipment?.inventory_number}</span></p>
+                        <p><span className="text-gray-500 inline-block w-28">Ruangan Asal</span>: <span>{report.equipment?.room?.name || '-'}</span></p>
+                        <p><span className="text-gray-500 inline-block w-28">Merk / Tipe</span>: <span>{report.equipment?.brand || '-'}</span></p>
+                        <p><span className="text-gray-500 inline-block w-28">Serial Number</span>: <span className="font-mono">{report.equipment?.serial_number || '-'}</span></p>
+                    </div>
+                </div>
+
+                {/* TINDAKAN PERBAIKAN */}
+                <div className="border border-black p-4 rounded-lg mb-6 bg-gray-50">
+                    <h3 className="font-bold border-b border-gray-300 pb-1 text-gray-800 uppercase text-xs mb-2">III. Hasil Penanganan Tindak Lanjut (IPSRS)</h3>
+                    <div className="space-y-2">
+                        <p><span className="text-gray-500 inline-block w-40">Tindakan Akhir</span>: <span className="font-medium whitespace-pre-wrap">{report.action_taken || '-------------------------------------------------------'}</span></p>
+                        <p><span className="text-gray-500 inline-block w-40">Teknisi/Vendor Luar</span>: <span>{report.external_technician || '- (Internal IPSRS)'}</span></p>
+                        <p><span className="text-gray-500 inline-block w-40">Total Biaya Perbaikan</span>: <span className="font-bold text-green-800">{report.cost > 0 ? `Rp ${new Intl.NumberFormat('id-ID').format(report.cost)}` : 'Rp 0 (Pemeliharaan Internal)'}</span></p>
+                    </div>
+                </div>
+
+                {/* SEMUA LOG PROGRESS (RIWAYAT LENGKAP) */}
+                <div className="border border-black rounded-lg overflow-hidden mb-8">
+                    <div className="bg-gray-100 p-2 font-bold text-xs uppercase tracking-wider border-b border-black">
+                        IV. Catatan Perubahan & Kronologi Progress Kerja
+                    </div>
+                    <table className="w-full text-xs text-left border-collapse">
+                        <thead>
+                            <tr className="bg-gray-50 border-b border-black font-semibold text-gray-700">
+                                <th className="px-4 py-2 border-r border-gray-300">Waktu Perubahan</th>
+                                <th className="px-4 py-2 border-r border-gray-300">Status Snapshot</th>
+                                <th className="px-4 py-2 border-r border-gray-300">Catatan Progress Teknisi</th>
+                                <th className="px-4 py-2">Petugas Eksekutor</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {report.progress_logs && report.progress_logs.map((log) => (
+                                <tr key={log.id} className="border-b border-gray-200">
+                                    <td className="px-4 py-2 font-mono whitespace-nowrap border-r border-gray-300">{formatDate(log.created_at)}</td>
+                                    <td className="px-4 py-2 uppercase font-bold text-gray-700 border-r border-gray-300">{log.status_snapshot.replace('_', ' ')}</td>
+                                    <td className="px-4 py-2 border-r border-gray-300 italic">{log.notes}</td>
+                                    <td className="px-4 py-2 font-medium">{log.user?.name || 'Sistem'}</td>
+                                </tr>
+                            ))}
+                            {(!report.progress_logs || report.progress_logs.length === 0) && (
+                                <tr><td colSpan="4" className="px-4 py-4 text-center text-gray-400">Tidak ada log riwayat status.</td></tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+
+                {/* PANEL TANDA TANGAN (PALING BAWAH) */}
+                <div className="mt-12 break-inside-avoid">
+                    <p className="text-right text-xs mb-6 font-medium">Tanah Bumbu, {new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                    
+                    <div className="flex justify-between px-12 text-center">
+                        <div className="flex flex-col justify-between h-36 w-56 border border-dashed border-gray-300 p-2 rounded-lg bg-gray-50">
+                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Pihak Ruangan (Pelapor)</span>
+                            <div className="h-16 flex items-center justify-center">
+                                {report.room_approved_at && report.reporter?.signature_path ? (
+                                    <img src={`/storage/${report.reporter.signature_path}`} alt="TTD Pelapor" className="max-h-16 object-contain mix-blend-multiply" />
+                                ) : (
+                                    <span className="text-[10px] text-gray-300 italic">Belum TTD</span>
+                                )}
+                            </div>
+                            <div>
+                                <p className="font-bold text-xs underline">{report.reporter?.name}</p>
+                                <p className="text-[9px] text-gray-500">Unit: {report.reporter?.room?.name || 'Staf Ruangan'}</p>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col justify-between h-36 w-56 border border-dashed border-gray-300 p-2 rounded-lg bg-gray-50">
+                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Petugas IPSRS (Admin)</span>
+                            <div className="h-16 flex items-center justify-center">
+                                {report.status === 'selesai' && (() => {
+                                    const selesaiLog = report.progress_logs?.find(log => log.status_snapshot === 'selesai');
+                                    if (selesaiLog && selesaiLog.user?.signature_path) {
+                                        return <img src={`/storage/${selesaiLog.user.signature_path}`} alt="TTD Admin" className="max-h-16 object-contain mix-blend-multiply" />;
+                                    }
+                                })()}
+                            </div>
+                            <div>
+                                <p className="font-bold text-xs underline">
+                                    {report.status === 'selesai' ? (report.progress_logs?.find(log => log.status_snapshot === 'selesai')?.user?.name || 'Teknisi IPSRS') : '.......................................'}
+                                </p>
+                                <p className="text-[9px] text-gray-500">Kualifikasi: Teknisi Elektromedis</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="mt-16 text-center text-[10px] text-gray-400 border-t border-gray-200 pt-2 font-mono">
+                    Dokumen ini sah dirilis otomatis via Aplikasi SIAP PAK RSUD dr. H. Andi Abdurrahman Noor.
+                </div>
+            </div>
+        </div>
+    );
+}

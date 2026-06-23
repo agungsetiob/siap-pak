@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, useForm, router } from '@inertiajs/react';
 import InputLabel from '@/Components/InputLabel';
@@ -11,7 +11,6 @@ export default function Show({ auth, report }) {
     const isAdmin = auth.user.role === 'admin';
     const isSelesai = report.status === 'selesai' || report.status === 'dibatalkan';
 
-    // State untuk form update progress (Khusus Admin)
     const { data, setData, put, processing, errors, reset } = useForm({
         status: report.status === 'menunggu' ? 'diproses' : report.status,
         notes: '',
@@ -24,7 +23,7 @@ export default function Show({ auth, report }) {
         e.preventDefault();
         put(route('reports.progress.update', report.id), {
             onSuccess: () => {
-                reset('notes'); // Hanya reset field catatan agar bisa diisi lagi
+                reset('notes');
                 alert('Progress berhasil diperbarui dan notifikasi telah dikirim ke pelapor.');
             },
         });
@@ -48,26 +47,38 @@ export default function Show({ auth, report }) {
         <AuthenticatedLayout
             user={auth.user}
             header={
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between print:hidden">
                     <h2 className="font-semibold text-xl text-gray-800 leading-tight">
                         Detail Tiket: <span className="font-mono text-blue-600">{report.ticket_number}</span>
                     </h2>
-                    <Link href={route('reports.index')} className="text-sm text-gray-600 hover:text-gray-900 underline">
-                        &larr; Kembali ke Daftar
-                    </Link>
+                    <div className="flex gap-4 items-center">
+                        {/* TOMBOL CETAK DI SHOW.JSX */}
+                        <button 
+                            onClick={() => window.open(route('reports.print', report.id), '_blank')} 
+                            className="px-4 py-2 text-sm bg-gray-800 text-white rounded hover:bg-gray-700 font-semibold flex items-center shadow"
+                        >
+                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+                            Cetak Dokumen
+                        </button>
+                        <Link href={route('reports.index')} className="text-sm text-gray-600 hover:text-gray-900 underline">
+                            &larr; Kembali
+                        </Link>
+                    </div>
                 </div>
             }
         >
-            <Head title={`Tiket ${report.ticket_number} - SIMAK`} />
+            <Head title={`Tiket ${report.ticket_number} - SIAP PAK`} />
 
-            <div className="py-12">
+            {/* ========================================================= */}
+            {/* 1. TAMPILAN LAYAR MONITOR (Otomatis Hilang Saat Print)     */}
+            {/* ========================================================= */}
+            <div className="py-12 print:hidden">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
                     
-                    {/* KOLOM KIRI: Informasi Detail Tiket */}
+                    {/* KOLOM KIRI (INFORMASI & ALAT) */}
                     <div className="lg:col-span-1 space-y-6">
                         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
                             <h3 className="text-lg font-bold text-gray-900 border-b pb-3 mb-4">Informasi Laporan</h3>
-                            
                             <div className="space-y-4 text-sm">
                                 <div>
                                     <p className="text-gray-500 mb-1">Status Saat Ini</p>
@@ -117,10 +128,8 @@ export default function Show({ auth, report }) {
                         </div>
                     </div>
 
-                    {/* KOLOM KANAN: Timeline Log & Form Update */}
+                    {/* KOLOM KANAN */}
                     <div className="lg:col-span-2 space-y-6">
-                        
-                        {/* Area Form Update (Hanya tampil untuk Admin jika tiket belum selesai) */}
                         {isAdmin && !isSelesai && (
                             <div className="bg-blue-50 p-6 rounded-lg border border-blue-100">
                                 <h3 className="text-lg font-bold text-blue-900 mb-4">Tindak Lanjut Perbaikan</h3>
@@ -164,7 +173,6 @@ export default function Show({ auth, report }) {
                                             <InputError message={errors.notes} className="mt-2" />
                                         </div>
                                         
-                                        {/* Tampilkan field ini jika status diubah menjadi selesai */}
                                         {data.status === 'selesai' && (
                                             <>
                                                 <div className="md:col-span-2">
@@ -202,7 +210,6 @@ export default function Show({ auth, report }) {
                             </div>
                         )}
 
-                        {/* Riwayat Tindakan (Data Akhir) - Muncul jika tiket sudah selesai */}
                         {isSelesai && report.action_taken && (
                             <div className="bg-green-50 p-6 rounded-lg border border-green-200">
                                 <h3 className="text-lg font-bold text-green-900 mb-3 flex items-center gap-2">
@@ -217,47 +224,103 @@ export default function Show({ auth, report }) {
                             </div>
                         )}
 
-                        {/* Area Log Timeline */}
+                        {/* PANEL VERIFIKASI MONITOR */}
+                        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                            <h3 className="text-md font-bold text-gray-900 border-b pb-3 mb-4 flex items-center gap-2 tracking-wide uppercase text-xs text-gray-500">
+                                <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+                                Verifikasi & Status Persetujuan Komponen
+                            </h3>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                                <div className="p-4 border border-gray-100 rounded-xl bg-gray-50 flex flex-col items-center justify-between min-h-[160px]">
+                                    <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Approve Pelapor (Ruangan)</span>
+                                    <div className="my-3 flex items-center justify-center w-full min-h-[4rem]">
+                                        {report.room_approved_at ? (
+                                            report.reporter?.signature_path ? (
+                                                <img src={`/storage/${report.reporter.signature_path}`} alt="TTD Pelapor" className="max-h-16 object-contain mix-blend-multiply" />
+                                            ) : (
+                                                <span className="text-xs text-green-600 font-bold tracking-wider bg-green-100 px-2 py-1 rounded">DISETUJUI</span>
+                                            )
+                                        ) : (
+                                            isSelesai ? (
+                                                !isAdmin ? (
+                                                    <button 
+                                                        onClick={() => {
+                                                            if(confirm('Apakah alat sudah berfungsi dengan baik? Tanda tangan Anda akan dibubuhkan.')){
+                                                                router.post(route('reports.approve', report.id), {}, {
+                                                                    onError: (err) => { if(err.error) alert(err.error); }
+                                                                });
+                                                            }
+                                                        }}
+                                                        className="bg-green-600 text-white px-4 py-2 rounded-md text-xs font-bold shadow hover:bg-green-700 transition"
+                                                    >
+                                                        ✓ Setujui & Tanda Tangani
+                                                    </button>
+                                                ) : (
+                                                    <span className="text-xs text-yellow-600 font-medium bg-yellow-50 px-3 py-1 rounded border border-yellow-200 animate-pulse text-center">
+                                                        Menunggu Verifikasi<br/>Pihak Ruangan
+                                                    </span>
+                                                )
+                                            ) : (
+                                                <span className="text-xs text-gray-400 italic">Menunggu perbaikan selesai</span>
+                                            )
+                                        )}
+                                    </div>
+                                    <div className="text-center">
+                                        <p className="font-bold text-gray-800 text-sm">{report.reporter?.name}</p>
+                                        <p className="text-[10px] text-gray-400">Unit: {report.reporter?.room?.name || 'Staf'}</p>
+                                        {report.room_approved_at && <p className="text-[9px] text-green-600 font-mono font-bold mt-1">Disetujui: {formatDate(report.room_approved_at)}</p>}
+                                    </div>
+                                </div>
+
+                                <div className="p-4 border border-gray-100 rounded-xl bg-gray-50 flex flex-col items-center justify-between min-h-[160px]">
+                                    <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Approve Admin (IPSRS)</span>
+                                    <div className="my-3 h-16 flex items-center justify-center">
+                                        {report.status === 'selesai' ? (
+                                            (() => {
+                                                const selesaiLog = report.progress_logs?.find(log => log.status_snapshot === 'selesai');
+                                                if (selesaiLog && selesaiLog.user?.signature_path) {
+                                                    return <img src={`/storage/${selesaiLog.user.signature_path}`} alt="TTD Admin" className="max-h-16 object-contain mix-blend-multiply" />;
+                                                }
+                                                return <span className="text-xs text-green-600 font-bold tracking-wider bg-green-100 px-2 py-1 rounded">APPROVED</span>;
+                                            })()
+                                        ) : (
+                                            <span className="text-xs text-yellow-600 font-medium bg-yellow-50 px-3 py-1 rounded border border-yellow-200 animate-pulse">Menunggu Tindakan</span>
+                                        )}
+                                    </div>
+                                    <div className="text-center">
+                                        <p className="font-bold text-gray-800 text-sm">{report.status === 'selesai' ? (report.progress_logs?.find(log => log.status_snapshot === 'selesai')?.user?.name || 'Admin IPSRS') : 'Belum Diverifikasi'}</p>
+                                        <p className="text-[10px] text-gray-400">Status Kelayakan: <span className="uppercase font-bold">{report.status}</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* LOG MONITOR */}
                         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
                             <h3 className="text-lg font-bold text-gray-900 border-b pb-3 mb-6">Log & Riwayat Status</h3>
-                            
                             <div className="relative border-l-2 border-gray-200 ml-3 space-y-8">
-                                {report.progress_logs && report.progress_logs.map((log, index) => (
+                                {report.progress_logs && report.progress_logs.map((log) => (
                                     <div key={log.id} className="relative pl-6">
-                                        {/* Titik / Bullet Timeline */}
                                         <span className={`absolute -left-[9px] top-1 h-4 w-4 rounded-full border-2 border-white
                                             ${log.status_snapshot === 'menunggu' ? 'bg-red-500' : 
                                               log.status_snapshot === 'diproses' ? 'bg-yellow-500' : 
                                               log.status_snapshot === 'selesai' ? 'bg-green-500' : 'bg-gray-500'}`}
                                         ></span>
-                                        
                                         <div className="flex flex-col sm:flex-row sm:justify-between mb-1">
-                                            <h4 className="font-bold text-gray-900 capitalize text-md">
-                                                Status: {log.status_snapshot}
-                                            </h4>
-                                            <time className="text-xs font-mono text-gray-500 mt-1 sm:mt-0">
-                                                {formatDate(log.created_at)}
-                                            </time>
+                                            <h4 className="font-bold text-gray-900 capitalize text-md">Status: {log.status_snapshot}</h4>
+                                            <time className="text-xs font-mono text-gray-500 mt-1 sm:mt-0">{formatDate(log.created_at)}</time>
                                         </div>
-                                        
-                                        <div className="text-sm text-gray-700 bg-gray-50 p-3 rounded-md border border-gray-100 mt-2">
-                                            {log.notes}
-                                        </div>
-                                        <p className="text-xs text-gray-400 mt-2">
-                                            Diperbarui oleh: {log.user?.name || 'Sistem'}
-                                        </p>
+                                        <div className="text-sm text-gray-700 bg-gray-50 p-3 rounded-md border border-gray-100 mt-2">{log.notes}</div>
+                                        <p className="text-xs text-gray-400 mt-2">Diperbarui oleh: {log.user?.name || 'Sistem'}</p>
                                     </div>
                                 ))}
-                                
-                                {(!report.progress_logs || report.progress_logs.length === 0) && (
-                                    <p className="pl-6 text-gray-500 text-sm">Belum ada riwayat tindak lanjut.</p>
-                                )}
                             </div>
                         </div>
-
                     </div>
                 </div>
             </div>
+
         </AuthenticatedLayout>
     );
 }

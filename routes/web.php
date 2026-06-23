@@ -3,9 +3,11 @@
 use App\Http\Controllers\CalibrationController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EquipmentController;
+use App\Http\Controllers\MaintenanceScheduleController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RoomController;
+use App\Http\Controllers\TechnicianController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VendorController;
 use App\Http\Controllers\QrController;
@@ -44,6 +46,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/equipments/{equipment}', [EquipmentController::class, 'show'])
         ->name('equipments.show')
         ->where('equipment', '[0-9]+');
+
+    Route::post('/profile/signature', [ProfileController::class, 'updateSignature'])->name('profile.signature.update');
+    Route::post('/reports/{report}/approve', [ReportController::class, 'approve'])->name('reports.approve');
+    Route::get('/reports/{report}/print', [ReportController::class, 'print'])->name('reports.print');
 });
 
 // ------------------------------------------------------------------
@@ -72,6 +78,11 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/equipments/print-qr-batch', [\App\Http\Controllers\QrController::class, 'printBatch'])->name('equipments.printBatchQr');
 
     Route::resource('vendors', VendorController::class)->except(['create', 'show', 'edit']);
+
+    Route::resource('technicians', TechnicianController::class)->except(['create', 'show', 'edit']);
+    
+    Route::resource('maintenance-schedules', MaintenanceScheduleController::class)->except(['create', 'show', 'edit']);
+    Route::put('/maintenance-schedules/{schedule}/status', [MaintenanceScheduleController::class, 'updateStatus'])->name('maintenance-schedules.updateStatus');
 });
 
 require __DIR__.'/auth.php';
