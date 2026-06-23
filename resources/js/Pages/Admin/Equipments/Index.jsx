@@ -127,6 +127,23 @@ export default function Index({ auth, equipments, rooms, vendors, filters }) {
         setIsPrintQrModalOpen(false);
     };
 
+    const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+    const { data: importData, setData: setImportData, post: postImport, processing: importProcessing, errors: importErrors, reset: resetImport } = useForm({
+        import_file: null,
+    });
+
+    const handleImportSubmit = (e) => {
+        e.preventDefault();
+        postImport(route('equipments.import'), {
+            forceFormData: true,
+            onSuccess: () => {
+                setIsImportModalOpen(false);
+                resetImport();
+                alert('Import berhasil diselesaikan!');
+            }
+        });
+    };
+
     return (
         <AuthenticatedLayout
             user={auth.user}
@@ -169,6 +186,14 @@ export default function Index({ auth, equipments, rooms, vendors, filters }) {
                                     >
                                         Tong Sampah
                                     </Link>
+                                    {/* TOMBOL IMPORT EXCEL */}
+                                    <button 
+                                        onClick={() => setIsImportModalOpen(true)} 
+                                        className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 font-semibold transition whitespace-nowrap flex items-center"
+                                    >
+                                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                                        Import Excel
+                                    </button>
                                     <button
                                         onClick={() => openModal()}
                                         className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-semibold transition whitespace-nowrap"
@@ -487,7 +512,7 @@ export default function Index({ auth, equipments, rooms, vendors, filters }) {
 
                         {/* Input: Merk/Brand */}
                         <div>
-                            <InputLabel htmlFor="brand" value="Merk / Brand" />
+                            <InputLabel htmlFor="brand" value="Merk / Tipe" />
                             <TextInput
                                 id="brand"
                                 type="text"
@@ -661,6 +686,49 @@ export default function Index({ auth, equipments, rooms, vendors, filters }) {
                         <SecondaryButton type="button" onClick={() => setIsPrintQrModalOpen(false)}>Batal</SecondaryButton>
                         <PrimaryButton className="bg-teal-600 hover:bg-teal-700 focus:bg-teal-700">
                             Buka Pratinjau Cetak
+                        </PrimaryButton>
+                    </div>
+                </form>
+            </Modal>
+            {/* MODAL IMPORT EXCEL */}
+            <Modal show={isImportModalOpen} onClose={() => setIsImportModalOpen(false)} maxWidth="md">
+                <form onSubmit={handleImportSubmit} className="p-6">
+                    <h2 className="text-xl font-bold text-gray-900 border-b pb-3 mb-4 flex items-center">
+                        <svg className="w-6 h-6 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                        Import Data Alat (Excel)
+                    </h2>
+                    
+                    <div className="space-y-4">
+                        <div className="bg-blue-50 p-4 rounded-md border border-blue-100">
+                            <p className="text-sm text-blue-800 mb-2">
+                                <strong>Langkah 1:</strong> Download template Excel terlebih dahulu agar format kolom sesuai dengan sistem.
+                            </p>
+                            <a 
+                                href={route('equipments.template')} 
+                                className="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white text-xs font-bold rounded hover:bg-blue-700 shadow-sm"
+                            >
+                                ↓ Download Template Excel
+                            </a>
+                        </div>
+
+                        <div>
+                            <InputLabel htmlFor="import_file" value="Langkah 2: Upload File Excel yang sudah diisi" />
+                            <input
+                                id="import_file"
+                                type="file"
+                                accept=".xlsx, .xls, .csv"
+                                className="mt-2 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
+                                onChange={(e) => setImportData('import_file', e.target.files[0])}
+                                required
+                            />
+                            <InputError message={importErrors.import_file} className="mt-2" />
+                        </div>
+                    </div>
+
+                    <div className="mt-6 flex justify-end gap-3">
+                        <SecondaryButton type="button" onClick={() => setIsImportModalOpen(false)}>Batal</SecondaryButton>
+                        <PrimaryButton className="bg-green-600 hover:bg-green-700 focus:bg-green-700" disabled={importProcessing}>
+                            {importProcessing ? 'Mengimport Data...' : 'Mulai Import'}
                         </PrimaryButton>
                     </div>
                 </form>

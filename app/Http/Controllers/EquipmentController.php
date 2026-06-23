@@ -9,6 +9,9 @@ use App\Models\Vendor;
 use Illuminate\Http\Request;
 use \Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
+use App\Exports\EquipmentsTemplateExport;
+use App\Imports\EquipmentsImport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class EquipmentController extends Controller
 {
@@ -173,5 +176,25 @@ class EquipmentController extends Controller
         });
 
         return back()->with('success', 'Alat kesehatan berhasil dipindahkan ke ruangan baru.');
+    }
+
+    public function downloadTemplate()
+    {
+        return Excel::download(new EquipmentsTemplateExport, 'Template_Import_Alat.xlsx');
+    }
+
+    // Fungsi Proses Import
+    public function importExcel(Request $request)
+    {
+        $request->validate([
+            'import_file' => 'required|mimes:xlsx,xls,csv|max:5120', // Maks 5MB
+        ]);
+
+        try {
+            Excel::import(new EquipmentsImport, $request->file('import_file'));
+            return back()->with('success', 'Data alat berhasil diimport dari Excel!');
+        } catch (\Exception $e) {
+            return back()->withErrors(['import_file' => 'Gagal mengimport: ' . $e->getMessage()]);
+        }
     }
 }

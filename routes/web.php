@@ -83,6 +83,8 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     
     Route::resource('maintenance-schedules', MaintenanceScheduleController::class)->except(['create', 'show', 'edit']);
     Route::put('/maintenance-schedules/{schedule}/status', [MaintenanceScheduleController::class, 'updateStatus'])->name('maintenance-schedules.updateStatus');
+    Route::get('/equipments-template', [EquipmentController::class, 'downloadTemplate'])->name('equipments.template');
+    Route::post('/equipments-import', [EquipmentController::class, 'importExcel'])->name('equipments.import');
 });
 
 require __DIR__.'/auth.php';

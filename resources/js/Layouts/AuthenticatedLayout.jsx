@@ -101,6 +101,14 @@ export default function AuthenticatedLayout({ header, children }) {
                                         >
                                             Pengguna
                                         </NavLink>
+                                        <NavLink disabled
+                                        >
+                                            Aspak
+                                        </NavLink>
+                                        <NavLink disabled
+                                        >
+                                            RSOnline
+                                        </NavLink>
                                     </>
                                 )}
 
