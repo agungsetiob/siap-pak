@@ -388,7 +388,7 @@ export default function Index({ auth, rooms, filters, flash, stats }) {
             </div>
 
             {/* --- Modal Form --- */}
-            <Modal show={isModalOpen} onClose={closeModal} maxWidth="md">
+            <Modal show={isModalOpen} onClose={closeModal} maxWidth="lg">
                 <form onSubmit={submit} className="p-6">
                     <div className="flex items-center gap-3 border-b pb-4 mb-6">
                         <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-xl text-white">
