@@ -15,7 +15,7 @@ export default function ComingSoonModal({ show, onClose, featureName }) {
                     </h2>
                 </div>
                 <p className="mt-3 text-sm text-gray-600">
-                    Fitur ini sedang dalam tahap pengembangan dan akan tersedia dalam waktu dekat.
+                    Fitur ini sedang dalam tahap pengembangan. Mohon doakan bisa segera tersedia dalam waktu dekat.
                 </p>
                 <div className="mt-6 flex justify-end">
                     <PrimaryButton onClick={onClose} className="rounded-xl">
