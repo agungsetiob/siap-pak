@@ -15,6 +15,7 @@ import {
     Activity,
 } from "lucide-react";
 import Dropdown from "@/Components/Dropdown";
+import ComingSoonModal from "@/Components/ComingSoonModal";
 
 export default function AuthenticatedLayout({ header, children }) {
     const user = usePage().props.auth.user;
@@ -158,6 +159,8 @@ export default function AuthenticatedLayout({ header, children }) {
     // Get notification data
     const notifications = usePage().props.auth.notifications || [];
     const unreadCount = usePage().props.auth.unread_count || 0;
+    const [showComingSoon, setShowComingSoon] = useState(false);
+    const [comingSoonName, setComingSoonName] = useState("");
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -272,7 +275,8 @@ export default function AuthenticatedLayout({ header, children }) {
                                 onClick={(e) => {
                                     if (isComingSoon) {
                                         e.preventDefault();
-                                        alert(`${item.name} akan segera hadir!`);
+                                        setComingSoonName(item.name);
+                                        setShowComingSoon(true);
                                     }
                                 }}
                             >
@@ -480,6 +484,11 @@ export default function AuthenticatedLayout({ header, children }) {
                         {children}
                     </div>
                 </main>
+                <ComingSoonModal
+                    show={showComingSoon}
+                    onClose={() => setShowComingSoon(false)}
+                    featureName={comingSoonName}
+                />
             </div>
 
             {/* Custom Styles */}

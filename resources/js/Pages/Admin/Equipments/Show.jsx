@@ -801,7 +801,6 @@ export default function Show({ auth, equipment, rooms }) {
                                         </option>
                                     ))}
                                 </select>
-                                <ChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                             </div>
                             <InputError message={moveErrors.to_room_id} className="mt-2" />
                         </div>

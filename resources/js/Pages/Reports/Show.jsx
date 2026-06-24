@@ -19,6 +19,8 @@ import { Table } from '@tiptap/extension-table';
 import { TableRow } from '@tiptap/extension-table-row';
 import { TableHeader } from '@tiptap/extension-table-header';
 import { TableCell } from '@tiptap/extension-table-cell';
+import FlashMessage from '@/Components/FlashMessage';
+import ConfirmModal from '@/Components/ConfirmModal';
 
 const RichTextEditor = ({ value, onChange, placeholder = "Tulis catatan Anda..." }) => {
     const [isClient, setIsClient] = useState(false);
@@ -31,7 +33,6 @@ const RichTextEditor = ({ value, onChange, placeholder = "Tulis catatan Anda..."
         extensions: [
             StarterKit.configure({
                 heading: { levels: [1, 2, 3] },
-                // Remove link from StarterKit to avoid duplication
                 link: false,
             }),
             Placeholder.configure({
@@ -169,7 +170,7 @@ const RichTextEditor = ({ value, onChange, placeholder = "Tulis catatan Anda..."
     );
 };
 
-export default function Show({ auth, report }) {
+export default function Show({ auth, report, flash }) {
     const isAdmin = auth.user.role === 'admin';
     const isSelesai = report.status === 'selesai' || report.status === 'dibatalkan';
     const [showAllLogs, setShowAllLogs] = useState(false);
@@ -187,7 +188,6 @@ export default function Show({ auth, report }) {
         put(route('reports.progress.update', report.id), {
             onSuccess: () => {
                 reset('notes');
-                alert('Progress berhasil diperbarui dan notifikasi telah dikirim ke pelapor.');
             },
         });
     };
@@ -214,6 +214,7 @@ export default function Show({ auth, report }) {
     };
 
     const displayLogs = showAllLogs ? report.progress_logs : report.progress_logs?.slice(0, 3);
+    const [showConfirm, setShowConfirm] = useState(false);
 
     return (
         <AuthenticatedLayout
@@ -224,6 +225,7 @@ export default function Show({ auth, report }) {
 
             <div className="py-2">
                 <div className="max-w-8xl mx-auto sm:px-4 lg:px-4 mb-6">
+                    <FlashMessage flash={flash} />
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6 print:hidden">
                         <div className="flex items-center gap-3">
                             <div className="w-1.5 h-10 bg-gradient-to-b from-blue-600 to-indigo-600 rounded-full"></div>
@@ -490,16 +492,22 @@ export default function Show({ auth, report }) {
                                             ) : (
                                                 isSelesai ? (
                                                     !isAdmin ? (
-                                                        <button 
-                                                            onClick={() => {
-                                                                if(confirm('Apakah alat sudah berfungsi dengan baik? Tanda tangan Anda akan dibubuhkan.')){
-                                                                    router.post(route('reports.approve', report.id), {}, {
-                                                                        onError: (err) => { if(err.error) alert(err.error); }
-                                                                    });
-                                                                }
-                                                            }}
+                                                        <button
+                                                            onClick={() => setShowConfirm(true)}
                                                             className="inline-flex items-center gap-2 bg-green-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-green-500/30 hover:bg-green-700 transition-all duration-200 hover:shadow-xl"
                                                         >
+                                                        <ConfirmModal
+                                                            show={showConfirm}
+                                                            onClose={() => setShowConfirm(false)}
+                                                            onConfirm={() => {
+                                                                router.post(route('reports.approve', report.id), {}, {
+                                                                    onError: (err) => { if(err.error) alert(err.error); }
+                                                                });
+                                                                setShowConfirm(false);
+                                                            }}
+                                                            title="Konfirmasi Persetujuan"
+                                                            message="Apakah alat sudah berfungsi dengan baik? Tanda tangan Anda akan dibubuhkan."
+                                                        />
                                                             <ThumbsUp className="w-4 h-4" />
                                                             Setujui & Tanda Tangani
                                                         </button>
@@ -510,7 +518,10 @@ export default function Show({ auth, report }) {
                                                         </span>
                                                     )
                                                 ) : (
-                                                    <span className="text-sm text-gray-400 italic">Menunggu perbaikan selesai</span>
+                                                    <span className="inline-flex items-center gap-2 text-teal-600 bg-teal-50 px-4 py-2 rounded-lg border border-teal-200 text-sm font-medium">
+                                                        <Clock className="w-4 h-4 animate-pulse" />
+                                                        Menunggu Perbaikan Selesai
+                                                    </span>
                                                 )
                                             )}
                                         </div>

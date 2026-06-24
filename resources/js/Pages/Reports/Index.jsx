@@ -19,8 +19,9 @@ import {
     Check
 } from "lucide-react";
 import { Combobox, ComboboxInput, ComboboxOptions, ComboboxOption, ComboboxButton } from '@headlessui/react';
+import FlashMessage from "@/Components/FlashMessage";
 
-export default function Index({ auth, reports, equipments }) {
+export default function Index({ auth, reports, equipments, flash }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [searchEquipment, setSearchEquipment] = useState("");
     const isRuangan = auth.user.role === "ruangan";
@@ -61,9 +62,6 @@ export default function Index({ auth, reports, equipments }) {
                 setIsModalOpen(false);
                 reset();
                 setSearchEquipment("");
-                alert(
-                    "Laporan berhasil dikirim dan notifikasi WA telah diteruskan ke Admin/Teknisi.",
-                );
             },
         });
     };
@@ -108,6 +106,7 @@ export default function Index({ auth, reports, equipments }) {
 
             <div className="py-2">
                 <div className="max-w-8xl mx-auto sm:px-4 lg:px-4">
+                    <FlashMessage flash={flash} />
                     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                         {/* Header Area */}
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-6 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
@@ -180,8 +179,6 @@ export default function Index({ auth, reports, equipments }) {
                                                       report.type === 'pemeliharaan' ? 'bg-blue-100 text-blue-700' : 
                                                       'bg-purple-100 text-purple-700'}`}
                                                 >
-                                                    {report.type === 'kerusakan' ? '🔧' : 
-                                                     report.type === 'pemeliharaan' ? '🛠️' : '📊'}
                                                     {report.type}
                                                 </span>
                                             </td>
@@ -346,9 +343,9 @@ export default function Index({ auth, reports, equipments }) {
                             <InputLabel htmlFor="type" value="Jenis Laporan" className="text-sm font-semibold" />
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-1.5">
                                 {[
-                                    { value: 'kerusakan', label: 'Kerusakan / Perbaikan', icon: '🔧', color: 'red' },
-                                    { value: 'pemeliharaan', label: 'Pemeliharaan Rutin', icon: '🛠️', color: 'blue' },
-                                    { value: 'kalibrasi', label: 'Kalibrasi', icon: '📊', color: 'green' },
+                                    { value: 'kerusakan', label: 'Kerusakan / Perbaikan', color: 'red' },
+                                    { value: 'pemeliharaan', label: 'Pemeliharaan Rutin', color: 'blue' },
+                                    { value: 'kalibrasi', label: 'Kalibrasi', color: 'green' },
                                 ].map((option) => (
                                     <label
                                         key={option.value}

@@ -39,17 +39,21 @@ class ReportController extends Controller
     {
         $request->validate([
             'equipment_id' => 'required|exists:equipments,id',
-            'type' => 'required|in:kerusakan,pemeliharaan',
+            'type' => 'required|in:kerusakan,pemeliharaan,kalibrasi',
             'description' => 'required|string',
         ]);
 
         $this->reportService->createReport($request->all(), Auth::user());
 
-        return redirect()->back()->with('success', 'Laporan berhasil dibuat dan diteruskan ke Teknisi.');
+        return redirect()->back()->with('success', 'Laporan berhasil dibuat dan dikirim ke Admin/Teknisi.');
     }
 
     public function updateProgress(Request $request, Report $report)
     {
+        $user = auth()->user();
+        if (empty($user->signature_path)) {
+            return back()->with('error', 'Anda wajib upload tanda tangan di menu Profil.');
+        }
         $request->validate([
             'status' => 'required|in:diproses,selesai,dibatalkan',
             'notes' => 'required|string',
@@ -76,12 +80,12 @@ class ReportController extends Controller
         ]);
     }
 
-    public function approve(Request $request, Report $report)
+    public function approve(Report $report)
     {
         $user = auth()->user();
 
         if (empty($user->signature_path)) {
-            return back()->withErrors(['error' => 'Gagal menyetujui. Anda wajib meng-upload tanda tangan di menu Profil terlebih dahulu.']);
+            return back()->with('error', 'Anda wajib upload tanda tangan di menu Profil.');
         }
 
         $report->update([

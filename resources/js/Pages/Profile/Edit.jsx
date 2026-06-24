@@ -3,44 +3,41 @@ import { Head } from '@inertiajs/react';
 import DeleteUserForm from './Partials/DeleteUserForm';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm';
 import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm';
-import UpdateSignatureForm from './Partials/UpdateSignatureForm'; // <-- IMPORT BARU
+import UpdateSignatureForm from './Partials/UpdateSignatureForm';
+import FlashMessage from '@/Components/FlashMessage';
+import React from 'react';
 
-export default function Edit({ mustVerifyEmail, status }) {
+export default function Edit({ mustVerifyEmail, status, flash }) {
     return (
         <AuthenticatedLayout
             header={
                 <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                    Profile
+                    Profil Saya
                 </h2>
             }
         >
-            <Head title="Profile" />
+            <Head title="Profil" />
 
-            <div className="py-12">
-                <div className="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
-                    
-                    <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">
-                        <UpdateProfileInformationForm
-                            mustVerifyEmail={mustVerifyEmail}
-                            status={status}
-                            className="max-w-xl"
-                        />
-                    </div>
+            <div className="py-2">
+                <div className="mx-auto max-w-8xl sm:px-4 lg:px-4">
+                    <FlashMessage flash={flash} />
+                    <div className="grid grid-cols-1 gap-6  bg-white p-6 border border-gray-200 rounded-2xl">
 
-                    {/* --- PANEL BARU: UPLOAD TTD --- */}
-                    <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">
-                        <UpdateSignatureForm className="max-w-xl" />
-                    </div>
-                    {/* ------------------------------ */}
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+                            <UpdateSignatureForm className="w-full" />
+                            <UpdatePasswordForm className="w-full" />
+                        </div>
 
-                    <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">
-                        <UpdatePasswordForm className="max-w-xl" />
-                    </div>
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+                            <UpdateProfileInformationForm
+                                mustVerifyEmail={mustVerifyEmail}
+                                status={status}
+                                className="w-full" 
+                            />
+                            <DeleteUserForm className="w-full" />
+                        </div>
 
-                    <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">
-                        <DeleteUserForm className="max-w-xl" />
                     </div>
-                    
                 </div>
             </div>
         </AuthenticatedLayout>

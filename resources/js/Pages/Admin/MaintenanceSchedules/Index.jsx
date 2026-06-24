@@ -579,7 +579,6 @@ export default function Index({ auth, schedules, equipments, technicians, filter
                                         </option>
                                     ))}
                                 </select>
-                                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                             </div>
                             <InputError message={errors.technician_id} className="mt-2" />
                         </div>

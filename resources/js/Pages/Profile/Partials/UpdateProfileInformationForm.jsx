@@ -4,6 +4,7 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import { Transition } from '@headlessui/react';
 import { Link, useForm, usePage } from '@inertiajs/react';
+import { User, Mail, CheckCircle2 } from 'lucide-react';
 
 export default function UpdateProfileInformation({
     mustVerifyEmail,
@@ -20,90 +21,101 @@ export default function UpdateProfileInformation({
 
     const submit = (e) => {
         e.preventDefault();
-
         patch(route('profile.update'));
     };
 
     return (
-        <section className={className}>
-            <header>
-                <h2 className="text-lg font-medium text-gray-900">
-                    Profile Information
-                </h2>
-
-                <p className="mt-1 text-sm text-gray-600">
-                    Update your account's profile information and email address.
-                </p>
+        <section className={`bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-blue-100 ${className}`}>
+            <header className="flex items-center gap-4 border-b border-gray-100 pb-5">
+                <div className="p-3 bg-blue-50 text-blue-600 rounded-xl">
+                    <User className="w-6 h-6" />
+                </div>
+                <div>
+                    <h2 className="text-lg font-bold text-gray-900">
+                        Informasi Profil
+                    </h2>
+                    <p className="mt-1 text-sm text-gray-500">
+                        Perbarui informasi profil dan alamat email akun Anda.
+                    </p>
+                </div>
             </header>
 
             <form onSubmit={submit} className="mt-6 space-y-6">
                 <div>
-                    <InputLabel htmlFor="name" value="Name" />
-
-                    <TextInput
-                        id="name"
-                        className="mt-1 block w-full"
-                        value={data.name}
-                        onChange={(e) => setData('name', e.target.value)}
-                        required
-                        isFocused
-                        autoComplete="name"
-                    />
-
+                    <InputLabel htmlFor="name" value="Nama Lengkap" />
+                    <div className="relative mt-1">
+                        <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <TextInput
+                            id="name"
+                            className="pl-10 block w-full rounded-xl border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200"
+                            value={data.name}
+                            onChange={(e) => setData('name', e.target.value)}
+                            required
+                            autoComplete="name"
+                        />
+                    </div>
                     <InputError className="mt-2" message={errors.name} />
                 </div>
 
                 <div>
-                    <InputLabel htmlFor="email" value="Email" />
-
-                    <TextInput
-                        id="email"
-                        type="email"
-                        className="mt-1 block w-full"
-                        value={data.email}
-                        onChange={(e) => setData('email', e.target.value)}
-                        required
-                        autoComplete="username"
-                    />
-
+                    <InputLabel htmlFor="email" value="Alamat Email" />
+                    <div className="relative mt-1">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <TextInput
+                            id="email"
+                            type="email"
+                            className="pl-10 block w-full rounded-xl border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200"
+                            value={data.email}
+                            onChange={(e) => setData('email', e.target.value)}
+                            required
+                            autoComplete="username"
+                        />
+                    </div>
                     <InputError className="mt-2" message={errors.email} />
                 </div>
 
                 {mustVerifyEmail && user.email_verified_at === null && (
-                    <div>
-                        <p className="mt-2 text-sm text-gray-800">
-                            Your email address is unverified.
+                    <div className="p-4 bg-yellow-50 rounded-xl border border-yellow-100">
+                        <p className="text-sm text-yellow-800">
+                            Alamat email Anda belum diverifikasi.
                             <Link
                                 href={route('verification.send')}
                                 method="post"
                                 as="button"
-                                className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                                className="ml-2 font-bold underline hover:text-yellow-900 focus:outline-none"
                             >
-                                Click here to re-send the verification email.
+                                Klik di sini untuk mengirim ulang email verifikasi.
                             </Link>
                         </p>
-
                         {status === 'verification-link-sent' && (
-                            <div className="mt-2 text-sm font-medium text-green-600">
-                                A new verification link has been sent to your
-                                email address.
+                            <div className="mt-2 text-sm font-medium text-green-600 flex items-center gap-1.5">
+                                <CheckCircle2 className="w-4 h-4" />
+                                Link verifikasi baru telah dikirim ke email Anda.
                             </div>
                         )}
                     </div>
                 )}
 
-                <div className="flex items-center gap-4">
-                    <PrimaryButton disabled={processing}>Save</PrimaryButton>
+                <div className="flex items-center gap-4 pt-4">
+                    <PrimaryButton 
+                        disabled={processing}
+                        className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-xl px-6 py-2.5 shadow-lg shadow-blue-500/20"
+                    >
+                        Simpan Perubahan
+                    </PrimaryButton>
 
                     <Transition
                         show={recentlySuccessful}
-                        enter="transition ease-in-out"
-                        enterFrom="opacity-0"
-                        leave="transition ease-in-out"
-                        leaveTo="opacity-0"
+                        enter="transition ease-out duration-300"
+                        enterFrom="opacity-0 translate-y-2"
+                        enterTo="opacity-100 translate-y-0"
+                        leave="transition ease-in duration-200"
+                        leaveFrom="opacity-100 translate-y-0"
+                        leaveTo="opacity-0 translate-y-2"
                     >
-                        <p className="text-sm text-gray-600">
-                            Saved.
+                        <p className="text-sm font-medium text-green-600 flex items-center gap-1.5 bg-green-50 px-3 py-1.5 rounded-lg">
+                            <CheckCircle2 className="w-4 h-4" />
+                            Tersimpan.
                         </p>
                     </Transition>
                 </div>

@@ -38,7 +38,7 @@ class ProfileController extends Controller
 
         $request->user()->save();
 
-        return Redirect::route('profile.edit');
+        return Redirect::route('profile.edit')->with('success', 'Profile berhasil diperbarui' );
     }
 
     /**
@@ -80,6 +80,6 @@ class ProfileController extends Controller
             'signature_path' => $path
         ]);
 
-        return back()->with('success', 'Tanda tangan Anda berhasil di-upload.');
+        return back()->with('success', 'Tanda tangan Anda berhasil disimpan ke sistem.');
     }
 }
