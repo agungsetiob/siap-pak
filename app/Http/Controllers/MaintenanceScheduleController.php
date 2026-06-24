@@ -12,25 +12,43 @@ class MaintenanceScheduleController extends Controller
 {
     public function index(Request $request)
     {
-        $query = MaintenanceSchedule::with(['equipment.room', 'technician']);
+        $query = MaintenanceSchedule::with([
+            'equipment.room',
+            'technician'
+        ]);
 
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
-        $schedules = $query->orderBy('scheduled_date', 'asc')->paginate(10)->withQueryString();
-        
-        // Ambil data pendukung untuk dropdown di form modal
-        $equipments = Equipment::orderBy('name')->get(['id', 'name', 'inventory_number']);
-        $technicians = Technician::where('is_active', true)->orderBy('name')->get(['id', 'name']);
+        $schedules = $query->orderBy('scheduled_date', 'asc')
+            ->paginate(10)
+            ->withQueryString();
+
+        $equipments = Equipment::with('room')
+            ->orderBy('name')
+            ->get(['id', 'name', 'inventory_number', 'room_id']);
+
+        $technicians = Technician::where('is_active', true)
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
+        $stats = [
+            'total'     => MaintenanceSchedule::count(),
+            'pending'   => MaintenanceSchedule::where('status', 'menunggu')->count(),
+            'completed' => MaintenanceSchedule::where('status', 'selesai')->count(),
+            'overdue'   => MaintenanceSchedule::where('status', 'terlewat')->count(),
+        ];
 
         return Inertia::render('Admin/MaintenanceSchedules/Index', [
-            'schedules' => $schedules,
-            'equipments' => $equipments,
+            'schedules'   => $schedules,
+            'equipments'  => $equipments,
             'technicians' => $technicians,
-            'filters' => $request->only(['status']),
+            'filters'     => $request->only(['status']),
+            'stats'       => $stats,
         ]);
     }
+
 
     public function store(Request $request)
     {
@@ -40,7 +58,7 @@ class MaintenanceScheduleController extends Controller
             'scheduled_date' => 'required|date|after_or_equal:today',
             'notes' => 'nullable|string',
         ]);
-        
+
         MaintenanceSchedule::create($v);
         return back()->with('success', 'Jadwal pemeliharaan berhasil diatur.');
     }

@@ -20,8 +20,8 @@ export default function Trashed({ auth, equipments }) {
         <AuthenticatedLayout user={auth.user} header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Tong Sampah: Alat Kesehatan</h2>}>
             <Head title="Arsip Alat - SIMAK" />
 
-            <div className="py-12">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div className="py-2">
+                <div className="max-w-8xl mx-auto sm:px-4 lg:px-4">
                     <div className="mb-4">
                         <Link href={route('equipments.index')} className="text-blue-600 hover:underline">
                             &larr; Kembali ke Inventaris Aktif

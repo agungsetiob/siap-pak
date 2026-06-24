@@ -15,7 +15,7 @@ class CalibrationController extends Controller
     {
         $calibrations = Calibration::with(['equipment.room', 'admin'])
             ->latest('calibration_date')
-            ->paginate(15);
+            ->paginate(10);
 
         $upcomingCalibrations = Equipment::with('room')
             ->whereNotNull('next_calibration_date')
@@ -23,11 +23,24 @@ class CalibrationController extends Controller
             ->orderBy('next_calibration_date', 'asc')
             ->get();
 
+        $stats = [
+            'total'       => Calibration::count(),
+            'upcoming'    => Equipment::whereNotNull('next_calibration_date')
+                ->whereDate('next_calibration_date', '<=', now()->addDays(30))
+                ->count(),
+            'expired'     => Equipment::whereNotNull('next_calibration_date')
+                ->whereDate('next_calibration_date', '<', now())
+                ->count(),
+            'withCert'    => Calibration::whereNotNull('certificate_file')->count(),
+        ];
+
         return Inertia::render('Admin/Calibrations/Index', [
-            'calibrations' => $calibrations,
+            'calibrations'        => $calibrations,
             'upcomingCalibrations' => $upcomingCalibrations,
+            'stats'               => $stats,
         ]);
     }
+
     public function store(Request $request, Equipment $equipment)
     {
         $request->validate([

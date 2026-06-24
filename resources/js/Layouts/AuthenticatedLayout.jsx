@@ -13,7 +13,6 @@ import {
     Menu,
     ChevronDown,
     Activity,
-    BarChart3,
 } from "lucide-react";
 import Dropdown from "@/Components/Dropdown";
 
@@ -178,11 +177,10 @@ export default function AuthenticatedLayout({ header, children }) {
                 {/* Logo */}
                 <div className={`h-16 flex items-center ${isSidebarOpen ? "px-6" : "px-4"} border-b border-gray-200`}>
                     <Link href={route("dashboard")} className="flex items-center gap-3 group">
-                        {/* Logo */}
                         <div className="relative w-9 h-auto">
                             {isSidebarOpen ? (
                                 <img
-                                    src="/logo_tanbu.png"
+                                    src="/logo_qr.png"
                                     alt="Logo"
                                     className="w-full h-full object-cover"
                                     onError={(e) => {
@@ -370,12 +368,11 @@ export default function AuthenticatedLayout({ header, children }) {
 
                         {/* Right Actions */}
                         <div className="flex items-center gap-2">
-                            {/* Notifications Dropdown - Improved width */}
                             <div className="relative">
                                 <Dropdown>
                                     <Dropdown.Trigger>
                                         <button className="p-2 rounded-xl hover:bg-gray-100 transition-all duration-200 relative">
-                                            <Bell className="w-5 h-5 text-gray-600" />
+                                            <Bell className="w-6 h-6 text-emerald-600" />
                                             {unreadCount > 0 && (
                                                 <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center w-5 h-5 text-[10px] font-bold text-white bg-gradient-to-br from-red-500 to-red-600 rounded-full shadow-lg shadow-red-500/30">
                                                     {unreadCount}
@@ -456,7 +453,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                             </>
                                         ) : (
                                             <div className="px-4 py-10 text-center">
-                                                <Bell className="w-14 h-14 mx-auto text-gray-200 mb-3" />
+                                                <Bell className="w-14 h-14 mx-auto text-emerald-600 mb-3" />
                                                 <p className="text-sm font-medium text-gray-600">Tidak ada notifikasi</p>
                                                 <p className="text-xs text-gray-400 mt-1">Semua notifikasi akan muncul di sini</p>
                                             </div>
@@ -466,21 +463,11 @@ export default function AuthenticatedLayout({ header, children }) {
                             </div>
 
                             {/* User Menu (Mobile) */}
-                            <div className="lg:hidden">
+                            <div>
                                 <button className="flex items-center gap-2 p-2 rounded-xl hover:bg-gray-100 transition-all duration-200">
                                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-sm font-semibold">
                                         {user?.name?.charAt(0).toUpperCase() || "U"}
                                     </div>
-                                </button>
-                            </div>
-
-                            {/* Quick Actions */}
-                            <div className="hidden lg:flex items-center gap-2">
-                                <button className="p-2 rounded-xl hover:bg-gray-100 transition-all duration-200">
-                                    <Activity className="w-5 h-5 text-gray-600" />
-                                </button>
-                                <button className="p-2 rounded-xl hover:bg-gray-100 transition-all duration-200">
-                                    <BarChart3 className="w-5 h-5 text-gray-600" />
                                 </button>
                             </div>
                         </div>

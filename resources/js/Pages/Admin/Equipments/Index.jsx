@@ -1,4 +1,4 @@
-import React, { useState, Fragment } from "react";
+import React, { useState, useRef, useEffect, useMemo, Fragment } from "react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, router, useForm, Link } from "@inertiajs/react";
 import Modal from "@/Components/Modal";
@@ -16,70 +16,90 @@ import {
     Tag, AlertCircle, CheckCircle, XCircle,
     ChevronRight
 } from 'lucide-react';
-import { Combobox, ComboboxInput, ComboboxOptions, ComboboxOption, Transition, Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/react';
+import { Transition, Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/react';
 
-// Searchable Combobox Component
-const SearchableSelect = ({ options, value, onChange, label, placeholder, displayValue, required = false }) => {
-    const [query, setQuery] = useState('');
+// Custom Searchable Dropdown Component
+const SearchableSelect = ({ options = [], value, onChange, label, placeholder, displayValue, required = false }) => {
+    const [search, setSearch] = useState('');
+    const [isOpen, setIsOpen] = useState(false);
+    const dropdownRef = useRef(null);
 
-    const filteredOptions = query === ''
-        ? options
-        : options.filter((option) => {
-            const searchTerm = query.toLowerCase();
-            const display = displayValue(option).toLowerCase();
-            return display.includes(searchTerm);
-        });
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    const filteredOptions = useMemo(() => {
+        if (!search) return options;
+        return options.filter((option) =>
+            displayValue(option).toLowerCase().includes(search.toLowerCase())
+        );
+    }, [options, search, displayValue]);
+
+    const displayString = value ? displayValue(value) : '';
 
     return (
-        <Combobox value={value} onChange={onChange}>
-            <label
-                htmlFor="combobox-input"
-                className="block text-sm font-medium text-gray-700"
-            >
+        <div className="relative" ref={dropdownRef}>
+            <label className="block text-sm font-medium text-gray-700">
                 {label} {required && <span className="text-red-500">*</span>}
             </label>
 
             <div className="relative mt-1">
-                <ComboboxInput
-                    id="combobox-input"
-                    className="w-full rounded-xl border-gray-300 bg-gray-50 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 pl-10 pr-10 py-2.5"
+                <Search className="absolute left-3 top-3 w-4 h-4 text-gray-400 z-10" />
+
+                <input
+                    type="text"
+                    className="pl-10 pr-10 block w-full rounded-xl border-gray-300 bg-gray-50 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 py-2.5 px-4 text-sm cursor-pointer"
                     placeholder={placeholder}
-                    displayValue={displayValue}
-                    onChange={(event) => setQuery(event.target.value)}
+                    value={isOpen ? search : displayString}
+                    onChange={(e) => {
+                        setSearch(e.target.value);
+                        if (!isOpen) setIsOpen(true);
+                    }}
+                    onFocus={() => {
+                        setIsOpen(true);
+                        setSearch('');
+                    }}
+                    readOnly={!isOpen && !!value}
                 />
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Search className="h-4 w-4 text-gray-400" />
-                </div>
-                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                    <ChevronDown className="h-4 w-4 text-gray-400" />
-                </div>
+
+                <ChevronDown className={`absolute right-3 top-3 w-4 h-4 text-gray-400 pointer-events-none transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+
+                {/* Dropdown Menu */}
+                {isOpen && (
+                    <div className="absolute z-50 w-full mt-2 bg-white border border-gray-100 rounded-xl shadow-xl max-h-60 overflow-y-auto py-1">
+                        {filteredOptions.length > 0 ? (
+                            filteredOptions.map((option, idx) => (
+                                <div
+                                    key={option.id || idx}
+                                    className={`px-4 py-2.5 cursor-pointer hover:bg-blue-50 transition-colors duration-150 border-b border-gray-50 last:border-0 ${value?.id === option.id ? 'bg-blue-50 text-blue-700' : 'text-gray-700'}`}
+                                    onClick={() => {
+                                        onChange(option);
+                                        setSearch('');
+                                        setIsOpen(false);
+                                    }}
+                                >
+                                    <div className="font-medium text-sm flex items-center gap-2">
+                                        {value?.id === option.id && <CheckCircle className="w-3.5 h-3.5 text-blue-600" />}
+                                        {displayValue(option)}
+                                    </div>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="px-4 py-6 text-sm text-gray-400 text-center flex flex-col items-center">
+                                <Search className="w-6 h-6 mb-2 opacity-20" />
+                                Tidak ditemukan
+                            </div>
+                        )}
+                    </div>
+                )}
             </div>
-            <Transition
-                as={Fragment}
-                leave="transition ease-in duration-100"
-                leaveFrom="opacity-100"
-                leaveTo="opacity-0"
-            >
-                <ComboboxOptions className="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-xl py-1 overflow-auto border border-gray-200">
-                    {filteredOptions.length === 0 && query !== '' ? (
-                        <div className="px-4 py-2 text-sm text-gray-500">Tidak ditemukan</div>
-                    ) : (
-                        filteredOptions.map((option) => (
-                            <ComboboxOption
-                                key={option.id}
-                                value={option}
-                                className="group px-4 py-2.5 hover:bg-blue-50 cursor-pointer transition-colors duration-150 flex items-center gap-3"
-                            >
-                                <CheckCircle className="h-4 w-4 text-transparent group-data-[selected]:text-blue-600" />
-                                <span className="text-sm text-gray-700 group-data-[selected]:font-medium">
-                                    {displayValue(option)}
-                                </span>
-                            </ComboboxOption>
-                        ))
-                    )}
-                </ComboboxOptions>
-            </Transition>
-        </Combobox>
+        </div>
     );
 };
 
@@ -239,7 +259,6 @@ export default function Index({ auth, equipments, rooms, vendors, filters, flash
         setIsDeleteModalOpen(false);
     };
 
-
     const isAdmin = auth.user.role === "admin";
 
     // QR Generate Modal
@@ -255,7 +274,6 @@ export default function Index({ auth, equipments, rooms, vendors, filters, flash
             onSuccess: () => {
                 setIsQrGenerateModalOpen(false);
                 resetQr();
-                alert('QR Code berhasil digenerate!');
             }
         });
     };
@@ -305,7 +323,7 @@ export default function Index({ auth, equipments, rooms, vendors, filters, flash
             <div className="py-2">
                 <div className="max-w-8xl mx-auto sm:px-4 lg:px-4">
                     <FlashMessage flash={flash} />
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
                         <div className="p-6">
                             {/* --- Header & Form Pencarian --- */}
                             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">

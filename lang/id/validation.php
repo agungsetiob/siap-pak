@@ -43,6 +43,7 @@ return [
     'not_in'               => 'Kolom :attribute yang dipilih tidak valid.',
     'numeric'              => 'Kolom :attribute harus berupa angka.',
     'required'             => 'Kolom :attribute wajib diisi.',
+    'lowercase'            => 'Kolom :attribute harus huruf kecil',
     'same'                 => 'Kolom :attribute dan :other harus sama.',
     'size'                 => [
         'numeric' => 'Kolom :attribute harus berukuran :size.',
@@ -54,7 +55,7 @@ return [
         'failed' => 'Kredensial ini tidak cocok dengan data kami',
     ],
     'string'               => 'Kolom :attribute harus berupa string.',
-    'unique'               => 'Kolom :attribute sudah digunakan.',
+    'unique'               => 'Data kolom :attribute sudah digunakan.',
     'url'                  => 'Format kolom :attribute tidak valid.',
 
     'attributes' => [],

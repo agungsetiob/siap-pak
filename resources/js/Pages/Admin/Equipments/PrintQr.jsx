@@ -32,7 +32,6 @@ export default function PrintQr({ equipments, room }) {
                 </div>
             </div>
 
-            {/* AREA KERTAS CETAK (Grid Label Stiker) */}
             {/* Setting: 4 kolom untuk kertas A4 */}
             <div className="p-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 print:grid-cols-4 gap-4 print:gap-3">
                 {equipments.map((eq) => (
@@ -41,7 +40,6 @@ export default function PrintQr({ equipments, room }) {
                         // break-inside-avoid sangat krusial agar stiker tidak terpotong di antara 2 halaman
                         className="border-[1.5px] border-black rounded-lg p-2 flex flex-col items-center text-center break-inside-avoid h-full"
                     >
-                        {/* Header RSUD */}
                         <div className="font-bold text-[9px] uppercase border-b border-gray-400 w-full pb-1 mb-1 tracking-tighter line-clamp-1">
                             RSUD dr. H. Andi Abdurrahman Noor
                         </div>

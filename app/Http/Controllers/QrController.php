@@ -80,13 +80,13 @@ class QrController extends Controller
 
         $scanUrl = route('qr.scan', $token);
 
-        $qrImage = QrCode::format('svg')
+        $qrImage = QrCode::format('png')
             ->size(300)
             ->errorCorrection('H')
-            ->merge(public_path('/logo_tanbu.png'), 0.25, true)
+            ->merge(public_path('logo_qr.png'), 0.25, true)
             ->generate($scanUrl);
 
-        return response($qrImage)->header('Content-Type', 'image/svg+xml');
+        return response($qrImage)->header('Content-Type', 'image/png');
     }
 
     public function batchGenerate(Request $request)
@@ -105,7 +105,7 @@ class QrController extends Controller
         $equipments = $query->get();
 
         if ($equipments->isEmpty()) {
-            return back()->withErrors(['error' => 'Tidak ada alat yang butuh QR Code pada kriteria ini (Semua sudah punya).']);
+            return back()->withErrors(['error' => 'Semua alat pada kriteria ini sudah punya QR.']);
         }
 
         $equipments->each(function ($equipment) {
