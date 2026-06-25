@@ -1,19 +1,16 @@
 import React, { useState } from "react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, Link, useForm, router } from "@inertiajs/react";
-import Modal from "@/Components/Modal";
-import InputLabel from "@/Components/InputLabel";
-import TextInput from "@/Components/TextInput";
-import InputError from "@/Components/InputError";
-import PrimaryButton from "@/Components/PrimaryButton";
-import SecondaryButton from "@/Components/SecondaryButton";
+import { 
+    Modal, InputLabel, TextInput, InputError,
+    PrimaryButton, SecondaryButton
+ } from "@/Components";
 import { formatDate } from "@/Helpers/date";
 import {
     ArrowLeft,
     Package,
     Building2,
     Tag,
-    Hash,
     Calendar,
     DollarSign,
     QrCode,
@@ -29,19 +26,7 @@ import {
     AlertCircle,
     Clock,
     ChevronRight,
-    ExternalLink,
     Plus,
-    Search,
-    Grid,
-    List,
-    User,
-    Phone,
-    Mail,
-    MapPin,
-    Briefcase,
-    Users,
-    Star,
-    StarOff
 } from "lucide-react";
 
 export default function Show({ auth, equipment, rooms }) {

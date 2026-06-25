@@ -27,6 +27,7 @@ class DashboardController extends Controller
             'equipments_rusak' => Equipment::whereIn('condition', ['rusak_ringan', 'rusak_berat'])->count(),
             'reports_pending' => Report::where('status', 'menunggu')->count(),
             'reports_processing' => Report::where('status', 'diproses')->count(),
+            'total_reports'  => Report::whereDate('created_at', today())->count(),
         ];
 
         $recentReports = Report::with(['equipment.room', 'reporter'])

@@ -11,7 +11,7 @@ export default function PrintQr({ equipments, room }) {
 
     return (
         <div className="bg-white min-h-screen text-black font-sans">
-            <Head title="Cetak Label QR - SIAP PAK" />
+            <Head title="Cetak Label QR" />
 
             {/* HEADER KONTROL (Disembunyikan saat dicetak) */}
             <div className="print:hidden p-6 bg-gray-100 border-b border-gray-300 flex justify-between items-center mb-6">

@@ -1,7 +1,7 @@
 import { PrimaryButton, SecondaryButton, Modal } from '@/Components';
 import { Trash2 } from 'lucide-react';
 
-export default function ConfirmModal({ show, onClose, onConfirm, title, message }) {
+export default function DeleteModal({ show, onClose, onConfirm, title, message }) {
     return (
         <Modal show={show} onClose={onClose} maxWidth="sm">
             <div className="p-6">

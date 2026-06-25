@@ -4,102 +4,17 @@ import { Head, router, useForm, Link } from "@inertiajs/react";
 import { 
     PrimaryButton, SecondaryButton, Modal, DeleteModal,
     FlashMessage, TextInput, InputLabel, InputError,
-    ImportExcelModal
+    ImportExcelModal, QrPrintModal, QrGenerateModal, SearchableSelect
 } from '@/Components';
 import { formatDate } from "@/Helpers/date";
 import {
     Plus, Search, Trash2, Edit, Eye, FileSpreadsheet,
-    QrCode, Printer, Download, ChevronDown,
+    QrCode, Printer, ChevronDown,
     Building2, Package, Calendar, DollarSign,
     Tag, AlertCircle, CheckCircle, XCircle,
     ChevronRight
 } from 'lucide-react';
 import { Transition, Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/react';
-
-// Custom Searchable Dropdown Component
-const SearchableSelect = ({ options = [], value, onChange, label, placeholder, displayValue, required = false }) => {
-    const [search, setSearch] = useState('');
-    const [isOpen, setIsOpen] = useState(false);
-    const dropdownRef = useRef(null);
-
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-                setIsOpen(false);
-            }
-        };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
-
-    const filteredOptions = useMemo(() => {
-        if (!search) return options;
-        return options.filter((option) =>
-            displayValue(option).toLowerCase().includes(search.toLowerCase())
-        );
-    }, [options, search, displayValue]);
-
-    const displayString = value ? displayValue(value) : '';
-
-    return (
-        <div className="relative" ref={dropdownRef}>
-            <label className="block text-sm font-medium text-gray-700">
-                {label} {required && <span className="text-red-500">*</span>}
-            </label>
-
-            <div className="relative mt-1">
-                <Search className="absolute left-3 top-3 w-4 h-4 text-gray-400 z-10" />
-
-                <input
-                    type="text"
-                    className="pl-10 pr-10 block w-full rounded-xl border-gray-300 bg-gray-50 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 py-2.5 px-4 text-sm cursor-pointer"
-                    placeholder={placeholder}
-                    value={isOpen ? search : displayString}
-                    onChange={(e) => {
-                        setSearch(e.target.value);
-                        if (!isOpen) setIsOpen(true);
-                    }}
-                    onFocus={() => {
-                        setIsOpen(true);
-                        setSearch('');
-                    }}
-                    readOnly={!isOpen && !!value}
-                />
-
-                <ChevronDown className={`absolute right-3 top-3 w-4 h-4 text-gray-400 pointer-events-none transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
-
-                {/* Dropdown Menu */}
-                {isOpen && (
-                    <div className="absolute z-50 w-full mt-2 bg-white border border-gray-100 rounded-xl shadow-xl max-h-60 overflow-y-auto py-1">
-                        {filteredOptions.length > 0 ? (
-                            filteredOptions.map((option, idx) => (
-                                <div
-                                    key={option.id || idx}
-                                    className={`px-4 py-2.5 cursor-pointer hover:bg-blue-50 transition-colors duration-150 border-b border-gray-50 last:border-0 ${value?.id === option.id ? 'bg-blue-50 text-blue-700' : 'text-gray-700'}`}
-                                    onClick={() => {
-                                        onChange(option);
-                                        setSearch('');
-                                        setIsOpen(false);
-                                    }}
-                                >
-                                    <div className="font-medium text-sm flex items-center gap-2">
-                                        {value?.id === option.id && <CheckCircle className="w-3.5 h-3.5 text-blue-600" />}
-                                        {displayValue(option)}
-                                    </div>
-                                </div>
-                            ))
-                        ) : (
-                            <div className="px-4 py-6 text-sm text-gray-400 text-center flex flex-col items-center">
-                                <Search className="w-6 h-6 mb-2 opacity-20" />
-                                Tidak ditemukan
-                            </div>
-                        )}
-                    </div>
-                )}
-            </div>
-        </div>
-    );
-};
 
 // QR Dropdown Menu Component
 const QrDropdown = ({ onGenerate, onPrint }) => {
@@ -267,7 +182,7 @@ export default function Index({ auth, equipments, rooms, vendors, filters, flash
     });
 
     const handleBatchQrSubmit = (e) => {
-        e.preventDefault();
+        // e.preventDefault();
         postBatchQr(route('equipments.batchGenerateQr'), {
             onSuccess: () => {
                 setIsQrGenerateModalOpen(false);
@@ -278,11 +193,8 @@ export default function Index({ auth, equipments, rooms, vendors, filters, flash
 
     // QR Print Modal
     const [isQrPrintModalOpen, setIsQrPrintModalOpen] = useState(false);
-    const [printRoomId, setPrintRoomId] = useState('');
-
-    const handlePrintSubmit = (e) => {
-        e.preventDefault();
-        const url = route('equipments.printBatchQr', printRoomId ? { room_id: printRoomId } : {});
+    const handlePrintSubmit = (roomId) => {
+        const url = route('equipments.printBatchQr', roomId ? { room_id: roomId } : {});
         window.open(url, '_blank');
         setIsQrPrintModalOpen(false);
     };
@@ -319,7 +231,7 @@ export default function Index({ auth, equipments, rooms, vendors, filters, flash
             <Head title="Alat Kesehatan" />
 
             <div className="py-2">
-                <div className="max-w-8xl mx-auto sm:px-4 lg:px-4">
+                <div className="max-w-8xl mx-auto sm:px-2 lg:px-2">
                     <FlashMessage flash={flash} />
                     <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
                         <div className="p-6">
@@ -350,7 +262,7 @@ export default function Index({ auth, equipments, rooms, vendors, filters, flash
                                 </div>
 
                                 {isAdmin && (
-                                    <div className="flex flex-wrap gap-2 w-full lg:w-auto">
+                                    <div className="flex flex-wrap gap-1 w-full lg:w-auto">
                                         {/* Import Button */}
                                         <button
                                             onClick={() => setIsImportModalOpen(true)}
@@ -724,110 +636,23 @@ export default function Index({ auth, equipments, rooms, vendors, filters, flash
                 </form>
             </Modal>
 
-            {/* MODAL GENERATE QR */}
-            <Modal show={isQrGenerateModalOpen} onClose={() => setIsQrGenerateModalOpen(false)} maxWidth="md">
-                <form onSubmit={handleBatchQrSubmit} className="p-6">
-                    <div className="flex items-center gap-3 border-b pb-4 mb-6">
-                        <div className="p-2 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-xl text-white">
-                            <QrCode className="w-5 h-5" />
-                        </div>
-                        <div>
-                            <h2 className="text-xl font-bold text-gray-900">Generate QR Code Massal</h2>
-                            <p className="text-sm text-gray-500">Buat QR untuk alat yang belum memiliki</p>
-                        </div>
-                    </div>
+            <QrGenerateModal
+                isOpen={isQrGenerateModalOpen}
+                onClose={() => setIsQrGenerateModalOpen(false)}
+                rooms={rooms}
+                qrData={qrData}
+                setQrData={setQrData}
+                qrErrors={qrErrors}
+                qrProcessing={qrProcessing}
+                onSubmit={handleBatchQrSubmit}
+            />
 
-                    <p className="text-sm text-gray-500 mb-4">
-                        Sistem hanya akan membuatkan QR Code untuk alat yang <strong>belum memiliki QR Code</strong>. Alat yang sudah punya tidak akan ditimpa.
-                    </p>
-
-                    <div className="space-y-4">
-                        <div>
-                            <InputLabel htmlFor="mode" value="Target Generate" />
-                            <select
-                                id="mode"
-                                className="mt-1 block w-full rounded-xl border-gray-200 bg-gray-50 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 py-2.5 px-4"
-                                value={qrData.mode}
-                                onChange={(e) => setQrData('mode', e.target.value)}
-                            >
-                                <option value="all_missing">Semua Alat yang Belum Punya QR</option>
-                                <option value="by_room">Pilih Berdasarkan Ruangan</option>
-                            </select>
-                        </div>
-
-                        {qrData.mode === 'by_room' && (
-                            <div>
-                                <SearchableSelect
-                                    options={rooms}
-                                    value={rooms.find(r => r.id === qrData.room_id) || null}
-                                    onChange={(room) => setQrData('room_id', room ? room.id : '')}
-                                    label="Pilih Ruangan"
-                                    placeholder="Cari ruangan..."
-                                    displayValue={(room) => room?.name || ""}
-                                    required
-                                />
-                                <InputError message={qrErrors.room_id} className="mt-2" />
-                            </div>
-                        )}
-                        <InputError message={qrErrors.error} className="mt-2" />
-                    </div>
-
-                    <div className="mt-8 flex justify-end bg-gray-50 -mx-6 -mb-6 p-4 rounded-b-2xl border-t border-gray-100">
-                        <SecondaryButton type="button" onClick={() => setIsQrGenerateModalOpen(false)} className="rounded-xl">
-                            Batal
-                        </SecondaryButton>
-                        <PrimaryButton
-                            className="ml-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 rounded-xl px-6 py-2.5 shadow-lg shadow-purple-500/20"
-                            disabled={qrProcessing}
-                        >
-                            {qrProcessing ? 'Memproses...' : 'Mulai Generate'}
-                        </PrimaryButton>
-                    </div>
-                </form>
-            </Modal>
-
-            {/* MODAL CETAK QR */}
-            <Modal show={isQrPrintModalOpen} onClose={() => setIsQrPrintModalOpen(false)} maxWidth="md">
-                <form onSubmit={handlePrintSubmit} className="p-6">
-                    <div className="flex items-center gap-3 border-b pb-4 mb-6">
-                        <div className="p-2 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-xl text-white">
-                            <Printer className="w-5 h-5" />
-                        </div>
-                        <div>
-                            <h2 className="text-xl font-bold text-gray-900">Cetak Label Stiker QR</h2>
-                            <p className="text-sm text-gray-500">Cetak label QR untuk ruangan tertentu</p>
-                        </div>
-                    </div>
-
-                    <p className="text-sm text-gray-500 mb-4">
-                        Pilih ruangan untuk mencetak label QR. Halaman cetak akan terbuka di tab baru.
-                    </p>
-
-                    <div className="space-y-4">
-                        <div>
-                            <SearchableSelect
-                                options={rooms}
-                                value={rooms.find(r => r.id === printRoomId) || null}
-                                onChange={(room) => setPrintRoomId(room ? room.id : '')}
-                                label="Filter Ruangan (Opsional)"
-                                placeholder="Cari ruangan..."
-                                displayValue={(room) => room?.name || ""}
-                            />
-                        </div>
-                    </div>
-
-                    <div className="mt-8 flex justify-end bg-gray-50 -mx-6 -mb-6 p-4 rounded-b-2xl border-t border-gray-100">
-                        <SecondaryButton type="button" onClick={() => setIsQrPrintModalOpen(false)} className="rounded-xl">
-                            Batal
-                        </SecondaryButton>
-                        <PrimaryButton
-                            className="ml-3 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 rounded-xl px-6 py-2.5 shadow-lg shadow-teal-500/20"
-                        >
-                            Buka Pratinjau Cetak
-                        </PrimaryButton>
-                    </div>
-                </form>
-            </Modal>
+            <QrPrintModal
+                isOpen={isQrPrintModalOpen}
+                onClose={() => setIsQrPrintModalOpen(false)}
+                rooms={rooms}
+                onSubmit={handlePrintSubmit}
+            />
 
             <ImportExcelModal
                 show={isImportModalOpen}

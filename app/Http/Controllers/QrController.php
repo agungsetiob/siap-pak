@@ -105,7 +105,7 @@ class QrController extends Controller
         $equipments = $query->get();
 
         if ($equipments->isEmpty()) {
-            return back()->withErrors(['error' => 'Semua alat pada kriteria ini sudah punya QR.']);
+            return back()->with('error', 'Semua alat pada kriteria ini sudah punya QR');
         }
 
         $equipments->each(function ($equipment) {
@@ -130,7 +130,7 @@ class QrController extends Controller
         $equipments = $query->orderBy('room_id')->orderBy('name')->get();
 
         if ($equipments->isEmpty()) {
-            return back()->withErrors(['error' => 'Tidak ada QR Code yang bisa dicetak pada kriteria ini. Pastikan Anda sudah Generate QR terlebih dahulu.']);
+            return back()->with('error', 'Tidak ada QR Code yang bisa dicetak pada kriteria ini. Pastikan Anda sudah Generate QR terlebih dahulu.');
         }
 
         return Inertia::render('Admin/Equipments/PrintQr', [

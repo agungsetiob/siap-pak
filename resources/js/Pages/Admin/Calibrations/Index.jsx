@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import Modal from "@/Components/Modal";
-import PrimaryButton from "@/Components/PrimaryButton";
-import SecondaryButton from "@/Components/SecondaryButton";
+import {
+    FlashMessage,
+    DeleteModal,
+} from "@/Components";
 import { Head, Link, router } from "@inertiajs/react";
 import { formatDate } from "@/Helpers/date";
 import {
@@ -27,6 +28,7 @@ export default function Index({
     calibrations,
     upcomingCalibrations,
     stats,
+    flash
 }) {
     const [viewMode, setViewMode] = useState("table");
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -38,7 +40,7 @@ export default function Index({
     };
 
     const confirmDelete = () => {
-        destroy(route("calibrations.destroy", deleteId));
+        router.delete(route("calibrations.destroy", deleteId));
         setIsDeleteModalOpen(false);
     };
 
@@ -100,7 +102,8 @@ export default function Index({
             <Head title="Kalibrasi" />
 
             <div className="py-2">
-                <div className="max-w-8xl mx-auto sm:px-4 lg:px-4 space-y-6">
+                <div className="max-w-8xl mx-auto sm:px-2 lg:px-2 space-y-6">
+                    <FlashMessage flash={flash} />
                     {/* --- Stats Cards --- */}
                     <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
                         <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100">
@@ -572,44 +575,13 @@ export default function Index({
                     </div>
                 </div>
             </div>
-            <Modal
+            <DeleteModal
                 show={isDeleteModalOpen}
                 onClose={() => setIsDeleteModalOpen(false)}
-                maxWidth="sm"
-            >
-                <div className="p-6">
-                    <div className="flex items-center gap-3 pb-3 mb-3">
-                        <div className="p-2 bg-gradient-to-br from-red-500 to-pink-500 rounded-xl text-white">
-                            <Trash2 className="w-5 h-5" />
-                        </div>
-                        <div>
-                            <h2 className="text-xl font-bold text-gray-900">
-                                Konfirmasi Hapus
-                            </h2>
-                            <p className="text-sm text-gray-500">
-                                Apakah Anda yakin ingin menghapus data alat ini?
-                            </p>
-                        </div>
-                    </div>
-
-                    <div className="mt-8 flex justify-end bg-gray-50 -mx-6 -mb-6 p-4 rounded-b-2xl border-t border-gray-100">
-                        <SecondaryButton
-                            type="button"
-                            onClick={() => setIsDeleteModalOpen(false)}
-                            className="rounded-xl"
-                        >
-                            Batal
-                        </SecondaryButton>
-                        <PrimaryButton
-                            type="button"
-                            onClick={confirmDelete}
-                            className="ml-3 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 rounded-xl px-6 py-2.5 shadow-lg shadow-red-500/20"
-                        >
-                            Hapus
-                        </PrimaryButton>
-                    </div>
-                </div>
-            </Modal>
+                onConfirm={confirmDelete}
+                title="Konfirmasi Hapus"
+                message="Apakah Anda yakin ingin menghapus data kalibrasi ini?"
+            />
         </AuthenticatedLayout>
     );
 }

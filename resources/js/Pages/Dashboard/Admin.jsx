@@ -1,230 +1,434 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { 
+    LineChart, Line, XAxis, YAxis, CartesianGrid, 
+    Tooltip, Legend, ResponsiveContainer, 
+    PieChart, Pie, Cell 
+} from 'recharts';
 import { formatRupiah } from '@/Helpers/rupiah';
+import { 
+    LayoutDashboard, Package, AlertTriangle, 
+    Clock, TrendingUp, Building2, Users, 
+    FileText, ChevronRight, CheckCircle,
+    Activity, BarChart3, PieChart as PieChartIcon,
+    Calendar, DollarSign, Truck, Home,
+    ArrowUp, ArrowDown, Zap, Shield
+} from 'lucide-react';
 
 export default function Admin({ auth, stats, recentReports, chartData, investments }) {
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     const COLORS = ['#10B981', '#F59E0B', '#EF4444'];
 
     const getStatusBadge = (status) => {
         const styles = {
-            menunggu: 'bg-red-100 text-red-800',
-            diproses: 'bg-yellow-100 text-yellow-800',
+            menunggu: 'bg-red-100 text-red-800 border-red-200',
+            diproses: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+            selesai: 'bg-green-100 text-green-800 border-green-200',
+            dibatalkan: 'bg-gray-100 text-gray-800 border-gray-200',
+        };
+        const icons = {
+            menunggu: <AlertTriangle className="w-3.5 h-3.5" />,
+            diproses: <Clock className="w-3.5 h-3.5" />,
+            selesai: <CheckCircle className="w-3.5 h-3.5" />,
+            dibatalkan: <Activity className="w-3.5 h-3.5" />,
         };
         return (
-            <span className={`px-2 py-1 rounded text-xs font-bold uppercase tracking-wider ${styles[status]}`}>
+            <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider border ${styles[status]}`}>
+                {icons[status]}
                 {status}
             </span>
         );
     };
 
+    // Stat cards configuration
+    const statCards = [
+        {
+            title: 'Total Inventaris',
+            value: stats.total_equipments,
+            suffix: 'Alat',
+            icon: Package,
+            color: 'blue',
+            bg: 'from-blue-50 to-indigo-50',
+            border: 'border-blue-100',
+            iconBg: 'bg-blue-500/10',
+            iconColor: 'text-blue-600'
+        },
+        {
+            title: 'Alat Rusak',
+            value: stats.equipments_rusak,
+            suffix: 'Unit',
+            icon: AlertTriangle,
+            color: 'red',
+            bg: 'from-red-50 to-rose-50',
+            border: 'border-red-100',
+            iconBg: 'bg-red-500/10',
+            iconColor: 'text-red-600'
+        },
+        {
+            title: 'Tiket Menunggu',
+            value: stats.reports_pending,
+            suffix: 'Laporan',
+            icon: Clock,
+            color: 'orange',
+            bg: 'from-orange-50 to-amber-50',
+            border: 'border-orange-100',
+            iconBg: 'bg-orange-500/10',
+            iconColor: 'text-orange-600'
+        },
+        {
+            title: 'Sedang Dikerjakan',
+            value: stats.reports_processing,
+            suffix: 'Laporan',
+            icon: Activity,
+            color: 'yellow',
+            bg: 'from-yellow-50 to-amber-50',
+            border: 'border-yellow-100',
+            iconBg: 'bg-yellow-500/10',
+            iconColor: 'text-yellow-600'
+        }
+    ];
+
     return (
         <AuthenticatedLayout
             user={auth.user}
-            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Dashboard Manajemen SIMAK</h2>}
+            header={
+                <div className="flex items-center gap-3">
+                    <div>
+                        <h2 className="font-semibold text-xl text-gray-800 leading-tight">
+                            Dashboard Manajemen SIMAK
+                        </h2>
+                    </div>
+                </div>
+            }
         >
             <Head title="Dashboard Admin" />
 
             <div className="py-2">
-                <div className="max-w-8xl mx-auto sm:px-4 lg:px-4 space-y-3">
+                <div className="max-w-8xl mx-auto sm:px-2 lg:px-2 space-y-6">
 
-                    {/* Banner Selamat Datang */}
-                    <div className="bg-gradient-to-r from-blue-600 to-blue-800 rounded-lg shadow-lg p-6 text-white flex justify-between items-center">
-                        <div>
-                            <h3 className="text-2xl font-bold mb-1">Selamat Datang, {auth.user.name}!</h3>
-                            <p className="text-blue-100 text-sm">Sistem Informasi Perbaikan Alat Kesehatan RSUD dr. H. Andi Abdurrahman Noor.</p>
-                        </div>
-                    </div>
-
-                    {/* Grid Kartu Statistik */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 flex items-center">
-                            <div className="p-3 rounded-full bg-blue-100 text-blue-600 mr-4">
-                                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
-                            </div>
+                    {/* Welcome Banner */}
+                    <div className="relative bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-2xl shadow-lg shadow-blue-500/20 overflow-hidden">
+                        <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl"></div>
+                        <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/4 blur-2xl"></div>
+                        <div className="relative p-6 md:p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                             <div>
-                                <p className="text-sm text-gray-500 font-medium">Total Inventaris</p>
-                                <p className="text-2xl font-bold text-gray-900">{stats.total_equipments} <span className="text-sm font-normal text-gray-500">Alat</span></p>
-                            </div>
-                        </div>
-
-                        <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 flex items-center">
-                            <div className="p-3 rounded-full bg-red-100 text-red-600 mr-4">
-                                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-                            </div>
-                            <div>
-                                <p className="text-sm text-gray-500 font-medium">Alat Rusak</p>
-                                <p className="text-2xl font-bold text-gray-900">{stats.equipments_rusak} <span className="text-sm font-normal text-gray-500">Unit</span></p>
-                            </div>
-                        </div>
-
-                        <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 flex items-center">
-                            <div className="p-3 rounded-full bg-orange-100 text-orange-600 mr-4">
-                                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
-                            </div>
-                            <div>
-                                <p className="text-sm text-gray-500 font-medium">Tiket Menunggu</p>
-                                <p className="text-2xl font-bold text-gray-900">{stats.reports_pending} <span className="text-sm font-normal text-gray-500">Laporan</span></p>
-                            </div>
-                        </div>
-
-                        <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 flex items-center">
-                            <div className="p-3 rounded-full bg-yellow-100 text-yellow-600 mr-4">
-                                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                            </div>
-                            <div>
-                                <p className="text-sm text-gray-500 font-medium">Sedang Dikerjakan</p>
-                                <p className="text-2xl font-bold text-gray-900">{stats.reports_processing} <span className="text-sm font-normal text-gray-500">Laporan</span></p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* --- KELOMPOK GRAFIK / CHART VISUALISASI --- */}
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        {/* Grafik Garis Tren Laporan */}
-                        <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-                            <h3 className="text-md font-bold text-gray-800 mb-4">Tren Laporan Masuk Bulanan</h3>
-                            <div className="w-full h-72">
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <LineChart data={chartData.monthlyTrends} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                                        <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                                        <XAxis dataKey="name" stroke="#9CA3AF" style={{ fontSize: '12px' }} />
-                                        <YAxis stroke="#9CA3AF" style={{ fontSize: '12px' }} allowDecimals={false} />
-                                        <Tooltip />
-                                        <Legend />
-                                        <Line type="monotone" dataKey="Jumlah Laporan" stroke="#2563EB" strokeWidth={3} activeDot={{ r: 8 }} />
-                                    </LineChart>
-                                </ResponsiveContainer>
-                            </div>
-                        </div>
-
-                        {/* Grafik Lingkaran Kondisi Aset */}
-                        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 flex flex-col justify-between">
-                            <h3 className="text-md font-bold text-gray-800 mb-2">Status Kondisi Aset Alkes</h3>
-                            <div className="w-full h-56 relative flex items-center justify-center">
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <PieChart>
-                                        <Pie
-                                            data={chartData.conditionDistribution}
-                                            cx="50%"
-                                            cy="50%"
-                                            innerRadius={60}
-                                            outerRadius={80}
-                                            paddingAngle={4}
-                                            dataKey="value"
-                                        >
-                                            {chartData.conditionDistribution.map((entry, index) => (
-                                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                            ))}
-                                        </Pie>
-                                        <Tooltip />
-                                    </PieChart>
-                                </ResponsiveContainer>
-                            </div>
-                            {/* Legenda Manual Pie Chart */}
-                            <div className="grid grid-cols-3 text-center text-xs pt-4 border-t border-gray-50">
-                                {chartData.conditionDistribution.map((item, index) => (
-                                    <div key={index}>
-                                        <span className="inline-block w-2 h-2 rounded-full mr-1" style={{ backgroundColor: COLORS[index % COLORS.length] }}></span>
-                                        <span className="text-gray-500 block truncate">{item.name}</span>
-                                        <span className="font-bold text-gray-800">{item.value} Unit</span>
+                                <div className="flex items-center gap-3 mb-2">
+                                    <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
+                                        <Shield className="w-6 h-6 text-white" />
                                     </div>
-                                ))}
+                                    <span className="text-white/80 text-xs font-medium uppercase tracking-wider">Selamat Datang</span>
+                                </div>
+                                <h3 className="text-2xl md:text-3xl font-bold text-white">
+                                    {auth.user.name}
+                                </h3>
+                                <p className="text-blue-100 text-sm mt-1 max-w-xl">
+                                    Sistem Informasi Perbaikan Alat Kesehatan RSUD dr. H. Andi Abdurrahman Noor.
+                                </p>
+                            </div>
+                            <div className="flex flex-wrap gap-3">
+                                <div className="px-4 py-2 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20">
+                                    <p className="text-white/80 text-xs">Hari Ini</p>
+                                    <p className="text-white font-bold">{new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                                </div>
+                                <div className="px-4 py-2 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20">
+                                    <p className="text-white/80 text-xs">Laporan</p>
+                                    <p className="text-white font-bold">{stats.total_reports || 0}</p>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    {/* --- LAPORAN NILAI INVESTASI ASET --- */}
-                    <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden mt-8">
-                        <div className="p-6 bg-gradient-to-r from-green-600 to-green-800 text-white flex justify-between items-center">
-                            <div>
-                                <h3 className="text-lg font-bold">Total Nilai Investasi Alat Kesehatan</h3>
-                                <p className="text-green-100 text-sm mt-1">Akumulasi keseluruhan aset yang terdaftar di sistem.</p>
+                    {/* Stats Cards */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        {statCards.map((card, index) => {
+                            const Icon = card.icon;
+                            return (
+                                <div
+                                    key={index}
+                                    className={`bg-gradient-to-br ${card.bg} rounded-2xl p-5 border ${card.border} hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 group`}
+                                >
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">{card.title}</p>
+                                            <div className="flex items-baseline gap-1.5 mt-1">
+                                                <p className="text-2xl font-bold text-gray-800">{card.value}</p>
+                                                <span className="text-xs text-gray-400">{card.suffix}</span>
+                                            </div>
+                                        </div>
+                                        <div className={`p-3 rounded-xl ${card.iconBg} group-hover:scale-110 transition-transform duration-200`}>
+                                            <Icon className={`w-6 h-6 ${card.iconColor}`} />
+                                        </div>
+                                    </div>
+                                    <div className="mt-3 w-full bg-gray-200/50 rounded-full h-1.5 overflow-hidden">
+                                        <div 
+                                            className={`h-full rounded-full bg-gradient-to-r ${
+                                                card.color === 'blue' ? 'from-blue-500 to-indigo-500' :
+                                                card.color === 'red' ? 'from-red-500 to-rose-500' :
+                                                card.color === 'orange' ? 'from-orange-500 to-amber-500' :
+                                                'from-yellow-500 to-amber-500'
+                                            }`}
+                                            style={{ width: `${Math.min((card.value / (stats.total_equipments || 1)) * 100, 100)}%` }}
+                                        ></div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+
+                    {/* Charts Section */}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        {/* Line Chart */}
+                        <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-200">
+                            <div className="px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-100 flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <div className="p-1.5 bg-blue-100 rounded-lg text-blue-600">
+                                        <TrendingUp className="w-4 h-4" />
+                                    </div>
+                                    <h3 className="text-sm font-bold text-gray-800">Tren Laporan Masuk Bulanan</h3>
+                                </div>
+                                <span className="text-xs text-gray-400">2026</span>
                             </div>
-                            <div className="text-3xl font-extrabold tracking-tight">
+                            <div className="p-4">
+                                <div className="w-full h-72">
+                                    {mounted && (
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <LineChart data={chartData.monthlyTrends} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                            <defs>
+                                                <linearGradient id="lineGradient" x1="0" y1="0" x2="1" y2="0">
+                                                    <stop offset="0%" stopColor="#2563EB" stopOpacity={1} />
+                                                    <stop offset="100%" stopColor="#7C3AED" stopOpacity={1} />
+                                                </linearGradient>
+                                            </defs>
+                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+                                            <XAxis dataKey="name" stroke="#9CA3AF" style={{ fontSize: '11px' }} tickLine={false} />
+                                            <YAxis stroke="#9CA3AF" style={{ fontSize: '11px' }} allowDecimals={false} tickLine={false} />
+                                            <Tooltip 
+                                                contentStyle={{ 
+                                                    backgroundColor: 'white', 
+                                                    border: '1px solid #E5E7EB',
+                                                    borderRadius: '8px',
+                                                    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'
+                                                }}
+                                            />
+                                            <Legend />
+                                            <Line 
+                                                type="monotone" 
+                                                dataKey="Jumlah Laporan" 
+                                                stroke="url(#lineGradient)" 
+                                                strokeWidth={3} 
+                                                activeDot={{ r: 8, fill: '#2563EB' }}
+                                                dot={{ fill: '#2563EB', strokeWidth: 2 }}
+                                            />
+                                        </LineChart>
+                                    </ResponsiveContainer>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Pie Chart */}
+                        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-200">
+                            <div className="px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-100 flex items-center gap-2">
+                                <div className="p-1.5 bg-purple-100 rounded-lg text-purple-600">
+                                    <PieChartIcon className="w-4 h-4" />
+                                </div>
+                                <h3 className="text-sm font-bold text-gray-800">Status Kondisi Aset</h3>
+                            </div>
+                            <div className="p-4 flex flex-col items-center">
+                                <div className="w-full h-56">
+                                    {mounted && (
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <PieChart>
+                                            <Pie
+                                                data={chartData.conditionDistribution}
+                                                cx="50%"
+                                                cy="50%"
+                                                innerRadius={60}
+                                                outerRadius={80}
+                                                paddingAngle={4}
+                                                dataKey="value"
+                                            >
+                                                {chartData.conditionDistribution.map((entry, index) => (
+                                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                                ))}
+                                            </Pie>
+                                            <Tooltip 
+                                                contentStyle={{ 
+                                                    backgroundColor: 'white', 
+                                                    border: '1px solid #E5E7EB',
+                                                    borderRadius: '8px',
+                                                    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'
+                                                }}
+                                            />
+                                        </PieChart>
+                                    </ResponsiveContainer>
+                                    )}
+                                </div>
+                                <div className="grid grid-cols-3 gap-2 w-full mt-2 pt-3 border-t border-gray-100">
+                                    {chartData.conditionDistribution.map((item, index) => (
+                                        <div key={index} className="text-center">
+                                            <div className="flex items-center justify-center gap-1.5">
+                                                <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }}></span>
+                                                <span className="text-xs text-gray-500 truncate">{item.name}</span>
+                                            </div>
+                                            <span className="text-sm font-bold text-gray-800">{item.value}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Investment Section */}
+                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-200">
+                        <div className="bg-gradient-to-r from-green-600 to-emerald-700 px-6 py-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
+                                    <DollarSign className="w-6 h-6 text-white" />
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-bold text-white">Total Nilai Investasi Alat Kesehatan</h3>
+                                    <p className="text-green-100 text-sm">Akumulasi keseluruhan aset yang terdaftar di sistem</p>
+                                </div>
+                            </div>
+                            <div className="text-3xl font-extrabold text-white tracking-tight bg-white/10 px-5 py-2 rounded-xl backdrop-blur-sm border border-white/20">
                                 {formatRupiah(investments.total)}
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x border-t border-gray-100">
-                            {/* Tabel Investasi Per Ruangan */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-100">
+                            {/* Per Ruangan */}
                             <div className="p-6">
-                                <h4 className="text-md font-bold text-gray-800 mb-4 flex items-center">
-                                    <svg className="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
-                                    Distribusi Nilai Per Ruangan
+                                <h4 className="text-sm font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                    <Building2 className="w-4 h-4 text-green-600" />
+                                    Distribusi Per Ruangan
                                 </h4>
-                                <div className="space-y-3 max-h-64 overflow-y-auto pr-2">
+                                <div className="space-y-3 max-h-64 overflow-y-auto pr-2 custom-scrollbar">
                                     {investments.perRoom.map((room) => (
-                                        <div key={room.id} className="flex justify-between items-center border-b border-gray-50 pb-2">
+                                        <div key={room.id} className="flex justify-between items-center border-b border-gray-50 pb-2.5 hover:bg-gray-50/50 px-2 py-1 rounded-lg transition-colors">
                                             <span className="text-sm font-medium text-gray-700">{room.name}</span>
                                             <span className="text-sm font-bold text-green-700">{formatRupiah(room.total_investment)}</span>
                                         </div>
                                     ))}
                                     {investments.perRoom.length === 0 && (
-                                        <p className="text-sm text-gray-500 italic">Belum ada data harga alat per ruangan.</p>
+                                        <p className="text-sm text-gray-500 italic text-center py-4">Belum ada data harga alat per ruangan</p>
                                     )}
                                 </div>
                             </div>
 
-                            {/* Tabel Investasi Per Vendor */}
+                            {/* Per Vendor */}
                             <div className="p-6">
-                                <h4 className="text-md font-bold text-gray-800 mb-4 flex items-center">
-                                    <svg className="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-                                    Distribusi Nilai Per Vendor
+                                <h4 className="text-sm font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                    <Truck className="w-4 h-4 text-blue-600" />
+                                    Distribusi Per Vendor
                                 </h4>
-                                <div className="space-y-3 max-h-64 overflow-y-auto pr-2">
+                                <div className="space-y-3 max-h-64 overflow-y-auto pr-2 custom-scrollbar">
                                     {investments.perVendor.map((vendor) => (
-                                        <div key={vendor.id} className="flex justify-between items-center border-b border-gray-50 pb-2">
+                                        <div key={vendor.id} className="flex justify-between items-center border-b border-gray-50 pb-2.5 hover:bg-gray-50/50 px-2 py-1 rounded-lg transition-colors">
                                             <span className="text-sm font-medium text-gray-700">{vendor.name}</span>
                                             <span className="text-sm font-bold text-blue-700">{formatRupiah(vendor.total_investment)}</span>
                                         </div>
                                     ))}
                                     {investments.perVendor.length === 0 && (
-                                        <p className="text-sm text-gray-500 italic">Belum ada data harga alat dari vendor.</p>
+                                        <p className="text-sm text-gray-500 italic text-center py-4">Belum ada data harga alat dari vendor</p>
                                     )}
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {/* Tabel Laporan Butuh Tindakan */}
-                    <div className="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
-                        <div className="p-6 border-b border-gray-100 flex justify-between items-center">
-                            <h3 className="text-lg font-bold text-gray-900">Tiket Terbaru (Butuh Tindakan)</h3>
-                            <Link href={route('reports.index')} className="text-sm text-blue-600 hover:underline">Lihat Semua</Link>
+                    {/* Recent Reports */}
+                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-200">
+                        <div className="px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-100 flex justify-between items-center">
+                            <div className="flex items-center gap-2">
+                                <div className="p-1.5 bg-blue-100 rounded-lg text-blue-600">
+                                    <FileText className="w-4 h-4" />
+                                </div>
+                                <h3 className="text-sm font-bold text-gray-800">Tiket Terbaru</h3>
+                            </div>
+                            <Link 
+                                href={route('reports.index')} 
+                                className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-800 transition-colors"
+                            >
+                                Lihat Semua
+                                <ChevronRight className="w-3.5 h-3.5" />
+                            </Link>
                         </div>
                         <div className="overflow-x-auto">
                             <table className="w-full text-sm text-left text-gray-600">
-                                <thead className="bg-gray-50 text-gray-700 uppercase text-xs">
+                                <thead className="bg-white border-b text-gray-700 uppercase text-xs">
                                     <tr>
-                                        <th className="px-6 py-3">No. Tiket</th>
-                                        <th className="px-6 py-3">Alat & Ruangan</th>
-                                        <th className="px-6 py-3">Keluhan</th>
-                                        <th className="px-6 py-3">Status</th>
+                                        <th className="px-6 py-3">
+                                            <div className="flex items-center gap-2">
+                                                <FileText className="w-3.5 h-3.5" />
+                                                No. Tiket
+                                            </div>
+                                        </th>
+                                        <th className="px-6 py-3">
+                                            <div className="flex items-center gap-2">
+                                                <Package className="w-3.5 h-3.5" />
+                                                Alat & Ruangan
+                                            </div>
+                                        </th>
+                                        <th className="px-6 py-3">
+                                            <div className="flex items-center gap-2">
+                                                <Activity className="w-3.5 h-3.5" />
+                                                Keluhan
+                                            </div>
+                                        </th>
+                                        <th className="px-6 py-3 text-center">Status</th>
                                         <th className="px-6 py-3 text-right">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {recentReports.map(report => (
-                                        <tr key={report.id} className="border-b hover:bg-gray-50">
-                                            <td className="px-6 py-4 font-mono text-blue-600">{report.ticket_number}</td>
-                                            <td className="px-6 py-4">
-                                                <div className="font-bold">{report.equipment?.name}</div>
-                                                <div className="text-xs text-gray-500">{report.equipment?.room?.name}</div>
+                                    {recentReports.map((report, index) => (
+                                        <tr 
+                                            key={report.id} 
+                                            className={`border-b hover:bg-blue-50/30 transition-all duration-150 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/30'}`}
+                                        >
+                                            <td className="px-6 py-4 font-mono font-bold text-blue-600 text-sm">
+                                                {report.ticket_number}
                                             </td>
-                                            <td className="px-6 py-4 truncate max-w-xs" title={report.description}>{report.description}</td>
-                                            <td className="px-6 py-4">{getStatusBadge(report.status)}</td>
+                                            <td className="px-6 py-4">
+                                                <div className="font-semibold text-gray-800">{report.equipment?.name}</div>
+                                                <div className="text-xs text-gray-400">{report.equipment?.room?.name}</div>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div className="truncate max-w-xs" title={report.description}>
+                                                    {report.description}
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 text-center">
+                                                {getStatusBadge(report.status)}
+                                            </td>
                                             <td className="px-6 py-4 text-right">
-                                                <Link href={route('reports.show', report.id)} className="px-3 py-1 bg-gray-800 text-white rounded text-xs hover:bg-gray-700">
+                                                <Link 
+                                                    href={route('reports.show', report.id)} 
+                                                    className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg text-xs font-medium hover:from-blue-700 hover:to-indigo-700 shadow-md shadow-blue-500/20 transition-all duration-200 hover:shadow-lg"
+                                                >
                                                     Tindak Lanjuti
+                                                    <ChevronRight className="w-3.5 h-3.5" />
                                                 </Link>
                                             </td>
                                         </tr>
                                     ))}
                                     {recentReports.length === 0 && (
-                                        <tr><td colSpan="5" className="px-6 py-8 text-center text-gray-500">Semua laporan telah terselesaikan. Kerja bagus!</td></tr>
+                                        <tr>
+                                            <td colSpan="5" className="px-6 py-12 text-center">
+                                                <div className="flex flex-col items-center gap-2">
+                                                    <CheckCircle className="w-12 h-12 text-green-400" />
+                                                    <p className="text-gray-500 font-medium">Semua laporan telah terselesaikan</p>
+                                                    <p className="text-gray-400 text-sm">Kerja bagus! Tidak ada tiket yang pending</p>
+                                                </div>
+                                            </td>
+                                        </tr>
                                     )}
                                 </tbody>
                             </table>
@@ -233,6 +437,29 @@ export default function Admin({ auth, stats, recentReports, chartData, investmen
 
                 </div>
             </div>
+
+            {/* Custom Styles */}
+            <style>{`
+                .bg-grid-pattern {
+                    background-image: 
+                        linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
+                    background-size: 20px 20px;
+                }
+                .custom-scrollbar::-webkit-scrollbar {
+                    width: 4px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-track {
+                    background: transparent;
+                }
+                .custom-scrollbar::-webkit-scrollbar-thumb {
+                    background: #d1d5db;
+                    border-radius: 2px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                    background: #9ca3af;
+                }
+            `}</style>
         </AuthenticatedLayout>
     );
 }
