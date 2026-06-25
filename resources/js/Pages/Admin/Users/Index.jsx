@@ -1,115 +1,20 @@
-import React, { useState, useRef, useEffect, useMemo, Fragment } from 'react';
+import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, router } from '@inertiajs/react';
-import Modal from '@/Components/Modal';
-import TextInput from '@/Components/TextInput';
-import InputLabel from '@/Components/InputLabel';
-import InputError from '@/Components/InputError';
-import PrimaryButton from '@/Components/PrimaryButton';
-import SecondaryButton from '@/Components/SecondaryButton';
-import FlashMessage from '@/Components/FlashMessage';
+import { Modal, PrimaryButton, SecondaryButton, FlashMessage } from '@/Components';
+import CreateUserModal from './Partials/CreateUserModal';
 import { 
     Plus, Search, Users, User, 
     Shield, Home, Mail, Phone, CheckCircle, 
     XCircle, Grid, List, 
-    ChevronDown, UserCheck, UserX, Building2,
-    Key, Eye, EyeOff
+    UserCheck, UserX, Building2,
 } from 'lucide-react';
-
-// Custom Searchable Dropdown Component (Menggantikan Headless UI)
-const SearchableSelect = ({ options = [], value, onChange, label, placeholder, displayValue, required = false }) => {
-    const [search, setSearch] = useState('');
-    const [isOpen, setIsOpen] = useState(false);
-    const dropdownRef = useRef(null);
-
-    // Menutup dropdown jika user klik di luar area
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-                setIsOpen(false);
-            }
-        };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
-
-    const filteredOptions = useMemo(() => {
-        if (!search) return options;
-        return options.filter((option) =>
-            displayValue(option).toLowerCase().includes(search.toLowerCase())
-        );
-    }, [options, search, displayValue]);
-
-    // Text yang ditampilkan di input ketika tertutup
-    const displayString = value ? displayValue(value) : '';
-
-    return (
-        <div className="relative" ref={dropdownRef}>
-            <label className="block text-sm font-medium text-gray-700">
-                {label} {required && <span className="text-red-500">*</span>}
-            </label>
-
-            <div className="relative mt-1">
-                <Search className="absolute left-3 top-3 w-4 h-4 text-gray-400 z-10" />
-
-                <input
-                    type="text"
-                    className="pl-10 pr-10 block w-full rounded-xl border-gray-300 bg-gray-50 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 py-2.5 px-4 text-sm cursor-pointer"
-                    placeholder={placeholder}
-                    value={isOpen ? search : displayString}
-                    onChange={(e) => {
-                        setSearch(e.target.value);
-                        if (!isOpen) setIsOpen(true);
-                    }}
-                    onFocus={() => {
-                        setIsOpen(true);
-                        setSearch(''); // Kosongkan pencarian saat diklik agar tampil semua
-                    }}
-                    readOnly={!isOpen && !!value} // Cegah keyboard muncul di mobile jika hanya melihat
-                />
-
-                <ChevronDown className={`absolute right-3 top-3 w-4 h-4 text-gray-400 pointer-events-none transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
-
-                {/* Dropdown Menu */}
-                {isOpen && (
-                    <div className="absolute z-50 w-full mt-2 bg-white border border-gray-100 rounded-xl shadow-xl max-h-60 overflow-y-auto py-1">
-                        {filteredOptions.length > 0 ? (
-                            filteredOptions.map((option, idx) => (
-                                <div
-                                    key={option.id || idx}
-                                    className={`px-4 py-2.5 cursor-pointer hover:bg-blue-50 transition-colors duration-150 border-b border-gray-50 last:border-0 ${value?.id === option.id ? 'bg-blue-50 text-blue-700' : 'text-gray-700'}`}
-                                    onClick={() => {
-                                        onChange(option);
-                                        setSearch('');
-                                        setIsOpen(false);
-                                    }}
-                                >
-                                    <div className="font-medium text-sm flex items-center gap-2">
-                                        {value?.id === option.id && <CheckCircle className="w-3.5 h-3.5 text-blue-600" />}
-                                        {displayValue(option)}
-                                    </div>
-                                </div>
-                            ))
-                        ) : (
-                            <div className="px-4 py-6 text-sm text-gray-400 text-center flex flex-col items-center">
-                                <Search className="w-6 h-6 mb-2 opacity-20" />
-                                Tidak ditemukan
-                            </div>
-                        )}
-                    </div>
-                )}
-            </div>
-        </div>
-    );
-};
 
 export default function Index({ auth, users, rooms, flash, stats }) {
     const [search, setSearch] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [viewMode, setViewMode] = useState('table');
-    const [showPassword, setShowPassword] = useState(false);
 
-    // State untuk Modal Konfirmasi Status
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
     const [userToToggle, setUserToToggle] = useState(null);
 
@@ -527,141 +432,16 @@ export default function Index({ auth, users, rooms, flash, stats }) {
                 </div>
             </div>
 
-            {/* --- MODAL TAMBAH AKUN --- */}
-            <Modal show={isModalOpen} onClose={closeModal} maxWidth="md">
-                <form onSubmit={submit} className="p-6">
-                    <div className="flex items-center gap-3 border-b pb-4 mb-6">
-                        <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-xl text-white">
-                            <User className="w-5 h-5" />
-                        </div>
-                        <div>
-                            <h2 className="text-xl font-bold text-gray-900">Daftarkan Akun Baru</h2>
-                            <p className="text-sm text-gray-500">Isi data pengguna dengan lengkap</p>
-                        </div>
-                    </div>
-
-                    <div className="space-y-5">
-                        <div>
-                            <InputLabel htmlFor="name" value="Nama Lengkap / Penanggung Jawab" required />
-                            <div className="relative mt-1">
-                                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                                <TextInput
-                                    id="name"
-                                    type="text"
-                                    className="pl-10 block w-full rounded-xl border-gray-200 bg-gray-50 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200"
-                                    value={data.name}
-                                    onChange={(e) => setData('name', e.target.value)}
-                                    placeholder="Cth: Dr. Ahmad"
-                                    required
-                                />
-                            </div>
-                            <InputError message={errors.name} className="mt-2" />
-                        </div>
-
-                        <div>
-                            <InputLabel htmlFor="email" value="Email (Digunakan untuk Login)" required />
-                            <div className="relative mt-1">
-                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                                <TextInput
-                                    id="email"
-                                    type="email"
-                                    className="pl-10 block w-full rounded-xl border-gray-200 bg-gray-50 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200"
-                                    value={data.email}
-                                    onChange={(e) => setData('email', e.target.value)}
-                                    placeholder="user@rumahsakit.com"
-                                    required
-                                />
-                            </div>
-                            <InputError message={errors.email} className="mt-2" />
-                        </div>
-
-                        <div>
-                            <InputLabel htmlFor="phone_number" value="No. WhatsApp (Awali 08...)" />
-                            <div className="relative mt-1">
-                                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                                <TextInput
-                                    id="phone_number"
-                                    type="text"
-                                    className="pl-10 block w-full rounded-xl border-gray-200 bg-gray-50 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200"
-                                    value={data.phone_number}
-                                    onChange={(e) => setData('phone_number', e.target.value)}
-                                    placeholder="08123456789"
-                                />
-                            </div>
-                            <InputError message={errors.phone_number} className="mt-2" />
-                        </div>
-
-                        <div>
-                            <InputLabel htmlFor="role" value="Hak Akses" />
-                            <div className="relative mt-1">
-                                <Shield className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                                <select
-                                    id="role"
-                                    className="pl-10 block w-full rounded-xl border-gray-200 bg-gray-50 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 py-2.5 px-4 appearance-none"
-                                    value={data.role}
-                                    onChange={(e) => setData('role', e.target.value)}
-                                >
-                                    <option value="ruangan">Perwakilan Ruangan / Unit</option>
-                                    <option value="admin">Admin / Teknisi Internal</option>
-                                </select>
-                                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                            </div>
-                        </div>
-
-                        {data.role === 'ruangan' && (
-                            <div>
-                                <SearchableSelect
-                                    options={rooms}
-                                    value={rooms.find(r => r.id === data.room_id) || null}
-                                    onChange={(room) => setData('room_id', room ? room.id : '')}
-                                    label="Pilih Ruangan / Unit"
-                                    placeholder="Cari ruangan..."
-                                    displayValue={(room) => room?.name || ""}
-                                    required
-                                />
-                                <InputError message={errors.room_id} className="mt-2" />
-                            </div>
-                        )}
-
-                        <div>
-                            <InputLabel htmlFor="password" value="Password Sementara" required />
-                            <div className="relative mt-1">
-                                <Key className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                                <TextInput
-                                    id="password"
-                                    type={showPassword ? 'text' : 'password'}
-                                    className="pl-10 pr-10 block w-full rounded-xl border-gray-200 bg-gray-50 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200"
-                                    value={data.password}
-                                    onChange={(e) => setData('password', e.target.value)}
-                                    placeholder="Minimal 8 karakter"
-                                    required
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                                >
-                                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                                </button>
-                            </div>
-                            <p className="text-xs text-gray-500 mt-1.5">Password minimal 8 karakter</p>
-                            <InputError message={errors.password} className="mt-2" />
-                        </div>
-                    </div>
-
-                    <div className="mt-8 flex justify-end bg-gray-50 -mx-6 -mb-6 p-4 rounded-b-2xl border-t border-gray-100">
-                        <SecondaryButton type="button" onClick={closeModal} className="rounded-xl">
-                            Batal
-                        </SecondaryButton>
-                        <PrimaryButton
-                            className="ml-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-xl px-6 py-2.5 shadow-lg shadow-blue-500/20"
-                            disabled={processing}
-                        >
-                            {processing ? 'Menyimpan...' : 'Buat Akun'}
-                        </PrimaryButton>
-                    </div>
-                </form>
-            </Modal>
+            <CreateUserModal
+                show={isModalOpen}
+                onClose={closeModal}
+                onSubmit={submit}
+                data={data}
+                setData={setData}
+                errors={errors}
+                processing={processing}
+                rooms={rooms}
+            />
 
             {/* --- MODAL KONFIRMASI STATUS --- */}
             <Modal show={isConfirmModalOpen} onClose={() => setIsConfirmModalOpen(false)} maxWidth="sm">

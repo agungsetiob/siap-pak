@@ -71,4 +71,33 @@ class User extends Authenticatable
     {
         return $this->hasMany(Calibration::class, 'created_by');
     }
+
+    /**
+     * Override default password reset notification.
+     * Kirim link reset via WhatsApp menggunakan FonnteService.
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        $resetUrl = url(route('password.reset', [
+            'token' => $token,
+            'email' => $this->getEmailForPasswordReset(),
+        ], false));
+        
+        $fullUrl = url($resetUrl);
+
+        $message = "*PENGATURAN ULANG PASSWORD (SIMAK)* 🏥\n\n";
+        $message .= "Halo *{$this->name}*,\n";
+        $message .= "Sistem menerima permintaan untuk mengatur ulang password akun Anda.\n\n";
+        $message .= "Silakan klik tautan di bawah ini untuk membuat password baru:\n";
+        $message .= "🔗 {$fullUrl}\n\n";
+        $message .= "_Tautan ini akan kedaluwarsa dalam 60 menit._\n\n";
+        $message .= "_Jika Anda tidak merasa meminta reset password, abaikan saja pesan ini._";
+
+        if ($this->phone_number) {
+            $fonnte = app(\App\Services\FonnteService::class);
+            $fonnte->send($this->phone_number, $message);
+        } else {
+            \Illuminate\Support\Facades\Log::warning("Gagal kirim link reset WA: User {$this->email} tidak punya nomor HP.");
+        }
+    }
 }

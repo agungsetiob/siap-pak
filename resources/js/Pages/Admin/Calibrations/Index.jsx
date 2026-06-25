@@ -80,11 +80,7 @@ export default function Index({
     };
 
     // Stats
-    const totalCalibrations = calibrations.total || 0;
     const upcomingCount = upcomingCalibrations.length;
-    const expiredCount = upcomingCalibrations.filter(
-        (eq) => getDaysRemaining(eq.next_calibration_date) < 0,
-    ).length;
 
     return (
         <AuthenticatedLayout
@@ -93,7 +89,7 @@ export default function Index({
                 <div className="flex items-center gap-3">
                     <div>
                         <h2 className="font-semibold text-xl text-gray-800 leading-tight">
-                            Manajemen Kalibrasi
+                            Daftar Kalibrasi
                         </h2>
                     </div>
                 </div>

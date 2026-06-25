@@ -1,29 +1,23 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, useForm, router, Link } from '@inertiajs/react';
-import Modal from '@/Components/Modal';
-import InputLabel from '@/Components/InputLabel';
-import TextInput from '@/Components/TextInput';
-import InputError from '@/Components/InputError';
-import PrimaryButton from '@/Components/PrimaryButton';
-import SecondaryButton from '@/Components/SecondaryButton';
+import { Head, useForm, router } from '@inertiajs/react';
+import { DeleteModal, FlashMessage
+ } from '@/Components';
+import ScheduleModal from './Partials/ScheduleModal';
 import { formatDate } from '@/Helpers/date';
 import { 
     Calendar, User, Package, 
     Plus, Edit, Trash2, 
     CheckCircle, Clock, AlertCircle,
     Grid, List, Filter, ChevronDown,
-    Building2, Hash, FileText, Activity
+    Building2, Hash, FileText
 } from 'lucide-react';
 
-export default function Index({ auth, schedules, equipments, technicians, filters, stats }) {
+export default function Index({ auth, schedules, equipments, technicians, filters, stats, flash }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [viewMode, setViewMode] = useState('table');
     const [statusFilter, setStatusFilter] = useState(filters?.status || '');
-    const [equipmentSearch, setEquipmentSearch] = useState('');
-    const [isEquipmentDropdownOpen, setIsEquipmentDropdownOpen] = useState(false);
-    const equipmentDropdownRef = useRef(null);
 
     const { data, setData, post, put, delete: destroy, reset, errors, processing, clearErrors } = useForm({
         id: '',
@@ -34,31 +28,8 @@ export default function Index({ auth, schedules, equipments, technicians, filter
         notes: '',
     });
 
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (equipmentDropdownRef.current && !equipmentDropdownRef.current.contains(event.target)) {
-                setIsEquipmentDropdownOpen(false);
-            }
-        };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
-
-    const filteredEquipments = useMemo(() => {
-        return equipments.filter(eq => 
-            eq.name.toLowerCase().includes(equipmentSearch.toLowerCase()) || 
-            eq.inventory_number.toLowerCase().includes(equipmentSearch.toLowerCase())
-        );
-    }, [equipments, equipmentSearch]);
-
-    const selectedEquipment = useMemo(() => {
-        return equipments.find(eq => eq.id == data.equipment_id);
-    }, [equipments, data.equipment_id]);
-
     const openModal = (sched = null) => {
         clearErrors();
-        setEquipmentSearch('');
-        setIsEquipmentDropdownOpen(false);
         if (sched) {
             setIsEditing(true);
             setData({
@@ -79,9 +50,9 @@ export default function Index({ auth, schedules, equipments, technicians, filter
     const submit = (e) => {
         e.preventDefault();
         if (isEditing) {
-            put(route('maintenance-schedules.update', data.id), { onSuccess: () => setIsModalOpen(false) });
+            put(route('maintenance-schedules.update', data.id), { onSuccess: () => { setIsModalOpen(false); reset() } });
         } else {
-            post(route('maintenance-schedules.store'), { onSuccess: () => setIsModalOpen(false) });
+            post(route('maintenance-schedules.store'), { onSuccess: () => { setIsModalOpen(false); reset() } });
         }
     };
 
@@ -129,7 +100,7 @@ export default function Index({ auth, schedules, equipments, technicians, filter
 
     const confirmDelete = () => {
         if (deleteId) {
-            router.delete(route("maintenance-schedules.destroy", deleteId), {
+            destroy(route("maintenance-schedules.destroy", deleteId), {
                 onSuccess: () => setIsDeleteModalOpen(false),
             });
         }
@@ -148,10 +119,11 @@ export default function Index({ auth, schedules, equipments, technicians, filter
                 </div>
             }
         >
-            <Head title="Jadwal Pemeliharaan - SIMAK" />
+            <Head title="Jadwal Pemeliharaan" />
 
             <div className="py-2">
-                <div className="max-w-8xl mx-auto sm:px-4 lg:px-4">
+                <div className="max-w-8xl mx-auto sm:px-2 lg:px-2">
+                    <FlashMessage flash={flash} />
                     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                         <div className="p-6">
                             {/* --- Header & Filter --- */}
@@ -481,207 +453,26 @@ export default function Index({ auth, schedules, equipments, technicians, filter
                     </div>
                 </div>
             </div>
+            <ScheduleModal
+                show={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onSubmit={submit}
+                isEditing={isEditing}
+                data={data}
+                setData={setData}
+                errors={errors}
+                processing={processing}
+                equipments={equipments}
+                technicians={technicians}
+            />
 
-            {/* --- MODAL FORM --- */}
-            <Modal show={isModalOpen} onClose={() => setIsModalOpen(false)} maxWidth="lg">
-                <form onSubmit={submit} className="p-6">
-                    <div className="flex items-center gap-3 border-b pb-4 mb-6">
-                        <div className="p-2 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-xl text-white">
-                            <Calendar className="w-5 h-5" />
-                        </div>
-                        <div>
-                            <h2 className="text-xl font-bold text-gray-900">
-                                {isEditing ? 'Ubah Rencana Pemeliharaan' : 'Atur Rencana Pemeliharaan Rutin'}
-                            </h2>
-                            <p className="text-sm text-gray-500">
-                                {isEditing ? 'Perbarui jadwal pemeliharaan' : 'Buat jadwal preventive maintenance baru'}
-                            </p>
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <div className="md:col-span-2" ref={equipmentDropdownRef}>
-                            <InputLabel htmlFor="equipment_id" value="Pilih Alat Kesehatan" required />
-                            <div className="relative mt-1">
-                                <Package className="absolute left-3 top-3 w-4 h-4 text-gray-400 z-10" />
-                                
-                                {/* Input Pencarian / Tampilan Terpilih */}
-                                <input
-                                    type="text"
-                                    className="pl-10 pr-10 block w-full rounded-xl border-gray-200 bg-gray-50 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-200 py-2.5 px-4 text-sm cursor-pointer"
-                                    placeholder="Ketik nama alat atau nomor inventaris..."
-                                    value={isEquipmentDropdownOpen ? equipmentSearch : (selectedEquipment ? `${selectedEquipment.name} [${selectedEquipment.inventory_number}]` : '')}
-                                    onChange={(e) => {
-                                        setEquipmentSearch(e.target.value);
-                                        if (!isEquipmentDropdownOpen) setIsEquipmentDropdownOpen(true);
-                                    }}
-                                    onFocus={() => {
-                                        setIsEquipmentDropdownOpen(true);
-                                        setEquipmentSearch('');
-                                    }}
-                                    readOnly={!isEquipmentDropdownOpen && selectedEquipment}
-                                />
-                                
-                                <ChevronDown className={`absolute right-3 top-3 w-4 h-4 text-gray-400 pointer-events-none transition-transform duration-200 ${isEquipmentDropdownOpen ? 'rotate-180' : ''}`} />
-
-                                {/* Dropdown Options List */}
-                                {isEquipmentDropdownOpen && (
-                                    <div className="absolute z-50 w-full mt-2 bg-white border border-gray-100 rounded-xl shadow-xl max-h-60 overflow-y-auto py-1">
-                                        {filteredEquipments.length > 0 ? (
-                                            filteredEquipments.map(eq => (
-                                                <div
-                                                    key={eq.id}
-                                                    className={`px-4 py-2.5 cursor-pointer hover:bg-purple-50 transition-colors duration-150 border-b border-gray-50 last:border-0 ${data.equipment_id === eq.id ? 'bg-purple-50 text-purple-700' : 'text-gray-700'}`}
-                                                    onClick={() => {
-                                                        setData('equipment_id', eq.id);
-                                                        setEquipmentSearch('');
-                                                        setIsEquipmentDropdownOpen(false);
-                                                        clearErrors('equipment_id');
-                                                    }}
-                                                >
-                                                    <div className="font-semibold text-sm">{eq.name}</div>
-                                                    <div className="text-xs mt-0.5 flex items-center gap-1.5 opacity-70">
-                                                        <Hash className="w-3 h-3" />
-                                                        <span>{eq.inventory_number}</span>
-                                                        <span className="w-px h-3 bg-gray-300"></span>
-                                                        <Building2 className="w-3 h-3" />
-                                                        <span>{eq.room?.name || 'Tanpa Ruangan'}</span>
-                                                    </div>
-                                                </div>
-                                            ))
-                                        ) : (
-                                            <div className="px-4 py-6 text-sm text-gray-400 text-center flex flex-col items-center">
-                                                <Package className="w-8 h-8 mb-2 opacity-20" />
-                                                Alat tidak ditemukan
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
-                            </div>
-                            <InputError message={errors.equipment_id} className="mt-2" />
-                        </div>
-
-                        <div>
-                            <InputLabel htmlFor="technician_id" value="Ditugaskan Kepada (Teknisi)" required />
-                            <div className="relative mt-1">
-                                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                                <select 
-                                    id="technician_id" 
-                                    className="pl-10 block w-full rounded-xl border-gray-200 bg-gray-50 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-200 py-2.5 px-4 appearance-none"
-                                    value={data.technician_id} 
-                                    onChange={e => setData('technician_id', e.target.value)} 
-                                    required
-                                >
-                                    <option value="">-- Pilih Teknisi --</option>
-                                    {technicians.map(t => (
-                                        <option key={t.id} value={t.id}>
-                                            {t.name} ({t.specialization || 'Umum'})
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                            <InputError message={errors.technician_id} className="mt-2" />
-                        </div>
-
-                        <div>
-                            <InputLabel htmlFor="scheduled_date" value="Tanggal Pelaksanaan" required />
-                            <div className="relative mt-1">
-                                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                                <TextInput 
-                                    id="scheduled_date" 
-                                    type="date" 
-                                    className="pl-10 block w-full rounded-xl border-gray-200 bg-gray-50 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-200" 
-                                    value={data.scheduled_date} 
-                                    onChange={e => setData('scheduled_date', e.target.value)} 
-                                    required 
-                                />
-                            </div>
-                            <InputError message={errors.scheduled_date} className="mt-2" />
-                        </div>
-
-                        {isEditing && (
-                            <div>
-                                <InputLabel htmlFor="status" value="Status Kerja" />
-                                <div className="relative mt-1">
-                                    <Activity className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                                    <select 
-                                        id="status" 
-                                        className="pl-10 block w-full rounded-xl border-gray-200 bg-gray-50 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-200 py-2.5 px-4 appearance-none"
-                                        value={data.status} 
-                                        onChange={e => setData('status', e.target.value)}
-                                    >
-                                        <option value="menunggu">🔄 Menunggu</option>
-                                        <option value="selesai">✅ Selesai</option>
-                                        <option value="terlewat">❌ Terlewat</option>
-                                    </select>
-                                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                                </div>
-                            </div>
-                        )}
-
-                        <div className="md:col-span-2">
-                            <InputLabel htmlFor="notes" value="Instruksi Khusus / Catatan Tugas" />
-                            <div className="relative mt-1">
-                                <FileText className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
-                                <textarea 
-                                    id="notes" 
-                                    rows="2" 
-                                    className="pl-10 block w-full rounded-xl border-gray-200 bg-gray-50 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-200 py-2.5 px-4"
-                                    value={data.notes} 
-                                    onChange={e => setData('notes', e.target.value)} 
-                                    placeholder="Contoh: Cek filter oli pompa vakum atau kalibrasi kelistrikan..."
-                                />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="mt-8 flex justify-end bg-gray-50 -mx-6 -mb-6 p-4 rounded-b-2xl border-t border-gray-100">
-                        <SecondaryButton onClick={() => setIsModalOpen(false)} className="rounded-xl">
-                            Batal
-                        </SecondaryButton>
-                        <PrimaryButton 
-                            disabled={processing} 
-                            className="ml-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 rounded-xl px-6 py-2.5 shadow-lg shadow-purple-500/20"
-                        >
-                            {processing ? 'Menyimpan...' : 'Simpan Rencana'}
-                        </PrimaryButton>
-                    </div>
-                </form>
-            </Modal>
-
-            {/* Modal Konfirmasi Hapus */}
-            <Modal show={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)} maxWidth="sm">
-                <div className="p-6">
-                    <div className="flex items-center gap-3 pb-3 mb-3">
-                        <div className="p-2 bg-gradient-to-br from-red-500 to-pink-500 rounded-xl text-white">
-                            <Trash2 className="w-5 h-5" />
-                        </div>
-                        <div>
-                            <h2 className="text-xl font-bold text-gray-900">Konfirmasi Hapus</h2>
-                            <p className="text-sm text-gray-500">
-                                Apakah Anda yakin ingin menghapus jadwal ini?
-                            </p>
-                        </div>
-                    </div>
-
-                    <div className="mt-8 flex justify-end bg-gray-50 -mx-6 -mb-6 p-4 rounded-b-2xl border-t border-gray-100">
-                        <SecondaryButton
-                            type="button"
-                            onClick={() => setIsDeleteModalOpen(false)}
-                            className="rounded-xl"
-                        >
-                            Batal
-                        </SecondaryButton>
-                        <PrimaryButton
-                            type="button"
-                            onClick={confirmDelete}
-                            className="ml-3 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 rounded-xl px-6 py-2.5 shadow-lg shadow-red-500/20"
-                        >
-                            Hapus
-                        </PrimaryButton>
-                    </div>
-                </div>
-            </Modal>
+            <DeleteModal
+                show={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={confirmDelete}
+                title="Konfirmasi Hapus"
+                message="Apakah Anda yakin ingin menghapus jadwal maintenance ini?"
+            />
         </AuthenticatedLayout>
     );
 }

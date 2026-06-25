@@ -4,7 +4,7 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import { Transition } from '@headlessui/react';
 import { Link, useForm, usePage } from '@inertiajs/react';
-import { User, Mail, CheckCircle2 } from 'lucide-react';
+import { User, Mail, CheckCircle2, Phone } from 'lucide-react';
 
 export default function UpdateProfileInformation({
     mustVerifyEmail,
@@ -17,6 +17,7 @@ export default function UpdateProfileInformation({
         useForm({
             name: user.name,
             email: user.email,
+            phone_number: user.phone_number || '',
         });
 
     const submit = (e) => {
@@ -72,6 +73,25 @@ export default function UpdateProfileInformation({
                         />
                     </div>
                     <InputError className="mt-2" message={errors.email} />
+                </div>
+
+                <div>
+                    <InputLabel htmlFor="phone_number" value="Nomor WhatsApp" />
+                    <div className="relative mt-1">
+                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <TextInput
+                            id="phone_number"
+                            type="text"
+                            className="pl-10 block w-full rounded-xl border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200"
+                            value={data.phone_number}
+                            onChange={(e) => setData('phone_number', e.target.value)}
+                            required
+                            autoComplete="tel"
+                            placeholder="Contoh: 08123456789"
+                        />
+                    </div>
+                    <InputError className="mt-2" message={errors.phone_number} />
+                    <p className="mt-1 text-[10px] text-gray-400">Pastikan nomor aktif untuk menerima notifikasi WhatsApp.</p>
                 </div>
 
                 {mustVerifyEmail && user.email_verified_at === null && (

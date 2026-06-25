@@ -8,12 +8,11 @@ import {
 } from 'recharts';
 import { formatRupiah } from '@/Helpers/rupiah';
 import { 
-    LayoutDashboard, Package, AlertTriangle, 
-    Clock, TrendingUp, Building2, Users, 
+    Package, AlertTriangle, 
+    Clock, TrendingUp, Building2,
     FileText, ChevronRight, CheckCircle,
-    Activity, BarChart3, PieChart as PieChartIcon,
-    Calendar, DollarSign, Truck, Home,
-    ArrowUp, ArrowDown, Zap, Shield
+    Activity, PieChart as PieChartIcon,
+    DollarSign, Truck, Shield
 } from 'lucide-react';
 
 export default function Admin({ auth, stats, recentReports, chartData, investments }) {
@@ -23,7 +22,20 @@ export default function Admin({ auth, stats, recentReports, chartData, investmen
         setMounted(true);
     }, []);
 
-    const COLORS = ['#10B981', '#F59E0B', '#EF4444'];
+    const conditionColors = {
+        'Baik / Laik': '#10B981',   // Hijau
+        'Rusak Ringan': '#F59E0B',  // Oranye
+        'Rusak Berat': '#EF4444',   // Merah
+    };
+
+    const conditionOrder = ['Baik / Laik', 'Rusak Ringan', 'Rusak Berat'];
+
+    const formattedPieData = [...chartData.conditionDistribution]
+        .sort((a, b) => conditionOrder.indexOf(a.name) - conditionOrder.indexOf(b.name))
+        .map(item => ({
+            ...item,
+            fill: conditionColors[item.name] || '#9CA3AF' // Fallback abu-abu jika tidak cocok
+        }));
 
     const getStatusBadge = (status) => {
         const styles = {
@@ -244,38 +256,34 @@ export default function Admin({ auth, stats, recentReports, chartData, investmen
                             <div className="p-4 flex flex-col items-center">
                                 <div className="w-full h-56">
                                     {mounted && (
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <PieChart>
-                                            <Pie
-                                                data={chartData.conditionDistribution}
-                                                cx="50%"
-                                                cy="50%"
-                                                innerRadius={60}
-                                                outerRadius={80}
-                                                paddingAngle={4}
-                                                dataKey="value"
-                                            >
-                                                {chartData.conditionDistribution.map((entry, index) => (
-                                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                                ))}
-                                            </Pie>
-                                            <Tooltip 
-                                                contentStyle={{ 
-                                                    backgroundColor: 'white', 
-                                                    border: '1px solid #E5E7EB',
-                                                    borderRadius: '8px',
-                                                    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'
-                                                }}
-                                            />
-                                        </PieChart>
-                                    </ResponsiveContainer>
+                                        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+                                            <PieChart>
+                                                <Pie
+                                                    data={formattedPieData}
+                                                    cx="50%"
+                                                    cy="50%"
+                                                    innerRadius={60}
+                                                    outerRadius={80}
+                                                    paddingAngle={4}
+                                                    dataKey="value"
+                                                />
+                                                <Tooltip 
+                                                    contentStyle={{ 
+                                                        backgroundColor: 'white', 
+                                                        border: '1px solid #E5E7EB',
+                                                        borderRadius: '8px',
+                                                        boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'
+                                                    }}
+                                                />
+                                            </PieChart>
+                                        </ResponsiveContainer>
                                     )}
                                 </div>
                                 <div className="grid grid-cols-3 gap-2 w-full mt-2 pt-3 border-t border-gray-100">
-                                    {chartData.conditionDistribution.map((item, index) => (
+                                    {formattedPieData.map((item, index) => (
                                         <div key={index} className="text-center">
                                             <div className="flex items-center justify-center gap-1.5">
-                                                <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }}></span>
+                                                <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.fill }}></span>
                                                 <span className="text-xs text-gray-500 truncate">{item.name}</span>
                                             </div>
                                             <span className="text-sm font-bold text-gray-800">{item.value}</span>

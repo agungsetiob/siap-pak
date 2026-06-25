@@ -24,16 +24,16 @@ export default function Edit({ mustVerifyEmail, status, flash }) {
                     <div className="grid grid-cols-1 gap-6  bg-white p-6 border border-gray-200 rounded-2xl">
 
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-                            <UpdateSignatureForm className="w-full" />
-                            <UpdatePasswordForm className="w-full" />
-                        </div>
-
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
                             <UpdateProfileInformationForm
                                 mustVerifyEmail={mustVerifyEmail}
                                 status={status}
                                 className="w-full" 
                             />
+                            <UpdatePasswordForm className="w-full" />
+                        </div>
+
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+                            <UpdateSignatureForm className="w-full" />
                             <DeleteUserForm className="w-full" />
                         </div>
 

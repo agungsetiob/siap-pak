@@ -1,13 +1,7 @@
 import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router, useForm } from '@inertiajs/react';
-import Modal from '@/Components/Modal';
-import InputLabel from '@/Components/InputLabel';
-import TextInput from '@/Components/TextInput';
-import InputError from '@/Components/InputError';
-import PrimaryButton from '@/Components/PrimaryButton';
-import SecondaryButton from '@/Components/SecondaryButton';
-import FlashMessage from '@/Components/FlashMessage';
+import { Modal, DeleteModal, InputError, InputLabel, TextInput, PrimaryButton, SecondaryButton, FlashMessage } from '@/Components';
 import {
     Plus, Search, Edit, Trash2, Building2,
     Phone, Mail, MapPin, Tag, FileText,
@@ -582,32 +576,13 @@ export default function Index({ auth, vendors, filters, flash, stats }) {
                     </div>
                 </form>
             </Modal>
-            <Modal show={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)} maxWidth="sm">
-                <div className="p-6">
-                    <div className="flex items-center gap-3 pb-3 mb-3">
-                        <div className="p-2 bg-gradient-to-br from-red-500 to-pink-500 rounded-xl text-white">
-                            <Trash2 className="w-5 h-5" />
-                        </div>
-                        <div>
-                            <h2 className="text-xl font-bold text-gray-900">Konfirmasi Hapus</h2>
-                            <p className="text-sm text-gray-500">Apakah Anda yakin ingin menghapus data vendor ini?</p>
-                        </div>
-                    </div>
-
-                    <div className="mt-8 flex justify-end bg-gray-50 -mx-6 -mb-6 p-4 rounded-b-2xl border-t border-gray-100">
-                        <SecondaryButton type="button" onClick={() => setIsDeleteModalOpen(false)} className="rounded-xl">
-                            Batal
-                        </SecondaryButton>
-                        <PrimaryButton
-                            type="button"
-                            onClick={confirmDelete}
-                            className="ml-3 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 rounded-xl px-6 py-2.5 shadow-lg shadow-red-500/20"
-                        >
-                            Hapus
-                        </PrimaryButton>
-                    </div>
-                </div>
-            </Modal>
+            <DeleteModal
+                show={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={confirmDelete}
+                title="Konfirmasi Hapus"
+                message="Apakah Anda yakin ingin menghapus data vendor ini?"
+            />
         </AuthenticatedLayout>
     );
 }
