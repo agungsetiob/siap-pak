@@ -50,6 +50,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/profile/signature', [ProfileController::class, 'updateSignature'])->name('profile.signature.update');
     Route::post('/reports/{report}/approve', [ReportController::class, 'approve'])->name('reports.approve');
     Route::get('/reports/{report}/print', [ReportController::class, 'print'])->name('reports.print');
+
+    Route::get('/api/equipments/search', [EquipmentController::class, 'searchAPI'])->name('api.equipments.search');
 });
 
 // ------------------------------------------------------------------

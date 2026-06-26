@@ -46,6 +46,7 @@ return [
     'lowercase'            => 'Kolom :attribute harus huruf kecil',
     'same'                 => 'Kolom :attribute dan :other harus sama.',
     'required_if'          => 'Kolom :attribute wajib diisi jika :other bernilai :value.',
+    'after_or_equal'       => 'Tanggal :attribute harus sama dengan atau setelah hari ini.',
     'size'                 => [
         'numeric' => 'Kolom :attribute harus berukuran :size.',
         'file'    => 'Kolom :attribute harus berukuran :size kilobytes.',

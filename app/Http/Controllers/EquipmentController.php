@@ -22,15 +22,15 @@ class EquipmentController extends Controller
 
         if ($user->role === 'ruangan') {
             $query->where('room_id', $user->room_id);
-            $rooms = []; 
+            $rooms = [];
         } else {
             $rooms = Room::orderBy('name')->get(['id', 'name']);
         }
 
         if ($request->has('search')) {
-            $query->where(function($q) use ($request) {
+            $query->where(function ($q) use ($request) {
                 $q->where('name', 'like', '%' . $request->search . '%')
-                  ->orWhere('inventory_number', 'like', '%' . $request->search . '%');
+                    ->orWhere('inventory_number', 'like', '%' . $request->search . '%');
             });
         }
 
@@ -101,9 +101,13 @@ class EquipmentController extends Controller
         $equipment->load([
             'room',
             'calibrations.report',
-            'calibrations' => function($q) { $q->latest('calibration_date'); },
+            'calibrations' => function ($q) {
+                $q->latest('calibration_date');
+            },
             'calibrations.admin',
-            'reports' => function($q) { $q->latest()->take(7); },
+            'reports' => function ($q) {
+                $q->latest()->take(7);
+            },
             'movements.fromRoom',
             'movements.toRoom',
             'movements.mover',
@@ -196,5 +200,28 @@ class EquipmentController extends Controller
         } catch (\Exception $e) {
             return back()->with(['error' => 'Gagal mengimport: ' . $e->getMessage()]);
         }
+    }
+
+    public function searchAPI(Request $request)
+    {
+        $user = $request->user();
+        $query = Equipment::with('room');
+
+        if ($user && $user->role === 'ruangan') {
+            $query->where('room_id', $user->room_id);
+        }
+
+        if ($request->filled('q')) {
+            $searchTerm = $request->q;
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('name', 'like', "%{$searchTerm}%")
+                    ->orWhere('inventory_number', 'like', "%{$searchTerm}%")
+                    ->orWhere('brand', 'like', "%{$searchTerm}%");
+            });
+        }
+
+        $equipments = $query->take(7)->get(['id', 'name', 'inventory_number', 'brand', 'room_id']);
+
+        return response()->json($equipments);
     }
 }

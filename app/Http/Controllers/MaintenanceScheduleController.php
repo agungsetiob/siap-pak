@@ -25,24 +25,26 @@ class MaintenanceScheduleController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        $equipments = Equipment::with('room')
-            ->orderBy('name')
-            ->get(['id', 'name', 'inventory_number', 'room_id']);
-
         $technicians = Technician::where('is_active', true)
             ->orderBy('name')
-            ->get(['id', 'name']);
+            ->get(['id', 'name', 'specialization']);
+
+        $statsQuery = MaintenanceSchedule::selectRaw('
+        COUNT(*) as total,
+        SUM(IF(status = "menunggu", 1, 0)) as pending,
+        SUM(IF(status = "selesai", 1, 0)) as completed,
+        SUM(IF(status = "terlewat", 1, 0)) as overdue
+    ')->first();
 
         $stats = [
-            'total'     => MaintenanceSchedule::count(),
-            'pending'   => MaintenanceSchedule::where('status', 'menunggu')->count(),
-            'completed' => MaintenanceSchedule::where('status', 'selesai')->count(),
-            'overdue'   => MaintenanceSchedule::where('status', 'terlewat')->count(),
+            'total'     => (int) $statsQuery->total,
+            'pending'   => (int) $statsQuery->pending,
+            'completed' => (int) $statsQuery->completed,
+            'overdue'   => (int) $statsQuery->overdue,
         ];
 
         return Inertia::render('Admin/MaintenanceSchedules/Index', [
             'schedules'   => $schedules,
-            'equipments'  => $equipments,
             'technicians' => $technicians,
             'filters'     => $request->only(['status']),
             'stats'       => $stats,

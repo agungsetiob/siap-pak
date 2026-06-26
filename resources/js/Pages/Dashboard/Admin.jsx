@@ -113,7 +113,7 @@ export default function Admin({ auth, stats, recentReports, chartData, investmen
                 <div className="flex items-center gap-3">
                     <div>
                         <h2 className="font-semibold text-xl text-gray-800 leading-tight">
-                            Dashboard Manajemen SIMAK
+                            Dashboard Manajemen
                         </h2>
                     </div>
                 </div>

@@ -339,7 +339,7 @@ export default function AuthenticatedLayout({ header, children }) {
             {/* Main Content */}
             <div className={`transition-all duration-300 ${isSidebarOpen ? "lg:ml-64" : "lg:ml-20"}`}>
                 {/* Top Navbar */}
-                <header className={`sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-gray-200/50 transition-all duration-300 ${isScrolled ? "shadow-sm" : ""
+                <header className={`sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-gray-200 transition-all duration-300 ${isScrolled ? "shadow-sm" : ""
                     }`}>
                     <div className="flex items-center justify-between h-16 px-4 sm:px-6">
                         <div className="flex items-center gap-3">

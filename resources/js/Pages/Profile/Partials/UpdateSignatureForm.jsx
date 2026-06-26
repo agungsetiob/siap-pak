@@ -33,7 +33,7 @@ export default function UpdateSignatureForm({ className = '' }) {
                 <div>
                     <h2 className="text-lg font-bold text-gray-900">Tanda Tangan Elektronik</h2>
                     <p className="mt-1 text-sm text-gray-500">
-                        Upload foto tanda tangan Anda di atas kertas putih bersih untuk menyetujui laporan.
+                        Upload foto tanda tangan Anda dengan background transparan untuk menyetujui laporan.
                     </p>
                 </div>
             </header>

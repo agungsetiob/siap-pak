@@ -6,11 +6,10 @@ import {
     Tooltip, ResponsiveContainer, Cell 
 } from 'recharts';
 import { 
-    LayoutDashboard, Package, AlertTriangle, 
+    Package, AlertTriangle, 
     FileText, ChevronRight, CheckCircle, 
-    Activity, Clock, Home, Bell, 
-    TrendingUp, Building2, User, Calendar,
-    ArrowUp, ArrowDown, Zap, Shield
+    Activity, Clock, Bell, 
+    TrendingUp, Building2, User
 } from 'lucide-react';
 
 export default function Ruangan({ auth, stats, myReports, roomName, chartData }) {

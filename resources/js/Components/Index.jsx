@@ -11,3 +11,4 @@ export { default as ImportExcelModal } from './ImportExcelModal';
 export { default as QrPrintModal } from './QrPrintModal';
 export { default as QrGenerateModal } from './QrGenerateModal';
 export { default as SearchableSelect } from './SearchableSelect';
+export { default as AsyncSearchableSelect } from './AsyncSearchableSelect';
