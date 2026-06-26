@@ -17,14 +17,11 @@ class RoleMiddleware
      */
     public function handle(Request $request, Closure $next, string $role): Response
     {
-        // Pastikan user sudah login
         if (!Auth::check()) {
             return redirect()->route('login');
         }
 
-        // Cek apakah role user sesuai dengan parameter yang diminta di route
         if ($request->user()->role !== $role) {
-            // Jika tidak sesuai, tampilkan halaman 403 Forbidden
             abort(403, 'Akses ditolak. Anda tidak memiliki izin untuk halaman ini.');
         }
 

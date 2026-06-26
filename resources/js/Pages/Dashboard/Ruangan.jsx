@@ -1,24 +1,34 @@
 import React from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
-import { 
-    BarChart, Bar, XAxis, YAxis, CartesianGrid, 
-    Tooltip, ResponsiveContainer, Cell 
+import {
+    BarChart, Bar, XAxis, YAxis, CartesianGrid,
+    Tooltip, ResponsiveContainer, Cell
 } from 'recharts';
-import { 
-    Package, AlertTriangle, 
-    FileText, ChevronRight, CheckCircle, 
-    Activity, Clock, Bell, 
-    TrendingUp, Building2, User
+import {
+    Package, AlertTriangle,
+    FileText, ChevronRight, CheckCircle,
+    Activity, Clock, Bell,
+    TrendingUp, Building2, User, XCircle
 } from 'lucide-react';
 
-export default function Ruangan({ auth, stats, myReports, roomName, chartData }) {
-    
+export default function Ruangan({
+    auth,
+    stats = { my_equipments: 0, my_active_reports: 0, my_completed_reports: 0, my_total_reports: 0 },
+    reportStats = { total: 0, aktif: 0, selesai: 0, dibatalkan: 0 },
+    myReports = [],
+    roomName = 'Ruangan',
+    chartData = { statusDistribution: [] }
+}) {
+
     // Pemetaan warna berdasarkan status tiket
     const getStatusColor = (status) => {
-        if (status.includes('MENUNGGU')) return '#EF4444';
-        if (status.includes('DIPROSES')) return '#F59E0B';
-        if (status.includes('SELESAI')) return '#10B981';
+        if (!status) return '#9CA3AF';
+        const upper = status.toUpperCase();
+        if (upper.includes('MENUNGGU')) return '#EF4444';
+        if (upper.includes('DIPROSES')) return '#F59E0B';
+        if (upper.includes('SELESAI')) return '#10B981';
+        if (upper.includes('DIBATALKAN')) return '#9CA3AF';
         return '#9CA3AF';
     };
 
@@ -33,15 +43,18 @@ export default function Ruangan({ auth, stats, myReports, roomName, chartData })
             menunggu: <AlertTriangle className="w-3.5 h-3.5" />,
             diproses: <Clock className="w-3.5 h-3.5" />,
             selesai: <CheckCircle className="w-3.5 h-3.5" />,
-            dibatalkan: <Activity className="w-3.5 h-3.5" />,
+            dibatalkan: <XCircle className="w-3.5 h-3.5" />,
         };
         return (
-            <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider border ${styles[status]}`}>
-                {icons[status]}
-                {status}
+            <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider border ${styles[status] || 'bg-gray-100 text-gray-800 border-gray-200'}`}>
+                {icons[status] || <AlertTriangle className="w-3.5 h-3.5" />}
+                {status || 'Tidak Diketahui'}
             </span>
         );
     };
+
+    // Data untuk chart
+    const statusData = chartData?.statusDistribution || [];
 
     return (
         <AuthenticatedLayout
@@ -89,8 +102,8 @@ export default function Ruangan({ auth, stats, myReports, roomName, chartData })
                                         {roomName}
                                     </p>
                                 </div>
-                                <Link 
-                                    href={route('reports.index')} 
+                                <Link
+                                    href={route('reports.index')}
                                     className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-emerald-700 rounded-xl hover:bg-emerald-50 font-semibold shadow-lg transition-all duration-200 hover:shadow-xl"
                                 >
                                     <FileText className="w-4 h-4" />
@@ -194,11 +207,11 @@ export default function Ruangan({ auth, stats, myReports, roomName, chartData })
                             </div>
                             <div className="p-4">
                                 <div className="w-full h-64">
-                                    {chartData.statusDistribution.length > 0 ? (
+                                    {statusData.length > 0 ? (
                                         <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
-                                            <BarChart 
-                                                data={chartData.statusDistribution} 
-                                                layout="vertical" 
+                                            <BarChart
+                                                data={statusData}
+                                                layout="vertical"
                                                 margin={{ top: 10, right: 30, left: 10, bottom: 10 }}
                                             >
                                                 <defs>
@@ -208,38 +221,38 @@ export default function Ruangan({ auth, stats, myReports, roomName, chartData })
                                                     </linearGradient>
                                                 </defs>
                                                 <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#E5E7EB" />
-                                                <XAxis 
-                                                    type="number" 
-                                                    stroke="#9CA3AF" 
+                                                <XAxis
+                                                    type="number"
+                                                    stroke="#9CA3AF"
                                                     allowDecimals={false}
                                                     style={{ fontSize: '11px' }}
                                                     tickLine={false}
                                                 />
-                                                <YAxis 
-                                                    dataKey="name" 
-                                                    type="category" 
-                                                    stroke="#4B5563" 
+                                                <YAxis
+                                                    dataKey="name"
+                                                    type="category"
+                                                    stroke="#4B5563"
                                                     style={{ fontSize: '12px', fontWeight: 'bold' }}
                                                     tickLine={false}
                                                     width={80}
                                                 />
-                                                <Tooltip 
-                                                    contentStyle={{ 
-                                                        backgroundColor: 'white', 
+                                                <Tooltip
+                                                    contentStyle={{
+                                                        backgroundColor: 'white',
                                                         border: '1px solid #E5E7EB',
                                                         borderRadius: '8px',
                                                         boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'
                                                     }}
                                                 />
-                                                <Bar 
-                                                    dataKey="value" 
-                                                    radius={[0, 8, 8, 0]} 
+                                                <Bar
+                                                    dataKey="value"
+                                                    radius={[0, 8, 8, 0]}
                                                     maxBarSize={35}
                                                     barSize={30}
                                                     animationDuration={1500}
                                                     animationEasing="ease-in-out"
                                                 >
-                                                    {chartData.statusDistribution.map((entry, index) => (
+                                                    {statusData.map((entry, index) => (
                                                         <Cell key={`cell-${index}`} fill={getStatusColor(entry.name)} />
                                                     ))}
                                                 </Bar>
@@ -256,53 +269,57 @@ export default function Ruangan({ auth, stats, myReports, roomName, chartData })
                             </div>
                         </div>
 
-                        {/* Quick Info Card */}
+                        {/* Quick Info Card - Statistik Laporan */}
                         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-200">
                             <div className="px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-100 flex items-center gap-2">
                                 <div className="p-1.5 bg-emerald-100 rounded-lg text-emerald-600">
                                     <Bell className="w-4 h-4" />
                                 </div>
-                                <h3 className="text-sm font-bold text-gray-800">Informasi Cepat</h3>
+                                <h3 className="text-sm font-bold text-gray-800">Rincian Status Laporan</h3>
                             </div>
                             <div className="p-5 space-y-4">
-                                <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-xl border border-blue-100">
-                                    <div className="p-2 bg-blue-500/10 rounded-lg">
-                                        <Package className="w-5 h-5 text-blue-600" />
+                                {/* Menunggu */}
+                                <div className="flex items-center gap-3 p-3 bg-red-50 rounded-xl border border-red-100">
+                                    <div className="p-2 bg-red-500/10 rounded-lg">
+                                        <AlertTriangle className="w-5 h-5 text-red-600" />
                                     </div>
                                     <div>
-                                        <p className="text-xs text-gray-500">Total Alat</p>
-                                        <p className="text-lg font-bold text-gray-800">{stats.my_equipments} Unit</p>
+                                        <p className="text-xs text-gray-500">Menunggu</p>
+                                        <p className="text-lg font-bold text-gray-800">{reportStats.menunggu} Tiket</p>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-3 p-3 bg-orange-50 rounded-xl border border-orange-100">
-                                    <div className="p-2 bg-orange-500/10 rounded-lg">
-                                        <Clock className="w-5 h-5 text-orange-600" />
+                                {/* Diproses */}
+                                <div className="flex items-center gap-3 p-3 bg-yellow-50 rounded-xl border border-yellow-100">
+                                    <div className="p-2 bg-yellow-500/10 rounded-lg">
+                                        <Clock className="w-5 h-5 text-yellow-600" />
                                     </div>
                                     <div>
-                                        <p className="text-xs text-gray-500">Menunggu / Diproses</p>
-                                        <p className="text-lg font-bold text-gray-800">{stats.my_active_reports} Tiket</p>
+                                        <p className="text-xs text-gray-500">Diproses</p>
+                                        <p className="text-lg font-bold text-gray-800">{reportStats.diproses} Tiket</p>
                                     </div>
                                 </div>
+                                {/* Selesai */}
                                 <div className="flex items-center gap-3 p-3 bg-green-50 rounded-xl border border-green-100">
                                     <div className="p-2 bg-green-500/10 rounded-lg">
                                         <CheckCircle className="w-5 h-5 text-green-600" />
                                     </div>
                                     <div>
                                         <p className="text-xs text-gray-500">Selesai</p>
-                                        <p className="text-lg font-bold text-gray-800">{stats.my_completed_reports || 0} Tiket</p>
+                                        <p className="text-lg font-bold text-gray-800">{reportStats.selesai} Tiket</p>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-3 p-3 bg-purple-50 rounded-xl border border-purple-100">
-                                    <div className="p-2 bg-purple-500/10 rounded-lg">
-                                        <FileText className="w-5 h-5 text-purple-600" />
+                                {/* Dibatalkan */}
+                                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-200">
+                                    <div className="p-2 bg-gray-500/10 rounded-lg">
+                                        <XCircle className="w-5 h-5 text-gray-600" />
                                     </div>
                                     <div>
-                                        <p className="text-xs text-gray-500">Total Laporan</p>
-                                        <p className="text-lg font-bold text-gray-800">{stats.my_total_reports || 0} Tiket</p>
+                                        <p className="text-xs text-gray-500">Dibatalkan</p>
+                                        <p className="text-lg font-bold text-gray-800">{reportStats.dibatalkan} Tiket</p>
                                     </div>
                                 </div>
-                                <Link 
-                                    href={route('reports.index')} 
+                                <Link
+                                    href={route('reports.index')}
                                     className="block w-full text-center px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl hover:from-emerald-700 hover:to-teal-700 font-medium shadow-lg shadow-emerald-500/20 transition-all duration-200 hover:shadow-xl"
                                 >
                                     Buat Laporan Baru
@@ -320,8 +337,8 @@ export default function Ruangan({ auth, stats, myReports, roomName, chartData })
                                 </div>
                                 <h3 className="text-sm font-bold text-gray-800">Riwayat Laporan Terakhir</h3>
                             </div>
-                            <Link 
-                                href={route('reports.index')} 
+                            <Link
+                                href={route('reports.index')}
                                 className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-800 transition-colors"
                             >
                                 Lihat Semua
@@ -355,45 +372,46 @@ export default function Ruangan({ auth, stats, myReports, roomName, chartData })
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {myReports.map((report, index) => (
-                                        <tr 
-                                            key={report.id} 
-                                            className={`border-b hover:bg-emerald-50/30 transition-all duration-150 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/30'}`}
-                                        >
-                                            <td className="px-6 py-4 font-mono font-bold text-blue-600 text-sm">
-                                                {report.ticket_number}
-                                            </td>
-                                            <td className="px-6 py-4 font-semibold text-gray-800">
-                                                {report.equipment?.name}
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <div className="truncate max-w-xs" title={report.description}>
-                                                    {report.description}
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4 text-center">
-                                                {getStatusBadge(report.status)}
-                                            </td>
-                                            <td className="px-6 py-4 text-right">
-                                                <Link 
-                                                    href={route('reports.show', report.id)} 
-                                                    className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-lg text-xs font-medium hover:from-emerald-700 hover:to-teal-700 shadow-md shadow-emerald-500/20 transition-all duration-200 hover:shadow-lg"
-                                                >
-                                                    Lihat Log
-                                                    <ChevronRight className="w-3.5 h-3.5" />
-                                                </Link>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                    {myReports.length === 0 && (
+                                    {myReports.length > 0 ? (
+                                        myReports.map((report, index) => (
+                                            <tr
+                                                key={report.id}
+                                                className={`border-b hover:bg-emerald-50/30 transition-all duration-150 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/30'}`}
+                                            >
+                                                <td className="px-6 py-4 font-mono font-bold text-blue-600 text-sm">
+                                                    {report.ticket_number}
+                                                </td>
+                                                <td className="px-6 py-4 font-semibold text-gray-800">
+                                                    {report.equipment?.name || '-'}
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <div className="truncate max-w-xs" title={report.description}>
+                                                        {report.description}
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4 text-center">
+                                                    {getStatusBadge(report.status)}
+                                                </td>
+                                                <td className="px-6 py-4 text-right">
+                                                    <Link
+                                                        href={route('reports.show', report.id)}
+                                                        className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-lg text-xs font-medium hover:from-emerald-700 hover:to-teal-700 shadow-md shadow-emerald-500/20 transition-all duration-200 hover:shadow-lg"
+                                                    >
+                                                        Lihat Log
+                                                        <ChevronRight className="w-3.5 h-3.5" />
+                                                    </Link>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    ) : (
                                         <tr>
                                             <td colSpan="5" className="px-6 py-12 text-center">
                                                 <div className="flex flex-col items-center gap-2">
                                                     <FileText className="w-12 h-12 text-gray-300" />
                                                     <p className="text-gray-500 font-medium">Belum ada riwayat laporan</p>
                                                     <p className="text-gray-400 text-sm">Mulai buat laporan untuk alat di ruangan Anda</p>
-                                                    <Link 
-                                                        href={route('reports.index')} 
+                                                    <Link
+                                                        href={route('reports.index')}
                                                         className="mt-2 inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-lg text-sm font-medium hover:from-emerald-700 hover:to-teal-700 shadow-md shadow-emerald-500/20 transition-all duration-200 hover:shadow-lg"
                                                     >
                                                         Buat Laporan
@@ -411,7 +429,6 @@ export default function Ruangan({ auth, stats, myReports, roomName, chartData })
                 </div>
             </div>
 
-            {/* Custom Styles */}
             <style>{`
                 .bg-grid-pattern {
                     background-image: 

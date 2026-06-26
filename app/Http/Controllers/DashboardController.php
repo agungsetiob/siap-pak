@@ -95,35 +95,42 @@ class DashboardController extends Controller
         $stats = [
             'my_equipments' => Equipment::where('room_id', $user->room_id)->count(),
             'my_active_reports' => Report::where('reported_by', $user->id)
-                ->whereIn('status', ['menunggu', 'diproses'])
-                ->count(),
+                ->whereIn('status', ['menunggu', 'diproses'])->count(),
+            'my_completed_reports' => Report::where('reported_by', $user->id)
+                ->where('status', 'selesai')->count(),
+            'my_total_reports' => Report::where('reported_by', $user->id)->count(),
+        ];
+
+        $reportStats = [
+            'menunggu' => Report::where('reported_by', $user->id)
+                ->where('status', 'menunggu')->count(),
+            'diproses' => Report::where('reported_by', $user->id)
+                ->where('status', 'diproses')->count(),
+            'selesai' => Report::where('reported_by', $user->id)
+                ->where('status', 'selesai')->count(),
+            'dibatalkan' => Report::where('reported_by', $user->id)
+                ->where('status', 'dibatalkan')->count(),
         ];
 
         $myReports = Report::with('equipment')
             ->where('reported_by', $user->id)
-            ->latest()
-            ->take(5)
-            ->get();
+            ->latest()->take(5)->get();
 
-        // Grafik Status Tiket Khusus Ruangan Ini
         $statusDistribution = Report::where('reported_by', $user->id)
             ->selectRaw("status, COUNT(*) as total")
             ->groupBy('status')
             ->get()
-            ->map(function ($item) {
-                return [
-                    'name' => strtoupper($item->status),
-                    'value' => $item->total,
-                ];
-            });
+            ->map(fn($item) => [
+                'name' => strtoupper($item->status),
+                'value' => $item->total,
+            ]);
 
         return Inertia::render('Dashboard/Ruangan', [
             'stats' => $stats,
+            'reportStats' => $reportStats,
             'myReports' => $myReports,
             'roomName' => $user->room->name ?? 'Ruangan',
-            'chartData' => [
-                'statusDistribution' => $statusDistribution
-            ]
+            'chartData' => ['statusDistribution' => $statusDistribution],
         ]);
     }
 }
