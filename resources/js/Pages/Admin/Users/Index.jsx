@@ -115,7 +115,7 @@ export default function Index({ auth, users, rooms, flash, stats }) {
                     
                     <FlashMessage flash={flash} />
 
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
                         <div className="p-6">
                             {/* --- Header & Search --- */}
                             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">

@@ -98,10 +98,11 @@ export default function Index({
             <Head title="Kalibrasi" />
 
             <div className="py-2">
-                <div className="max-w-8xl mx-auto sm:px-2 lg:px-2 space-y-6">
-                    <FlashMessage flash={flash} />
+                <div className="max-w-8xl mx-auto sm:px-2 lg:px-2 space-y-3">
+                    {/* <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6"></div> */}
                     {/* --- Stats Cards --- */}
                     <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                        <FlashMessage flash={flash} />
                         <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100">
                             <div className="flex items-center justify-between">
                                 <div>
@@ -289,7 +290,7 @@ export default function Index({
                     </div>
 
                     {/* --- SECTION: ARSIP KALIBRASI --- */}
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
                         <div className="px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200 flex items-center justify-between">
                             <div className="flex items-center gap-3">
                                 <div className="p-1.5 bg-gray-500/20 rounded-lg text-gray-600">

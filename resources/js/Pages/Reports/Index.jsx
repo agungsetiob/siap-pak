@@ -74,7 +74,7 @@ export default function Index({ auth, reports, flash }) {
             <div className="py-2">
                 <div className="max-w-8xl mx-auto sm:px-4 lg:px-4">
                     <FlashMessage flash={flash} />
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
                         
                         {/* Header Area */}
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-6 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
