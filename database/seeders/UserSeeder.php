@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use App\Models\User;
+
 class UserSeeder extends Seeder
 {
     /**
@@ -37,6 +38,12 @@ class UserSeeder extends Seeder
         //     'created_at' => now(),
         //     'updated_at' => now(),
         // ]);
-        User::factory()->count(30)->create();
+        // Buat 1 admin
+        User::factory()->admin()->create([
+            'email' => 'admin@example.com',
+        ]);
+
+        // Buat 5 ruangan
+        User::factory()->ruangan()->count(30)->create();
     }
 }
