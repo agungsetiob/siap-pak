@@ -28,11 +28,27 @@ class UserFactory extends Factory
             'name' => $this->faker->name(),
             'email' => $this->faker->unique()->safeEmail(),
             'phone_number' => $this->faker->phoneNumber(),
-            'password' => Hash::make('password'),
-            'role' => $this->faker->randomElement(['admin', 'ruangan']),
+            'password' => Hash::make('default123'), // fallback
             'room_id' => $this->faker->numberBetween(1, 10),
             'is_active' => true,
         ];
+    }
+
+    public function admin(): Factory
+    {
+        return $this->state(fn () => [
+            'role' => 'admin',
+            'password' => Hash::make(env('ADMIN_PASS', 'admin123')),
+            'room_id' => null,
+        ]);
+    }
+
+    public function ruangan(): Factory
+    {
+        return $this->state(fn () => [
+            'role' => 'ruangan',
+            'password' => Hash::make(env('RUANGAN_PASS', 'ruangan123')),
+        ]);
     }
 
     /**
