@@ -50,7 +50,7 @@ export default function Login({ status, canResetPassword }) {
                             SIMAK
                         </h1>
                         <p className="text-sm text-gray-500 mt-1">
-                            Sistem Informasi Perbaikan Alat Kesehatan
+                            Sistem Informasi Maintenance Alat Kesehatan
                         </p>
                         <p className="text-xs text-gray-400 mt-0.5">
                             RSUD dr. H. Andi Abdurrahman Noor
