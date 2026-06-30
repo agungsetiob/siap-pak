@@ -3,7 +3,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid,
-    Tooltip, ResponsiveContainer, Cell
+    Tooltip, ResponsiveContainer
 } from 'recharts';
 import {
     Package, AlertTriangle,
@@ -54,7 +54,10 @@ export default function Ruangan({
     };
 
     // Data untuk chart
-    const statusData = chartData?.statusDistribution || [];
+    const statusData = (chartData?.statusDistribution || []).map(entry => ({
+        ...entry,
+        fill: getStatusColor(entry.name)
+    }));
 
     return (
         <AuthenticatedLayout
@@ -251,11 +254,7 @@ export default function Ruangan({
                                                     barSize={30}
                                                     animationDuration={1500}
                                                     animationEasing="ease-in-out"
-                                                >
-                                                    {statusData.map((entry, index) => (
-                                                        <Cell key={`cell-${index}`} fill={getStatusColor(entry.name)} />
-                                                    ))}
-                                                </Bar>
+                                                />
                                             </BarChart>
                                         </ResponsiveContainer>
                                     ) : (
