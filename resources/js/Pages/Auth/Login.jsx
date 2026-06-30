@@ -52,9 +52,6 @@ export default function Login({ status, canResetPassword }) {
                         <p className="text-sm text-gray-500 mt-1">
                             Sistem Informasi Maintenance Alat Kesehatan
                         </p>
-                        <p className="text-xs text-gray-400 mt-0.5">
-                            RSUD dr. H. Andi Abdurrahman Noor
-                        </p>
                     </div>
 
                     {/* Card Login */}
@@ -171,7 +168,7 @@ export default function Login({ status, canResetPassword }) {
 
                             {/* Footer */}
                             <div className="text-center text-xs text-gray-400 pt-2 border-t border-gray-100">
-                                &copy; {new Date().getFullYear()} SIMAK - RSUD dr. H. Andi Abdurrahman Noor
+                                &copy; {new Date().getFullYear()} RSUD dr. H. Andi Abdurrahman Noor
                             </div>
                         </form>
                     </div>

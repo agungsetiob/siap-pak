@@ -286,7 +286,7 @@ export default function Index({ auth, rooms, filters, flash, stats }) {
                                                 <tr>
                                                     <td colSpan="4" className="px-6 py-12 text-center">
                                                         <div className="flex flex-col items-center gap-2">
-                                                            <Building2 className="w-12 h-12 text-gray-300" />
+                                                            <Building2 className="w-12 h-12 text-red-400" />
                                                             <p className="text-gray-500 font-medium">Data ruangan tidak ditemukan</p>
                                                             <p className="text-gray-400 text-sm">Coba ubah kata kunci pencarian atau tambahkan ruangan baru</p>
                                                         </div>
@@ -350,7 +350,7 @@ export default function Index({ auth, rooms, filters, flash, stats }) {
                                     {rooms.data.length === 0 && (
                                         <div className="col-span-full text-center py-12">
                                             <div className="flex flex-col items-center gap-2">
-                                                <Building2 className="w-12 h-12 text-gray-300" />
+                                                <Building2 className="w-12 h-12 text-red-400" />
                                                 <p className="text-gray-500 font-medium">Data ruangan tidak ditemukan</p>
                                             </div>
                                         </div>

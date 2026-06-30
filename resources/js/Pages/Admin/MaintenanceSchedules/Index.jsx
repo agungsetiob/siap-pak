@@ -333,7 +333,7 @@ export default function Index({ auth, schedules, equipments, technicians, filter
                                                 <tr>
                                                     <td colSpan="6" className="px-6 py-12 text-center">
                                                         <div className="flex flex-col items-center gap-2">
-                                                            <Calendar className="w-12 h-12 text-gray-300" />
+                                                            <Calendar className="w-12 h-12 text-red-400" />
                                                             <p className="text-gray-500 font-medium">Tidak ada jadwal pemeliharaan</p>
                                                             <p className="text-gray-400 text-sm">Atur jadwal baru untuk memulai preventive maintenance</p>
                                                         </div>

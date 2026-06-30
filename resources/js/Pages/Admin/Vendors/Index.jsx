@@ -337,7 +337,7 @@ export default function Index({ auth, vendors, filters, flash, stats }) {
                                                 <tr>
                                                     <td colSpan="5" className="px-6 py-12 text-center">
                                                         <div className="flex flex-col items-center gap-2">
-                                                            <Building2 className="w-12 h-12 text-gray-300" />
+                                                            <Building2 className="w-12 h-12 text-red-400" />
                                                             <p className="text-gray-500 font-medium">Data vendor tidak ditemukan</p>
                                                             <p className="text-gray-400 text-sm">Coba ubah kata kunci pencarian atau tambahkan vendor baru</p>
                                                         </div>
@@ -415,7 +415,7 @@ export default function Index({ auth, vendors, filters, flash, stats }) {
                                     {vendors.data.length === 0 && (
                                         <div className="col-span-full text-center py-12">
                                             <div className="flex flex-col items-center gap-2">
-                                                <Building2 className="w-12 h-12 text-gray-300" />
+                                                <Building2 className="w-12 h-12 text-red-400" />
                                                 <p className="text-gray-500 font-medium">Data vendor tidak ditemukan</p>
                                             </div>
                                         </div>

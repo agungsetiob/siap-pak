@@ -416,7 +416,7 @@ export default function Index({ auth, equipments, rooms, vendors, filters, flash
                                             <tr>
                                                 <td colSpan="6" className="px-6 py-12 text-center">
                                                     <div className="flex flex-col items-center gap-2">
-                                                        <Package className="w-12 h-12 text-gray-300" />
+                                                        <Package className="w-12 h-12 text-red-400" />
                                                         <p className="text-gray-500 font-medium">Data alat kesehatan tidak ditemukan</p>
                                                         <p className="text-gray-400 text-sm">Coba ubah kata kunci pencarian atau tambahkan data baru</p>
                                                     </div>

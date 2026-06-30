@@ -162,7 +162,7 @@ export default function Index({ auth, reports, flash }) {
                                         <tr>
                                             <td colSpan={isRuangan ? 6 : 7} className="px-6 py-12 text-center text-gray-500">
                                                 <div className="flex flex-col items-center gap-2">
-                                                    <FileText className="w-12 h-12 text-gray-300" />
+                                                    <FileText className="w-12 h-12 text-red-400" />
                                                     <p className="text-sm font-medium">Belum ada data laporan</p>
                                                     <p className="text-xs text-gray-400">Laporan yang dibuat akan muncul di sini</p>
                                                 </div>

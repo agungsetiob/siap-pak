@@ -433,7 +433,7 @@ export default function Index({
                                                     className="px-6 py-12 text-center"
                                                 >
                                                     <div className="flex flex-col items-center gap-2">
-                                                        <FileText className="w-12 h-12 text-gray-300" />
+                                                        <FileText className="w-12 h-12 text-red-400" />
                                                         <p className="text-gray-500 font-medium">
                                                             Belum ada arsip
                                                             kalibrasi

@@ -415,7 +415,7 @@ export default function Index({ auth, technicians, filters, flash, stats }) {
                                                         className="px-6 py-12 text-center"
                                                     >
                                                         <div className="flex flex-col items-center gap-2">
-                                                            <Users className="w-12 h-12 text-gray-300" />
+                                                            <Users className="w-12 h-12 text-red-400" />
                                                             <p className="text-gray-500 font-medium">
                                                                 Data teknisi
                                                                 tidak ditemukan
@@ -521,7 +521,7 @@ export default function Index({ auth, technicians, filters, flash, stats }) {
                                     {technicians.data.length === 0 && (
                                         <div className="col-span-full text-center py-12">
                                             <div className="flex flex-col items-center gap-2">
-                                                <Users className="w-12 h-12 text-gray-300" />
+                                                <Users className="w-12 h-12 text-red-400" />
                                                 <p className="text-gray-500 font-medium">
                                                     Data teknisi tidak ditemukan
                                                 </p>
