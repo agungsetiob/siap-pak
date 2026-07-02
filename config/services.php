@@ -40,4 +40,8 @@ return [
         'admin_phone' => env('FONNTE_ADMIN_PHONE', ''),
     ],
 
+    'turnstile' => [
+        'secret' => env('TURNSTILE_SECRET_KEY'),
+    ],
+
 ];
