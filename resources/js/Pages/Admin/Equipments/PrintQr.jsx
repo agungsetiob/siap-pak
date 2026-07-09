@@ -55,7 +55,7 @@ export default function PrintQr({ equipments, room }) {
                         <div className="w-full mt-1 flex flex-col flex-grow justify-between">
                             <p className="font-bold text-[11px] leading-tight line-clamp-2 h-7">{eq.name}</p>
                             <div className="mt-1">
-                                <p className="text-[10px] font-mono leading-none">{eq.inventory_number}</p>
+                                <p className="text-[10px] font-mono leading-none">{eq.serial_number}</p>
                                 <p className="text-[9px] bg-gray-200 mt-1 rounded px-1 py-0.5 inline-block border border-gray-300 font-bold whitespace-nowrap overflow-hidden text-ellipsis max-w-full">
                                     {eq.room?.name || 'Gudang'}
                                 </p>

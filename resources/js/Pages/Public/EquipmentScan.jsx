@@ -11,7 +11,8 @@ export default function EquipmentScan({ equipment, calibrationStatus }) {
             {/* Header Mobile */}
             <div className="bg-blue-600 text-white p-6 shadow-md rounded-b-3xl mb-6">
                 <h1 className="text-2xl font-bold leading-tight">{equipment.name}</h1>
-                <p className="text-blue-100 font-mono mt-2">{equipment.inventory_number}</p>
+                <p className="text-blue-100 font-mono mt-2">{equipment.brand}</p>
+                <p className="text-blue-100 font-mono mt-2">{equipment.serial_number}</p>
                 <div className="mt-4 inline-block px-3 py-1 bg-white text-blue-600 rounded-full text-sm font-bold shadow-sm">
                     Lokasi: {equipment.room?.name || 'Belum Ditetapkan'}
                 </div>
