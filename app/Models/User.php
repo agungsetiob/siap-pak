@@ -85,7 +85,7 @@ class User extends Authenticatable
         
         $fullUrl = url($resetUrl);
 
-        $message = "*PENGATURAN ULANG PASSWORD (SIMAK)* 🏥\n\n";
+        $message = "*PENGATURAN ULANG PASSWORD (SIMEDI)* 🏥\n\n";
         $message .= "Halo *{$this->name}*,\n";
         $message .= "Sistem menerima permintaan untuk mengatur ulang password akun Anda.\n\n";
         $message .= "Silakan klik tautan di bawah ini untuk membuat password baru:\n";

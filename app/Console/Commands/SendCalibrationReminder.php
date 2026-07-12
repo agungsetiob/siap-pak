@@ -70,7 +70,7 @@ class SendCalibrationReminder extends Command
             return self::SUCCESS;
         }
 
-        $header = "⚠️ *Sistem Notifikasi SIMAK*\n\n";
+        $header = "⚠️ *Sistem Notifikasi SIMEDI*\n\n";
 
         $footer = "\n\nMohon segera mempersiapkan dokumen dan menghubungi vendor terkait.";
 

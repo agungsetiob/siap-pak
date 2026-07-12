@@ -56,8 +56,8 @@ class ReportController extends Controller
         }
         $request->validate([
             'status' => 'required|in:diproses,selesai,dibatalkan',
-            'notes' => 'required|string',
-            'action_taken' => 'nullable|string',
+            'notes' => 'nullable|string|min:11',
+            'action_taken' => 'nullable|string|min:11',
             'external_technician' => 'nullable|string',
             'cost' => 'nullable|integer',
         ]);

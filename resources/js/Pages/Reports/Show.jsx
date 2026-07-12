@@ -6,7 +6,7 @@ import TextInput from '@/Components/TextInput';
 import InputError from '@/Components/InputError';
 import PrimaryButton from '@/Components/PrimaryButton';
 import { formatDate } from "@/Helpers/date";
-import { 
+import {
     ChevronLeft, Printer, CheckCircle, Clock, AlertCircle, XCircle,
     User, Calendar, Package, Tag, FileText, Check, ThumbsUp, UserCheck,
     Building2, Wrench, MessageSquare
@@ -236,15 +236,15 @@ export default function Show({ auth, report, flash }) {
                             </div>
                         </div>
                         <div className="flex gap-3 items-center w-full sm:w-auto">
-                            <button 
-                                onClick={() => window.open(route('reports.print', report.id), '_blank')} 
+                            <button
+                                onClick={() => window.open(route('reports.print', report.id), '_blank')}
                                 className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 text-sm bg-gradient-to-r from-gray-800 to-gray-700 text-white rounded-lg hover:from-gray-700 hover:to-gray-600 font-medium shadow-lg shadow-gray-500/20 transition-all duration-200 hover:shadow-xl hover:shadow-gray-500/30"
                             >
                                 <Printer className="w-4 h-4" />
                                 Cetak Dokumen
                             </button>
-                            <Link 
-                                href={route('reports.index')} 
+                            <Link
+                                href={route('reports.index')}
                                 className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 text-sm text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 rounded-lg transition-all duration-200 font-medium"
                             >
                                 <ChevronLeft className="w-4 h-4" />
@@ -255,7 +255,7 @@ export default function Show({ auth, report, flash }) {
                 </div>
 
                 <div className="max-w-8xl mx-auto sm:px-4 lg:px-4 grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    
+
                     {/* KOLOM KIRI */}
                     <div className="lg:col-span-1 space-y-6">
                         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-200">
@@ -321,7 +321,7 @@ export default function Show({ auth, report, flash }) {
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <p className="text-xs text-gray-500">Merk</p>
+                                        <p className="text-xs text-gray-500">Merk/Tipe</p>
                                         <p className="text-sm font-medium text-gray-900">{report.equipment?.brand || '-'}</p>
                                     </div>
                                     <div>
@@ -342,7 +342,6 @@ export default function Show({ auth, report, flash }) {
                                         <Wrench className="w-5 h-5" />
                                         Tindak Lanjut Perbaikan
                                     </h3>
-                                    <p className="text-blue-100 text-xs mt-0.5">Update progress perbaikan alat</p>
                                 </div>
                                 <form onSubmit={submitProgress} className="p-6 space-y-5">
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -374,25 +373,33 @@ export default function Show({ auth, report, flash }) {
                                             </div>
                                         </div>
                                     </div>
-
-                                    <div>
-                                        <InputLabel htmlFor="notes" value="Catatan / Progress" className="text-sm font-semibold" />
-                                        <RichTextEditor
-                                            value={data.notes}
-                                            onChange={(html) => setData('notes', html)}
-                                            placeholder="Tulis detail progress perbaikan..."
-                                        />
-                                        <InputError message={errors.notes} className="mt-2" />
+                                    <div className="space-y-4 p-4 bg-white/50 rounded-xl border border-red-200">
+                                        <div className="flex items-center gap-2 text-red-700">
+                                            <AlertCircle className="w-5 h-5" />
+                                            {data.status === 'diproses' && (
+                                                <span className="font-semibold">Analisa</span>
+                                            )}
+                                            {data.status === 'selesai' && (
+                                                <span className="font-semibold">Hasil</span>   
+                                            )}
+                                        </div>      
+                                        <div>
+                                            <RichTextEditor
+                                                value={data.notes}
+                                                onChange={(html) => setData('notes', html)}
+                                                placeholder="Tulis detail progress perbaikan..."
+                                            />
+                                            <InputError message={errors.notes} className="mt-2" />
+                                        </div>
                                     </div>
-                                    
+
                                     {data.status === 'selesai' && (
                                         <div className="space-y-4 p-4 bg-white/50 rounded-xl border border-green-200">
                                             <div className="flex items-center gap-2 text-green-700">
                                                 <CheckCircle className="w-5 h-5" />
-                                                <span className="font-semibold">Detail Penyelesaian</span>
+                                                <span className="font-semibold">Tindakan Perbaikan</span>
                                             </div>
                                             <div>
-                                                <InputLabel htmlFor="action_taken" value="Tindakan yang Dilakukan" />
                                                 <RichTextEditor
                                                     value={data.action_taken}
                                                     onChange={(html) => setData('action_taken', html)}
@@ -416,7 +423,7 @@ export default function Show({ auth, report, flash }) {
                                     )}
 
                                     <div className="flex justify-end">
-                                        <PrimaryButton 
+                                        <PrimaryButton
                                             className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-xl px-6 py-3 font-semibold shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 transition-all duration-200"
                                             disabled={processing}
                                         >
@@ -429,7 +436,7 @@ export default function Show({ auth, report, flash }) {
                                                     Menyimpan...
                                                 </span>
                                             ) : (
-                                                'Simpan Progress & Kirim Notifikasi'
+                                                'Simpan & Kirim Notifikasi'
                                             )}
                                         </PrimaryButton>
                                     </div>
@@ -496,18 +503,18 @@ export default function Show({ auth, report, flash }) {
                                                             onClick={() => setShowConfirm(true)}
                                                             className="inline-flex items-center gap-2 bg-green-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-green-500/30 hover:bg-green-700 transition-all duration-200 hover:shadow-xl"
                                                         >
-                                                        <ConfirmModal
-                                                            show={showConfirm}
-                                                            onClose={() => setShowConfirm(false)}
-                                                            onConfirm={() => {
-                                                                router.post(route('reports.approve', report.id), {}, {
-                                                                    onError: (err) => { if(err.error) alert(err.error); }
-                                                                });
-                                                                setShowConfirm(false);
-                                                            }}
-                                                            title="Konfirmasi Persetujuan"
-                                                            message="Apakah alat sudah berfungsi dengan baik? Tanda tangan Anda akan dibubuhkan."
-                                                        />
+                                                            <ConfirmModal
+                                                                show={showConfirm}
+                                                                onClose={() => setShowConfirm(false)}
+                                                                onConfirm={() => {
+                                                                    router.post(route('reports.approve', report.id), {}, {
+                                                                        onError: (err) => { if (err.error) alert(err.error); }
+                                                                    });
+                                                                    setShowConfirm(false);
+                                                                }}
+                                                                title="Konfirmasi Persetujuan"
+                                                                message="Apakah alat sudah berfungsi dengan baik? Tanda tangan Anda akan dibubuhkan."
+                                                            />
                                                             <ThumbsUp className="w-4 h-4" />
                                                             Setujui & Tanda Tangani
                                                         </button>
@@ -564,7 +571,7 @@ export default function Show({ auth, report, flash }) {
                                         </div>
                                         <div className="mt-3 pt-3 border-t border-gray-200">
                                             <p className="font-bold text-gray-800 text-sm">
-                                                {report.status === 'selesai' 
+                                                {report.status === 'selesai'
                                                     ? (report.progress_logs?.find(log => log.status_snapshot === 'selesai')?.user?.name || 'Admin IPSRS')
                                                     : 'Belum Diverifikasi'}
                                             </p>
@@ -597,9 +604,9 @@ export default function Show({ auth, report, flash }) {
                                     {displayLogs?.map((log) => (
                                         <div key={log.id} className="relative pl-6">
                                             <span className={`absolute -left-[9px] top-1.5 h-4 w-4 rounded-full border-2 border-white shadow-sm
-                                                ${log.status_snapshot === 'menunggu' ? 'bg-red-500' : 
-                                                  log.status_snapshot === 'diproses' ? 'bg-yellow-500' : 
-                                                  log.status_snapshot === 'selesai' ? 'bg-green-500' : 'bg-gray-500'}`}
+                                                ${log.status_snapshot === 'menunggu' ? 'bg-red-500' :
+                                                    log.status_snapshot === 'diproses' ? 'bg-yellow-500' :
+                                                        log.status_snapshot === 'selesai' ? 'bg-green-500' : 'bg-gray-500'}`}
                                             ></span>
                                             <div className="flex flex-col sm:flex-row sm:justify-between mb-2">
                                                 <h4 className="font-bold text-gray-900 capitalize flex items-center gap-2">
@@ -609,13 +616,13 @@ export default function Show({ auth, report, flash }) {
                                                     {formatDate(log.created_at)}
                                                 </time>
                                             </div>
-                                            <div 
+                                            <div
                                                 className="text-sm text-gray-700 bg-gray-50 p-4 rounded-xl border border-gray-100 mt-2 prose prose-sm max-w-none"
                                                 dangerouslySetInnerHTML={{ __html: log.notes }}
                                             />
                                             <p className="text-xs text-gray-400 mt-2 flex items-center gap-1">
                                                 <User className="w-3 h-3" />
-                                                Diperbarui oleh: {log.user?.name || 'Sistem'}
+                                                oleh: {log.user?.name || 'Sistem'}
                                             </p>
                                         </div>
                                     ))}

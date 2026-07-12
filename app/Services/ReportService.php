@@ -31,7 +31,7 @@ class ReportService
                 'report_id' => $report->id,
                 'updated_by' => $reporter->id,
                 'status_snapshot' => 'menunggu',
-                'notes' => 'Laporan dibuat oleh ruangan.',
+                'notes' => 'Laporan dibuat.',
             ]);
 
             // --- 1. NOTIFIKASI INTERNAL KE SEMUA ADMIN ---
@@ -43,7 +43,7 @@ class ReportService
             ));
 
             $adminPhone = config('services.fonnte.admin_phone');
-            $message = "*Laporan Baru SIMAK*\n\n"
+            $message = "*Laporan Baru SIMEDI*\n\n"
                 . "Tiket: {$ticketNumber}\n"
                 . "Ruangan: " . ($reporter->room->name ?? 'N/A') . "\n"
                 . "Kendala: {$data['description']}\n\n"
@@ -83,7 +83,7 @@ class ReportService
             // --- 2. NOTIFIKASI WA KE RUANGAN PELAPOR ---
             if ($report->reporter->phone_number) {
                 $statusText = strtoupper($data['status']);
-                $message = "*Update Status SIMAK*\n\nTiket: {$report->ticket_number}\nStatus saat ini: *{$statusText}*\nCatatan Admin: {$data['notes']}";
+                $message = "*Update Status SIMEDI*\n\nTiket: {$report->ticket_number}\nStatus saat ini: *{$statusText}*\nCatatan Admin: {$data['notes']}";
                 $this->fonnteService->send($report->reporter->phone_number, $message);
             }
 

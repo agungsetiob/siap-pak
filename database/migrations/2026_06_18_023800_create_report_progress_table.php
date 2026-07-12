@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('report_progress', function (Blueprint $table) {
             $table->id();
             $table->foreignId('report_id')->constrained('reports')->cascadeOnDelete();
-            $table->foreignId('updated_by')->constrained('users')->cascadeOnDelete(); // Admin yang melakukan update
+            $table->foreignId('updated_by')->constrained('users')->cascadeOnDelete();
             $table->enum('status_snapshot', ['menunggu', 'diproses', 'selesai', 'dibatalkan', 'disetujui_ruangan']);
             $table->text('notes')->nullable();
             $table->timestamps();

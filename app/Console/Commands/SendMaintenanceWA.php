@@ -33,14 +33,14 @@ class SendMaintenanceWA extends Command
             $alat = $schedule->equipment;
             $ruangan = $alat->room ? $alat->room->name : 'Gudang/Awal';
 
-            $message = "*PENGINGAT PEMELIHARAAN ALAT (SIMAK)* 🏥\n\n";
+            $message = "*PENGINGAT PEMELIHARAAN ALAT (SIMEDI)* 🏥\n\n";
             $message .= "Halo sdr/i *{$teknisi->name}*,\n";
             $message .= "Hari ini Anda memiliki jadwal pemeliharaan alat kesehatan dengan rincian:\n\n";
             $message .= "🛠️ *Nama Alat:* {$alat->name}\n";
             $message .= "📇 *No. Inventaris:* {$alat->inventory_number}\n";
             $message .= "📍 *Lokasi/Ruangan:* {$ruangan}\n\n";
             $message .= "Mohon segera dilakukan pengecekan dan *update status* di dalam sistem. Terima kasih!\n\n";
-            $message .= "_Pesan ini dikirim otomatis oleh SIMAK RSUD DHAAN";
+            $message .= "_Pesan ini dikirim otomatis oleh SIMEDI RSUD DHAAN";
 
             $response = $fonnteService->send($teknisi->phone_number, $message);
 

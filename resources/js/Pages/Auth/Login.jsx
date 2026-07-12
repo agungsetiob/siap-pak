@@ -38,7 +38,7 @@ export default function Login({ status, canResetPassword }) {
                             <div className="relative w-20 h-auto flex items-center justify-center">
                                 <img
                                     src="/logo_qr.png"
-                                    alt="Logo SIMAK"
+                                    alt="Logo SIMEDI"
                                     className="w-full h-full object-cover"
                                     onError={(e) => {
                                         e.target.onerror = null;
@@ -50,10 +50,10 @@ export default function Login({ status, canResetPassword }) {
                             </div>
                         </div>
                         <h1 className="text-3xl font-bold text-gray-800 tracking-tight">
-                            SIMAK
+                            SIMEDI
                         </h1>
                         <p className="text-sm text-gray-500 mt-1">
-                            Sistem Informasi Maintenance Alat Kesehatan
+                            Sistem Informasi Medical Device
                         </p>
                     </div>
 
@@ -83,7 +83,7 @@ export default function Login({ status, canResetPassword }) {
                             <div>
                                 <InputLabel
                                     htmlFor="email"
-                                    value="Alamat Email"
+                                    value="Email"
                                     className="text-sm font-semibold text-gray-700"
                                 />
                                 <div className="relative mt-1">

@@ -16,7 +16,7 @@ export default function ForgotPassword({ status }) {
 
     return (
         <>
-            <Head title="Lupa Password - SIMAK" />
+            <Head title="Lupa Password - SIMEDI" />
             <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4">
                 <div className="w-full max-w-md">
                     <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">

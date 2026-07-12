@@ -207,7 +207,7 @@ export default function AuthenticatedLayout({ header, children }) {
                         </div>
                         {isSidebarOpen && (
                             <span className="font-bold text-xl tracking-tight bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
-                                SIMAK
+                                SIMEDI
                             </span>
                         )}
                     </Link>

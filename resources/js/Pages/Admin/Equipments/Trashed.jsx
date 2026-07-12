@@ -30,7 +30,7 @@ export default function Trashed({ auth, equipments }) {
             user={auth.user}
             header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Tong Sampah: Alat Kesehatan</h2>}
         >
-            <Head title="Arsip Alat - SIMAK" />
+            <Head title="Arsip Alat - SIMEDI" />
 
             <div className="py-2">
                 <div className="max-w-8xl mx-auto sm:px-2 lg:px-2">
