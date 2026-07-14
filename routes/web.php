@@ -55,7 +55,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 // ------------------------------------------------------------------
-// AREA KHUSUS ADMIN
+// ADMIN
 // ------------------------------------------------------------------
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::resource('users', UserController::class)->except(['create', 'show', 'edit']);
@@ -84,9 +84,13 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::resource('technicians', TechnicianController::class)->except(['create', 'show', 'edit']);
     
     Route::resource('maintenance-schedules', MaintenanceScheduleController::class)->except(['create', 'show', 'edit']);
-    Route::put('/maintenance-schedules/{schedule}/status', [MaintenanceScheduleController::class, 'updateStatus'])->name('maintenance-schedules.updateStatus');
+    Route::put('/maintenance-schedules/{maintenanceSchedule}/status', [MaintenanceScheduleController::class, 'updateStatus'])->name('maintenance-schedules.updateStatus');
+    Route::get('/maintenance-schedules/{maintenanceSchedule}/report', [MaintenanceScheduleController::class, 'reportForm'])->name('maintenance-schedules.report');
+    Route::put('/maintenance-schedules/{maintenanceSchedule}/report', [MaintenanceScheduleController::class, 'saveReport'])->name('maintenance-schedules.saveReport');
+    Route::get('/maintenance-schedules/{maintenanceSchedule}/print', [MaintenanceScheduleController::class, 'print'])->name('maintenance-schedules.print');
     Route::get('/equipments-template', [EquipmentController::class, 'downloadTemplate'])->name('equipments.template');
     Route::post('/equipments-import', [EquipmentController::class, 'importExcel'])->name('equipments.import');
+
 });
 
 require __DIR__.'/auth.php';

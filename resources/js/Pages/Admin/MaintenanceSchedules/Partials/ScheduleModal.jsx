@@ -6,7 +6,7 @@ import {
     TextInput,
     PrimaryButton,
     SecondaryButton,
-    AsyncSearchableSelect
+    AsyncSearchableSelect,
 } from "@/Components";
 import { Calendar, User, Activity, FileText, ChevronDown } from "lucide-react";
 
@@ -138,38 +138,14 @@ export default function ScheduleModal({
                                         setData("status", e.target.value)
                                     }
                                 >
-                                    <option value="menunggu">
-                                        🔄 Menunggu
-                                    </option>
-                                    <option value="selesai">✅ Selesai</option>
-                                    <option value="terlewat">
-                                        ❌ Terlewat
-                                    </option>
+                                    <option value="menunggu">Menunggu</option>
+                                    <option value="selesai">Selesai</option>
+                                    <option value="terlewat">Terlewat</option>
                                 </select>
                                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                             </div>
                         </div>
                     )}
-
-                    <div className="md:col-span-2">
-                        <InputLabel
-                            htmlFor="notes"
-                            value="Instruksi Khusus / Catatan Tugas"
-                        />
-                        <div className="relative mt-1">
-                            <FileText className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
-                            <textarea
-                                id="notes"
-                                rows="2"
-                                className="pl-10 block w-full rounded-xl border-gray-200 bg-gray-50 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-200 py-2.5 px-4"
-                                value={data.notes}
-                                onChange={(e) =>
-                                    setData("notes", e.target.value)
-                                }
-                                placeholder="Contoh: Cek filter oli pompa vakum atau kalibrasi kelistrikan..."
-                            />
-                        </div>
-                    </div>
                 </div>
 
                 <div className="mt-8 flex justify-end bg-gray-50 -mx-6 -mb-6 p-4 rounded-b-2xl border-t border-gray-100 gap-3">

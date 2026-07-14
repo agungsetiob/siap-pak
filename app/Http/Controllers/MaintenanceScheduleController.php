@@ -58,7 +58,6 @@ class MaintenanceScheduleController extends Controller
             'equipment_id' => 'required|exists:equipments,id',
             'technician_id' => 'required|exists:technicians,id',
             'scheduled_date' => 'required|date|after_or_equal:today',
-            'notes' => 'nullable|string',
         ]);
 
         MaintenanceSchedule::create($v);
@@ -72,7 +71,6 @@ class MaintenanceScheduleController extends Controller
             'technician_id' => 'required|exists:technicians,id',
             'scheduled_date' => 'required|date',
             'status' => 'required|in:menunggu,selesai,terlewat',
-            'notes' => 'nullable|string',
         ]);
 
         $maintenanceSchedule->update($v);
@@ -90,5 +88,45 @@ class MaintenanceScheduleController extends Controller
     {
         $maintenanceSchedule->delete();
         return back()->with('success', 'Jadwal pemeliharaan berhasil dihapus.');
+    }
+
+    public function reportForm(MaintenanceSchedule $maintenanceSchedule)
+    {
+        $maintenanceSchedule->load(['equipment.room', 'technician']);
+        return Inertia::render('Admin/MaintenanceSchedules/Report', [
+            'schedule' => $maintenanceSchedule
+        ]);
+    }
+
+    public function saveReport(Request $request, MaintenanceSchedule $maintenanceSchedule)
+    {
+        $v = $request->validate([
+            'frequency' => 'required|in:Harian,Mingguan,Bulanan,Triwulanan,Semesteran,Tahunan',
+            'checklist_results' => 'required|array',
+            'maintenance_actions' => 'nullable|array',
+            'action_other' => 'nullable|string',
+            'result_status' => 'required|in:layak,layak_dengan_catatan,tidak_layak',
+            'follow_up_notes' => 'nullable|string',
+            'notes' => 'nullable|string'
+        ]);
+
+        $v['status'] = 'selesai';
+
+        $maintenanceSchedule->update($v);
+
+        return redirect()->route('maintenance-schedules.index')
+            ->with('success', 'Laporan pemeliharaan berhasil disimpan dan jadwal diselesaikan.');
+    }
+
+    /**
+     * Menampilkan halaman cetak form pemeliharaan.
+     */
+    public function print(MaintenanceSchedule $maintenanceSchedule)
+    {
+        $maintenanceSchedule->load(['equipment.room', 'technician']);
+
+        return Inertia::render('Admin/MaintenanceSchedules/Print', [
+            'schedule' => $maintenanceSchedule
+        ]);
     }
 }

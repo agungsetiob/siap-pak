@@ -4,31 +4,26 @@ import { formatDate } from "@/Helpers/date";
 
 export default function Print({ report }) {
 
-    // Ambil semua notes dari progress_logs - hanya yang status_snapshot = 'diproses'
     const getAllNotes = () => {
         if (!report.progress_logs || report.progress_logs.length === 0) {
             return ['Tidak ada catatan'];
         }
         
-        // Filter hanya yang status_snapshot = 'diproses'
         const notes = report.progress_logs
-            .filter(log => log.status_snapshot === 'diproses') // Filter status diproses
+            .filter(log => log.status_snapshot === 'diproses')
             .map(log => log.notes)
             .filter(note => note && note.trim() !== '');
         
         return notes.length > 0 ? notes : ['Tidak ada catatan analisa'];
     };
 
-    // Ambil notes dengan status = 'selesai' untuk hasil
     const getResultNotes = () => {
         if (!report.progress_logs || report.progress_logs.length === 0) {
             return null;
         }
         
-        // Cari log dengan status_snapshot = 'selesai'
         const selesaiLog = report.progress_logs.find(log => log.status_snapshot === 'selesai');
         
-        // Jika ada dan memiliki notes, return notes,否则 return null
         if (selesaiLog && selesaiLog.notes && selesaiLog.notes.trim() !== '') {
             return selesaiLog.notes;
         }
@@ -77,9 +72,7 @@ export default function Print({ report }) {
                 </div>
             </div>
 
-            {/* ========================================== */}
             {/* AREA KERTAS CETAK A4 */}
-            {/* ========================================== */}
             <div className="w-full max-w-4xl mx-auto p-8 bg-white text-sm leading-relaxed">
                 
                 {/* KOP SURAT RESMI */}
@@ -146,14 +139,13 @@ export default function Print({ report }) {
                     </div>
                 </div>
 
-                {/* Bagian Hasil dan Tanda Tangan - 3 Kolom dengan Border */}
+                {/* Bagian Hasil dan Tanda Tangan */}
                 <div className="border border-black rounded-lg overflow-hidden mb-6">
                     {/* Header */}
                     <div className="bg-gray-50 p-3 border-b border-black">
                         <h3 className="font-bold text-gray-800 uppercase text-xs text-center">V. Hasil & Verifikasi</h3>
                     </div>
                     
-                    {/* 3 Kolom */}
                     <div className="grid grid-cols-3 divide-x divide-black">
                         {/* Kolom 1: Hasil Perbaikan */}
                         <div className="p-4 min-h-[150px] flex flex-col">
@@ -205,7 +197,6 @@ export default function Print({ report }) {
                         </div>
                     </div>
 
-                    {/* Footer dengan Teknisi dan Biaya */}
                     <div className="grid grid-cols-2 gap-4 p-3 border-t border-black bg-gray-50">
                         <div>
                             <p className="text-xs font-bold text-gray-600 uppercase">Teknisi Pelaksana: {report.external_technician || 'Internal'}</p>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, useForm, router } from '@inertiajs/react';
+import { Head, useForm, router, Link } from '@inertiajs/react';
 import { DeleteModal, FlashMessage
  } from '@/Components';
 import ScheduleModal from './Partials/ScheduleModal';
@@ -139,9 +139,9 @@ export default function Index({ auth, schedules, equipments, technicians, filter
                                             onChange={handleFilterChange}
                                         >
                                             <option value="">Semua Status</option>
-                                            <option value="menunggu">🔄 Menunggu</option>
-                                            <option value="selesai">✅ Selesai</option>
-                                            <option value="terlewat">❌ Terlewat</option>
+                                            <option value="menunggu">Menunggu</option>
+                                            <option value="selesai">Selesai</option>
+                                            <option value="terlewat">Terlewat</option>
                                         </select>
                                         <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                                             <ChevronDown className="h-4 w-4 text-gray-400" />
@@ -300,7 +300,7 @@ export default function Index({ auth, schedules, equipments, technicians, filter
                                                     </td>
                                                     <td className="px-6 py-4 text-center">
                                                         <select 
-                                                            className="text-xs rounded-xl border-gray-200 bg-gray-50 px-3 py-1.5 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all duration-200"
+                                                            className="text-xs w-24 rounded-xl border-gray-200 bg-gray-50 px-3 py-1.5 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all duration-200"
                                                             value={sched.status} 
                                                             onChange={e => changeStatusDirectly(sched.id, e.target.value)}
                                                         >
@@ -325,6 +325,12 @@ export default function Index({ auth, schedules, equipments, technicians, filter
                                                             >
                                                                 <Trash2 className="w-4 h-4" />
                                                             </button>
+                                                            <Link
+                                                                href={route('maintenance-schedules.report', sched.id)}
+                                                                className="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-lg transition-all duration-200"
+                                                            >
+                                                                <FileText className="w-4 h-4" />
+                                                            </Link>
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -359,7 +365,7 @@ export default function Index({ auth, schedules, equipments, technicians, filter
                                                 }`}>
                                                     <Calendar className="w-5 h-5" />
                                                 </div>
-                                                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                                <div className="flex gap-1">
                                                     <button
                                                         onClick={() => openModal(sched)}
                                                         className="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-all duration-200"
@@ -373,6 +379,12 @@ export default function Index({ auth, schedules, equipments, technicians, filter
                                                     >
                                                         <Trash2 className="w-4 h-4" />
                                                     </button>
+                                                    <Link
+                                                        href={route('maintenance-schedules.report', sched.id)}
+                                                        className="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-lg transition-all duration-200"
+                                                    >
+                                                        <FileText className="w-4 h-4" />
+                                                    </Link>
                                                 </div>
                                             </div>
                                             <div className="mb-3">
@@ -421,7 +433,7 @@ export default function Index({ auth, schedules, equipments, technicians, filter
                                     {schedules.data.length === 0 && (
                                         <div className="col-span-full text-center py-12">
                                             <div className="flex flex-col items-center gap-2">
-                                                <Calendar className="w-12 h-12 text-gray-300" />
+                                                <Calendar className="w-12 h-12 text-red-500" />
                                                 <p className="text-gray-500 font-medium">Tidak ada jadwal pemeliharaan</p>
                                             </div>
                                         </div>

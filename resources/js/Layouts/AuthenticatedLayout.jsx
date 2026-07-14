@@ -26,7 +26,6 @@ export default function AuthenticatedLayout({ header, children }) {
 
     const isAdmin = user?.role === "admin";
 
-    // Handle scroll effect
     useEffect(() => {
         const handleScroll = () => {
             setIsScrolled(window.scrollY > 10);
@@ -35,7 +34,6 @@ export default function AuthenticatedLayout({ header, children }) {
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
-    // Close mobile sidebar on resize
     useEffect(() => {
         const handleResize = () => {
             if (window.innerWidth >= 1024) {
@@ -46,7 +44,6 @@ export default function AuthenticatedLayout({ header, children }) {
         return () => window.removeEventListener("resize", handleResize);
     }, []);
 
-    // Toggle submenu
     const toggleSubmenu = (menuName) => {
         setExpandedMenus(prev => ({
             ...prev,
@@ -54,7 +51,6 @@ export default function AuthenticatedLayout({ header, children }) {
         }));
     };
 
-    // Navigation configuration
     const navigation = {
         admin: [
             {
