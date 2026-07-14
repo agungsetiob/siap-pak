@@ -92,25 +92,25 @@ export default function Print({ report }) {
                 </div>
 
                 {/* GRID INFORMASI UTAMA */}
-                <div className="grid grid-cols-2 gap-6 border border-black p-4 rounded-lg mb-6">
+                <div className="grid grid-cols-2 gap-6 border border-black p-4 mb-6">
                     <div className="space-y-2 border-r border-gray-300 pr-4">
                         <h3 className="font-bold border-b pb-1 text-gray-700 uppercase text-xs">I. Informasi Laporan</h3>
-                        <p><span className="text-gray-500 inline-block w-28">Jenis Kendala</span>: <span className="font-semibold capitalize">{report.type}</span></p>
-                        <p><span className="text-gray-500 inline-block w-28">Waktu Lapor</span>: <span>{formatDate(report.created_at)}</span></p>
-                        <p><span className="text-gray-500 inline-block w-28">Status</span>: <span className="font-bold uppercase text-blue-800">{report.status.replace('_', ' ')}</span></p>
-                        <p><span className="text-gray-500 inline-block w-28">User Pelapor</span>: <span>{report.reporter?.name}</span></p>
+                        <p><span className="inline-block w-28">Jenis Kendala</span>: <span className="font-semibold capitalize">{report.type}</span></p>
+                        <p><span className="inline-block w-28">Waktu Lapor</span>: <span>{formatDate(report.created_at)}</span></p>
+                        <p><span className="inline-block w-28">Status</span>: <span className="font-bold uppercase text-blue-800">{report.status.replace('_', ' ')}</span></p>
+                        <p><span className="inline-block w-28">User Pelapor</span>: <span>{report.reporter?.name}</span></p>
                     </div>
                     <div className="space-y-2 pl-2">
                         <h3 className="font-bold border-b pb-1 text-gray-700 uppercase text-xs">II. Spesifikasi Alat Kesehatan</h3>
-                        <p><span className="text-gray-500 inline-block w-28">Nama Alat</span>: <span className="font-bold text-gray-900">{report.equipment?.name}</span></p>
-                        <p><span className="text-gray-500 inline-block w-28">Ruangan</span>: <span>{report.equipment?.room?.name || '-'}</span></p>
-                        <p><span className="text-gray-500 inline-block w-28">Merk / Tipe</span>: <span>{report.equipment?.brand || '-'}</span></p>
-                        <p><span className="text-gray-500 inline-block w-28">Serial Number</span>: <span className="font-mono">{report.equipment?.serial_number || '-'}</span></p>
+                        <p><span className="inline-block w-28">Nama Alat</span>: <span className="font-bold text-gray-900">{report.equipment?.name}</span></p>
+                        <p><span className="inline-block w-28">Ruangan</span>: <span>{report.equipment?.room?.name || '-'}</span></p>
+                        <p><span className="inline-block w-28">Merk / Tipe</span>: <span>{report.equipment?.brand || '-'}</span></p>
+                        <p><span className="inline-block w-28">Serial Number</span>: <span className="font-mono">{report.equipment?.serial_number || '-'}</span></p>
                     </div>
                 </div>
 
                 {/* Analisa Kerusakan - Hanya status_snapshot = 'diproses' */}
-                <div className="border border-black p-4 rounded-lg mb-6">
+                <div className="border border-black p-4 mb-6">
                     <h3 className="font-bold border-b border-gray-300 pb-1 text-gray-800 uppercase text-xs mb-2">III. Analisa Kerusakan</h3>
                     <div className="space-y-2">
                         {allNotes.length > 0 ? (
@@ -128,7 +128,7 @@ export default function Print({ report }) {
                 </div>
 
                 {/* Tindakan Perbaikan */}
-                <div className="border border-black p-4 rounded-lg mb-6">
+                <div className="border border-black p-4 mb-6">
                     <h3 className="font-bold border-b border-gray-300 pb-1 text-gray-800 uppercase text-xs mb-2">IV. Tindakan Perbaikan</h3>
                     <div className="space-y-2">
                         {report.action_taken ? (
@@ -140,7 +140,7 @@ export default function Print({ report }) {
                 </div>
 
                 {/* Bagian Hasil dan Tanda Tangan */}
-                <div className="border border-black rounded-lg overflow-hidden mb-6">
+                <div className="border border-black overflow-hidden mb-6">
                     {/* Header */}
                     <div className="bg-gray-50 p-3 border-b border-black">
                         <h3 className="font-bold text-gray-800 uppercase text-xs text-center">V. Hasil & Verifikasi</h3>
@@ -149,7 +149,7 @@ export default function Print({ report }) {
                     <div className="grid grid-cols-3 divide-x divide-black">
                         {/* Kolom 1: Hasil Perbaikan */}
                         <div className="p-4 min-h-[150px] flex flex-col">
-                            <div className="flex-1 border-2 border-dashed border-gray-300 rounded p-2 min-h-[80px] flex items-start justify-start">
+                            <div className="flex-1 p-2 min-h-[80px] flex items-start justify-start">
                                 {resultNote ? (
                                     <div className="w-full text-sm">
                                         {renderHTML(resultNote)}

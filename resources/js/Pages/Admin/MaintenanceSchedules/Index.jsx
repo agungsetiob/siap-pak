@@ -18,6 +18,7 @@ export default function Index({ auth, schedules, equipments, technicians, filter
     const [isEditing, setIsEditing] = useState(false);
     const [viewMode, setViewMode] = useState('table');
     const [statusFilter, setStatusFilter] = useState(filters?.status || '');
+    const isAdmin = auth.user.role === 'admin';
 
     const { data, setData, post, put, delete: destroy, reset, errors, processing, clearErrors } = useForm({
         id: '',
@@ -150,13 +151,16 @@ export default function Index({ auth, schedules, equipments, technicians, filter
                                 </div>
 
                                 <div className="flex flex-wrap gap-2 w-full lg:w-auto">
-                                    <button 
-                                        onClick={() => openModal()} 
-                                        className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl hover:from-purple-700 hover:to-indigo-700 font-medium shadow-lg shadow-purple-500/20 transition-all duration-200 hover:shadow-xl"
-                                    >
-                                        <Plus className="w-4 h-4" />
-                                        <span className="hidden sm:inline">Atur Jadwal</span>
-                                    </button>
+
+                                    {isAdmin && (
+                                        <button 
+                                            onClick={() => openModal()} 
+                                            className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl hover:from-purple-700 hover:to-indigo-700 font-medium shadow-lg shadow-purple-500/20 transition-all duration-200 hover:shadow-xl"
+                                        >
+                                            <Plus className="w-4 h-4" />
+                                            <span className="hidden sm:inline">Atur Jadwal</span>
+                                        </button>
+                                    )}
 
                                     {/* View Toggle */}
                                     <div className="flex bg-gray-100 rounded-xl p-1">
@@ -254,7 +258,7 @@ export default function Index({ auth, schedules, equipments, technicians, filter
                                                     </div>
                                                 </th>
                                                 <th className="px-6 py-4 font-semibold text-center">Status</th>
-                                                <th className="px-6 py-4 font-semibold text-center">Ubah Status</th>
+                                                {isAdmin && <th className="px-6 py-4 font-semibold text-center">Ubah Status</th>}
                                                 <th className="px-6 py-4 font-semibold text-center">Aksi</th>
                                             </tr>
                                         </thead>
@@ -298,33 +302,39 @@ export default function Index({ auth, schedules, equipments, technicians, filter
                                                     <td className="px-6 py-4 text-center">
                                                         {getStatusBadge(sched.status)}
                                                     </td>
-                                                    <td className="px-6 py-4 text-center">
-                                                        <select 
-                                                            className="text-xs w-24 rounded-xl border-gray-200 bg-gray-50 px-3 py-1.5 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all duration-200"
-                                                            value={sched.status} 
-                                                            onChange={e => changeStatusDirectly(sched.id, e.target.value)}
-                                                        >
-                                                            <option value="menunggu">Menunggu</option>
-                                                            <option value="selesai">Selesai</option>
-                                                            <option value="terlewat">Terlewat</option>
-                                                        </select>
-                                                    </td>
+                                                    {isAdmin && (
+                                                        <td className="px-6 py-4 text-center">
+                                                            <select 
+                                                                className="text-xs w-24 rounded-xl border-gray-200 bg-gray-50 px-3 py-1.5 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all duration-200"
+                                                                value={sched.status} 
+                                                                onChange={e => changeStatusDirectly(sched.id, e.target.value)}
+                                                            >
+                                                                <option value="menunggu">Menunggu</option>
+                                                                <option value="selesai">Selesai</option>
+                                                                <option value="terlewat">Terlewat</option>
+                                                            </select>
+                                                        </td>
+                                                    )}
                                                     <td className="px-6 py-4 text-center">
                                                         <div className="flex items-center justify-center gap-2">
-                                                            <button
-                                                                onClick={() => openModal(sched)}
-                                                                className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-all duration-200"
-                                                                title="Edit"
-                                                            >
-                                                                <Edit className="w-4 h-4" />
-                                                            </button>
-                                                            <button
-                                                                onClick={() => openDeleteModal(sched.id)}
-                                                                className="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-all duration-200"
-                                                                title="Hapus"
-                                                            >
-                                                                <Trash2 className="w-4 h-4" />
-                                                            </button>
+                                                            {isAdmin && (
+                                                                <>
+                                                                    <button
+                                                                        onClick={() => openModal(sched)}
+                                                                        className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-all duration-200"
+                                                                        title="Edit"
+                                                                    >
+                                                                        <Edit className="w-4 h-4" />
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={() => openDeleteModal(sched.id)}
+                                                                        className="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-all duration-200"
+                                                                        title="Hapus"
+                                                                    >
+                                                                        <Trash2 className="w-4 h-4" />
+                                                                    </button>
+                                                                </>
+                                                            )}
                                                             <Link
                                                                 href={route('maintenance-schedules.report', sched.id)}
                                                                 className="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-lg transition-all duration-200"
@@ -366,19 +376,23 @@ export default function Index({ auth, schedules, equipments, technicians, filter
                                                     <Calendar className="w-5 h-5" />
                                                 </div>
                                                 <div className="flex gap-1">
-                                                    <button
-                                                        onClick={() => openModal(sched)}
-                                                        className="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-all duration-200"
-                                                    >
-                                                        <Edit className="w-4 h-4" />
-                                                    </button>
-                                                    <button
-                                                        onClick={() => openDeleteModal(sched.id)}
-                                                        className="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-all duration-200"
-                                                        title="Hapus"
-                                                    >
-                                                        <Trash2 className="w-4 h-4" />
-                                                    </button>
+                                                    {isAdmin && (
+                                                        <>
+                                                            <button
+                                                                onClick={() => openModal(sched)}
+                                                                className="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-all duration-200"
+                                                            >
+                                                                <Edit className="w-4 h-4" />
+                                                            </button>
+                                                            <button
+                                                                onClick={() => openDeleteModal(sched.id)}
+                                                                className="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-all duration-200"
+                                                                title="Hapus"
+                                                            >
+                                                                <Trash2 className="w-4 h-4" />
+                                                            </button>
+                                                        </>
+                                                    )}
                                                     <Link
                                                         href={route('maintenance-schedules.report', sched.id)}
                                                         className="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-lg transition-all duration-200"
@@ -417,17 +431,19 @@ export default function Index({ auth, schedules, equipments, technicians, filter
                                                     <span className="line-clamp-1">{sched.notes}</span>
                                                 </div>
                                             )}
-                                            <div className="mt-2 flex gap-1">
-                                                <select 
-                                                    className="text-xs rounded-lg border-gray-200 bg-gray-50 px-2 py-1 w-full focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all duration-200"
-                                                    value={sched.status} 
-                                                    onChange={e => changeStatusDirectly(sched.id, e.target.value)}
-                                                >
-                                                    <option value="menunggu">Menunggu</option>
-                                                    <option value="selesai">Selesai</option>
-                                                    <option value="terlewat">Terlewat</option>
-                                                </select>
-                                            </div>
+                                            {isAdmin && (
+                                                <div className="mt-2 flex gap-1">
+                                                    <select 
+                                                        className="text-xs rounded-lg border-gray-200 bg-gray-50 px-2 py-1 w-full focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all duration-200"
+                                                        value={sched.status} 
+                                                        onChange={e => changeStatusDirectly(sched.id, e.target.value)}
+                                                    >
+                                                        <option value="menunggu">Menunggu</option>
+                                                        <option value="selesai">Selesai</option>
+                                                        <option value="terlewat">Terlewat</option>
+                                                    </select>
+                                                </div>
+                                            )}
                                         </div>
                                     ))}
                                     {schedules.data.length === 0 && (

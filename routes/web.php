@@ -52,6 +52,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/reports/{report}/print', [ReportController::class, 'print'])->name('reports.print');
 
     Route::get('/api/equipments/search', [EquipmentController::class, 'searchAPI'])->name('api.equipments.search');
+
+    Route::get('/maintenance', [MaintenanceScheduleController::class, 'index'])->name('maintenance.index');
+    Route::get('/maintenance-schedules/{maintenanceSchedule}/report', [MaintenanceScheduleController::class, 'reportForm'])->name('maintenance-schedules.report');
+    Route::post('/maintenance-schedules/{maintenanceSchedule}/approve', [MaintenanceScheduleController::class, 'approve'])->name('maintenance-schedules.approve');
+    Route::get('/maintenance-schedules/{maintenanceSchedule}/print', [MaintenanceScheduleController::class, 'print'])->name('maintenance-schedules.print');
 });
 
 // ------------------------------------------------------------------
@@ -85,9 +90,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     
     Route::resource('maintenance-schedules', MaintenanceScheduleController::class)->except(['create', 'show', 'edit']);
     Route::put('/maintenance-schedules/{maintenanceSchedule}/status', [MaintenanceScheduleController::class, 'updateStatus'])->name('maintenance-schedules.updateStatus');
-    Route::get('/maintenance-schedules/{maintenanceSchedule}/report', [MaintenanceScheduleController::class, 'reportForm'])->name('maintenance-schedules.report');
     Route::put('/maintenance-schedules/{maintenanceSchedule}/report', [MaintenanceScheduleController::class, 'saveReport'])->name('maintenance-schedules.saveReport');
-    Route::get('/maintenance-schedules/{maintenanceSchedule}/print', [MaintenanceScheduleController::class, 'print'])->name('maintenance-schedules.print');
     Route::get('/equipments-template', [EquipmentController::class, 'downloadTemplate'])->name('equipments.template');
     Route::post('/equipments-import', [EquipmentController::class, 'importExcel'])->name('equipments.import');
 

@@ -1,10 +1,13 @@
 import React from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link, useForm } from '@inertiajs/react';
-import { ChevronLeft, ClipboardCheck, Wrench, CheckCircle, Save } from 'lucide-react';
+import { Head, Link, useForm, router } from '@inertiajs/react';
+import { ChevronLeft, ClipboardCheck, Wrench, CheckCircle, Save, 
+UserCheck, Building2, ThumbsUp, Clock
+ } from 'lucide-react';
 import PrimaryButton from '@/Components/PrimaryButton';
 import InputLabel from '@/Components/InputLabel';
 import InputError from '@/Components/InputError';
+import { formatDate } from "@/Helpers/date";
 
 const CHECKLIST_ITEMS = [
     { key: 'fisik', label: 'Kondisi fisik alat' },
@@ -27,6 +30,7 @@ const MAINTENANCE_ACTIONS = [
 ];
 
 export default function Report({ auth, schedule }) {
+    const isReadOnly = auth.user.role === 'ruangan';
     const initializeChecklist = () => {
         if (schedule.checklist_results && schedule.checklist_results.fisik?.status !== undefined) {
             return schedule.checklist_results;
@@ -89,7 +93,6 @@ export default function Report({ auth, schedule }) {
                         </div>
                     </div>
                     <div className="flex gap-3">
-                        {/* Tombol Cetak Dokumen */}
                         <button 
                             onClick={() => window.open(route('maintenance-schedules.print', schedule.id), '_blank')}
                             className="flex items-center gap-2 text-sm font-medium text-white bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-lg transition-colors"
@@ -130,6 +133,7 @@ export default function Report({ auth, schedule }) {
                                             onChange={e => setData('frequency', e.target.value)}
                                             className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300"
                                             required
+                                            disabled={isReadOnly}
                                         />
                                         <span className="text-sm text-gray-700">{freq}</span>
                                     </label>
@@ -160,13 +164,13 @@ export default function Report({ auth, schedule }) {
                                             <td className="px-4 py-3 text-center font-medium text-gray-500">{index + 1}</td>
                                             <td className="px-4 py-3 font-medium text-gray-900">{item.label}</td>
                                             <td className="px-4 py-3 text-center">
-                                                <input type="radio" name={`status_${item.key}`} checked={data.checklist_results[item.key]?.status === 'baik'} onChange={() => handleChecklistChange(item.key, 'status', 'baik')} className="w-5 h-5 text-green-600 focus:ring-green-500 border-gray-300 cursor-pointer" required />
+                                                <input type="radio" name={`status_${item.key}`} checked={data.checklist_results[item.key]?.status === 'baik'} onChange={() => handleChecklistChange(item.key, 'status', 'baik')} className="w-5 h-5 text-green-600 focus:ring-green-500 border-gray-300 cursor-pointer" required disabled={isReadOnly}/>
                                             </td>
                                             <td className="px-4 py-3 text-center">
-                                                <input type="radio" name={`status_${item.key}`} checked={data.checklist_results[item.key]?.status === 'tidak_baik'} onChange={() => handleChecklistChange(item.key, 'status', 'tidak_baik')} className="w-5 h-5 text-red-600 focus:ring-red-500 border-gray-300 cursor-pointer" />
+                                                <input type="radio" name={`status_${item.key}`} checked={data.checklist_results[item.key]?.status === 'tidak_baik'} onChange={() => handleChecklistChange(item.key, 'status', 'tidak_baik')} className="w-5 h-5 text-red-600 focus:ring-red-500 border-gray-300 cursor-pointer" disabled={isReadOnly}/>
                                             </td>
                                             <td className="px-4 py-3 text-center">
-                                                <input type="radio" name={`status_${item.key}`} checked={data.checklist_results[item.key]?.status === 'na'} onChange={() => handleChecklistChange(item.key, 'status', 'na')} className="w-5 h-5 text-gray-400 focus:ring-gray-400 border-gray-300 cursor-pointer" title="Not Applicable (Tidak Tersedia)" />
+                                                <input type="radio" name={`status_${item.key}`} checked={data.checklist_results[item.key]?.status === 'na'} onChange={() => handleChecklistChange(item.key, 'status', 'na')} className="w-5 h-5 text-gray-400 focus:ring-gray-400 border-gray-300 cursor-pointer" title="Not Applicable (Tidak Tersedia)" disabled={isReadOnly}/>
                                             </td>
                                             <td className="px-4 py-2">
                                                 <input 
@@ -175,6 +179,7 @@ export default function Report({ auth, schedule }) {
                                                     placeholder="..."
                                                     value={data.checklist_results[item.key]?.note || ''}
                                                     onChange={(e) => handleChecklistChange(item.key, 'note', e.target.value)}
+                                                    disabled={isReadOnly}
                                                 />
                                             </td>
                                         </tr>
@@ -192,13 +197,13 @@ export default function Report({ auth, schedule }) {
                             <div className="space-y-3">
                                 {MAINTENANCE_ACTIONS.map((action) => (
                                     <label key={action} className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-1.5 rounded-lg transition-colors">
-                                        <input type="checkbox" checked={data.maintenance_actions.includes(action)} onChange={() => handleActionChange(action)} className="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500" />
+                                        <input type="checkbox" checked={data.maintenance_actions.includes(action)} onChange={() => handleActionChange(action)} className="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500" disabled={isReadOnly}/>
                                         <span className="text-sm text-gray-700 font-medium">{action}</span>
                                     </label>
                                 ))}
                                 <div className="mt-4 pt-4 border-t border-gray-100">
                                     <InputLabel value="Lainnya:" className="text-xs text-gray-500 mb-1" />
-                                    <input type="text" className="w-full border-b border-0 border-gray-300 focus:border-blue-500 focus:ring-0 px-0 text-sm bg-transparent" value={data.action_other} onChange={e => setData('action_other', e.target.value)} placeholder="Tulis tindakan lain jika ada..." />
+                                    <input type="text" className="w-full border-b border-0 border-gray-300 focus:border-blue-500 focus:ring-0 px-0 text-sm bg-transparent" value={data.action_other} onChange={e => setData('action_other', e.target.value)} placeholder="Tulis tindakan lain jika ada..." disabled={isReadOnly}/>
                                 </div>
                             </div>
                         </div>
@@ -208,17 +213,17 @@ export default function Report({ auth, schedule }) {
                                 <h3 className="font-bold text-lg border-b pb-3 mb-4 uppercase text-gray-700 flex items-center gap-2"><CheckCircle className="w-5 h-5"/> D. Hasil Pemeliharaan</h3>
                                 <div className="space-y-3">
                                     <label className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${data.result_status === 'layak' ? 'border-green-500 bg-green-50' : 'border-gray-100 hover:border-green-200'}`}>
-                                        <input type="radio" name="result" value="layak" checked={data.result_status === 'layak'} onChange={e => setData('result_status', e.target.value)} className="hidden" />
+                                        <input type="radio" name="result" value="layak" checked={data.result_status === 'layak'} onChange={e => setData('result_status', e.target.value)} className="hidden" disabled={isReadOnly}/>
                                         <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 ${data.result_status === 'layak' ? 'border-green-500 bg-green-500' : 'border-gray-300'}`}></div>
                                         <span className={`text-sm font-bold ${data.result_status === 'layak' ? 'text-green-800' : 'text-gray-600'}`}>Alat layak digunakan.</span>
                                     </label>
                                     <label className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${data.result_status === 'layak_dengan_catatan' ? 'border-yellow-500 bg-yellow-50' : 'border-gray-100 hover:border-yellow-200'}`}>
-                                        <input type="radio" name="result" value="layak_dengan_catatan" checked={data.result_status === 'layak_dengan_catatan'} onChange={e => setData('result_status', e.target.value)} className="hidden" />
+                                        <input type="radio" name="result" value="layak_dengan_catatan" checked={data.result_status === 'layak_dengan_catatan'} onChange={e => setData('result_status', e.target.value)} className="hidden" disabled={isReadOnly}/>
                                         <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 ${data.result_status === 'layak_dengan_catatan' ? 'border-yellow-500 bg-yellow-500' : 'border-gray-300'}`}></div>
                                         <span className={`text-sm font-bold ${data.result_status === 'layak_dengan_catatan' ? 'text-yellow-800' : 'text-gray-600'}`}>Alat layak digunakan dengan catatan.</span>
                                     </label>
                                     <label className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${data.result_status === 'tidak_layak' ? 'border-red-500 bg-red-50' : 'border-gray-100 hover:border-red-200'}`}>
-                                        <input type="radio" name="result" value="tidak_layak" checked={data.result_status === 'tidak_layak'} onChange={e => setData('result_status', e.target.value)} className="hidden" />
+                                        <input type="radio" name="result" value="tidak_layak" checked={data.result_status === 'tidak_layak'} onChange={e => setData('result_status', e.target.value)} className="hidden" disabled={isReadOnly}/>
                                         <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 ${data.result_status === 'tidak_layak' ? 'border-red-500 bg-red-500' : 'border-gray-300'}`}></div>
                                         <span className={`text-sm font-bold ${data.result_status === 'tidak_layak' ? 'text-red-800' : 'text-gray-600'}`}>Alat tidak layak digunakan (perlu perbaikan).</span>
                                     </label>
@@ -234,29 +239,131 @@ export default function Report({ auth, schedule }) {
                                         value={data.notes} 
                                         onChange={e => setData('notes', e.target.value)} 
                                         placeholder="Tuliskan catatan terkait hasil pemeliharaan di atas jika ada..."
+                                        disabled={isReadOnly}
                                     ></textarea>
                                     <InputError message={errors.notes} className="mt-2" />
                                 </div>
                             </div>
+                        </div>
+                    </div>
 
-                            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-                                <h3 className="font-bold text-lg border-b pb-3 mb-4 uppercase text-gray-700">E. Tindak Lanjut</h3>
-                                <textarea 
-                                    rows="3" 
-                                    className="w-full rounded-xl border-gray-300 focus:border-blue-500 focus:ring-blue-500 bg-gray-50/50 p-3 text-sm resize-none" 
-                                    value={data.follow_up_notes} 
-                                    onChange={e => setData('follow_up_notes', e.target.value)} 
-                                    placeholder="Tuliskan saran tindak lanjut ke depannya..."
-                                ></textarea>
+                    {/* BARIS BARU: E. TINDAK LANJUT (KIRI) + VERIFIKASI & PERSETUJUAN (KANAN) */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Kiri: Tindak Lanjut */}
+                        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                            <h3 className="font-bold text-lg border-b pb-3 mb-4 uppercase text-gray-700">E. Tindak Lanjut</h3>
+                            <textarea 
+                                rows="3" 
+                                className="w-full rounded-xl border-gray-300 focus:border-blue-500 focus:ring-blue-500 bg-gray-50/50 p-3 text-sm resize-none" 
+                                value={data.follow_up_notes} 
+                                onChange={e => setData('follow_up_notes', e.target.value)} 
+                                placeholder="Tuliskan saran tindak lanjut ke depannya..."
+                                disabled={isReadOnly}
+                            ></textarea>
+                        </div>
+
+                        {/* Kanan: Verifikasi & Persetujuan */}
+                        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                            <div className="px-6 py-4 bg-gradient-to-r from-teal-50 to-cyan-50 border-b border-gray-100">
+                                <h3 className="text-sm font-bold text-gray-800 flex items-center gap-2">
+                                    <UserCheck className="w-4 h-4 text-teal-600" />
+                                    Verifikasi & Persetujuan
+                                </h3>
+                            </div>
+                            <div className="p-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {/* Sisi Ruangan */}
+                                    <div className="bg-gray-50 rounded-xl p-5 border border-gray-200 text-center">
+                                        <div className="flex items-center justify-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
+                                            <Building2 className="w-4 h-4" />
+                                            Penanggung Jawab Ruangan
+                                        </div>
+                                        <div className="min-h-[80px] flex items-center justify-center">
+                                            {schedule.room_approved_at ? (
+                                                schedule.approver?.signature_path ? (
+                                                    <img src={`/storage/${schedule.approver.signature_path}`} alt="TTD Ruangan" className="max-h-16 object-contain mix-blend-multiply" />
+                                                ) : (
+                                                    <span className="inline-flex items-center gap-2 text-green-600 font-bold bg-green-100 px-3 py-1.5 rounded-lg">
+                                                        <CheckCircle className="w-4 h-4" />
+                                                        DISETUJUI
+                                                    </span>
+                                                )
+                                            ) : (
+                                                schedule.status === 'selesai' ? (
+                                                    auth.user.role === 'ruangan' ? (
+                                                        <button 
+                                                            type="button"
+                                                            onClick={() => {
+                                                                if(confirm('Apakah alat sudah dipelihara dan berfungsi dengan baik? Tanda tangan Anda akan dibubuhkan.')){
+                                                                    router.post(route('maintenance-schedules.approve', schedule.id), {}, {
+                                                                        onError: (err) => { if(err.error) alert(err.error); }
+                                                                    });
+                                                                }
+                                                            }}
+                                                            className="inline-flex items-center gap-2 bg-green-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-green-500/30 hover:bg-green-700 transition-all duration-200"
+                                                        >
+                                                            <ThumbsUp className="w-4 h-4" />
+                                                            Setujui & Tanda Tangani
+                                                        </button>
+                                                    ) : (
+                                                        <span className="inline-flex items-center gap-2 text-yellow-600 bg-yellow-50 px-4 py-2 rounded-lg border border-yellow-200 text-sm font-medium">
+                                                            <Clock className="w-4 h-4 animate-pulse" />
+                                                            Menunggu Verifikasi Ruangan
+                                                        </span>
+                                                    )
+                                                ) : (
+                                                    <span className="text-sm text-gray-400 italic">Menunggu pemeliharaan selesai</span>
+                                                )
+                                            )}
+                                        </div>
+                                        <div className="mt-3 pt-3 border-t border-gray-200">
+                                            <p className="font-bold text-gray-800 text-sm">{schedule.approver?.name || '-'}</p>
+                                            {schedule.room_approved_at && (
+                                                <p className="text-xs text-green-600 font-mono font-bold mt-1">
+                                                    Disetujui: {formatDate(schedule.room_approved_at)}
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Sisi Teknisi */}
+                                    <div className="bg-gray-50 rounded-xl p-5 border border-gray-200 text-center">
+                                        <div className="flex items-center justify-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
+                                            <Wrench className="w-4 h-4" />
+                                            Petugas Pemeliharaan
+                                        </div>
+                                        <div className="min-h-[80px] flex items-center justify-center">
+                                            {schedule.status === 'selesai' ? (
+                                                <img src={`/storage/${schedule.executor.signature_path}`} alt="TTD Ruangan" className="max-h-16 object-contain mix-blend-multiply" />
+                                            ) : (
+                                                <span className="inline-flex items-center gap-2 text-yellow-600 bg-yellow-50 px-4 py-2 rounded-lg border border-yellow-200 text-sm font-medium">
+                                                    <Clock className="w-4 h-4 animate-pulse" />
+                                                    Dalam Proses
+                                                </span>
+                                            )}
+                                        </div>
+                                        <div className="mt-3 pt-3 border-t border-gray-200">
+                                            <p className="font-bold text-gray-800 text-sm">{schedule.technician?.name}</p>
+                                            {schedule.executed_at && (
+                                                <p className="text-xs text-green-600 font-mono font-bold mt-1">
+                                                    Dikerjakan: {formatDate(schedule.executed_at)}
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <PrimaryButton 
-                        disabled={processing} 
-                        className="fixed bottom-4 right-8 z-50 bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-3 text-base shadow-lg shadow-blue-500/30 hover:shadow-xl transition-all duration-200 rounded-xl"
-                    >
-                        {processing ? 'Menyimpan...' : <span className="flex items-center gap-2"><Save className="w-5 h-5"/> Simpan Laporan</span>}
-                    </PrimaryButton>
+
+                    {auth.user.role !== 'ruangan' && (
+                        <PrimaryButton 
+                            disabled={processing} 
+                            className="fixed bottom-4 right-8 z-50 bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-3 text-base shadow-lg shadow-blue-500/30 hover:shadow-xl transition-all duration-200 rounded-xl"
+                        >
+                            {processing ? 'Menyimpan...' : <span className="flex items-center gap-2"><Save className="w-5 h-5"/> Simpan Laporan</span>}
+                        </PrimaryButton>
+                    )}
                 </form>
             </div>
         </AuthenticatedLayout>

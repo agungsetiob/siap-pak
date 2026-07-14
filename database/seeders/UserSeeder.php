@@ -27,17 +27,17 @@ class UserSeeder extends Seeder
             'updated_at' => now(),
         ]);
 
-        // DB::table('users')->insert([
-        //     'name' => 'Petugas Ruangan',
-        //     'email' => 'ruangan@example.com',
-        //     'role' => 'ruangan',
-        //     'room_id' => 1, // misalnya ruangan dengan id 1
-        //     'email_verified_at' => now(),
-        //     'password' => Hash::make(env('RUANGAN_PASS', 'password123')),
-        //     'remember_token' => Str::random(10),
-        //     'created_at' => now(),
-        //     'updated_at' => now(),
-        // ]);
+        DB::table('users')->insert([
+            'name' => 'Petugas Ruangan',
+            'email' => 'ruangan@example.com',
+            'role' => 'ruangan',
+            'room_id' => 1,
+            'email_verified_at' => now(),
+            'password' => Hash::make(env('RUANGAN_PASS', 'password123')),
+            'remember_token' => Str::random(10),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
         // Buat 1 admin
         // User::factory()->admin()->create([
         //     'email' => 'admin@example.com',

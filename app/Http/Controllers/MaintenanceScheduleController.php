@@ -12,13 +12,22 @@ class MaintenanceScheduleController extends Controller
 {
     public function index(Request $request)
     {
+        $user = auth()->user();
         $query = MaintenanceSchedule::with([
             'equipment.room',
-            'technician'
+            'technician',
+            'approver',
+            'executor'
         ]);
 
         if ($request->filled('status')) {
             $query->where('status', $request->status);
+        }
+
+        if ($user->role === 'ruangan') {
+            $query->whereHas('equipment', function ($q) use ($user) {
+                $q->where('room_id', $user->room_id);
+            });
         }
 
         $schedules = $query->orderBy('scheduled_date', 'asc')
@@ -29,18 +38,18 @@ class MaintenanceScheduleController extends Controller
             ->orderBy('name')
             ->get(['id', 'name', 'specialization']);
 
-        $statsQuery = MaintenanceSchedule::selectRaw('
-        COUNT(*) as total,
-        SUM(IF(status = "menunggu", 1, 0)) as pending,
-        SUM(IF(status = "selesai", 1, 0)) as completed,
-        SUM(IF(status = "terlewat", 1, 0)) as overdue
-    ')->first();
+        $statsQuery = MaintenanceSchedule::query();
+        if ($user->role === 'ruangan') {
+            $statsQuery->whereHas('equipment', function ($q) use ($user) {
+                $q->where('room_id', $user->room_id);
+            });
+        }
 
         $stats = [
-            'total'     => (int) $statsQuery->total,
-            'pending'   => (int) $statsQuery->pending,
-            'completed' => (int) $statsQuery->completed,
-            'overdue'   => (int) $statsQuery->overdue,
+            'total'     => (clone $statsQuery)->count(),
+            'pending'   => (clone $statsQuery)->where('status', 'menunggu')->count(),
+            'completed' => (clone $statsQuery)->where('status', 'selesai')->count(),
+            'overdue'   => (clone $statsQuery)->where('status', 'terlewat')->count(),
         ];
 
         return Inertia::render('Admin/MaintenanceSchedules/Index', [
@@ -92,7 +101,7 @@ class MaintenanceScheduleController extends Controller
 
     public function reportForm(MaintenanceSchedule $maintenanceSchedule)
     {
-        $maintenanceSchedule->load(['equipment.room', 'technician']);
+        $maintenanceSchedule->load(['equipment.room', 'technician', 'approver', 'executor']);
         return Inertia::render('Admin/MaintenanceSchedules/Report', [
             'schedule' => $maintenanceSchedule
         ]);
@@ -107,10 +116,13 @@ class MaintenanceScheduleController extends Controller
             'action_other' => 'nullable|string',
             'result_status' => 'required|in:layak,layak_dengan_catatan,tidak_layak',
             'follow_up_notes' => 'nullable|string',
-            'notes' => 'nullable|string'
+            'notes' => 'nullable|string',
+            'executed_at' => 'nullable|date',
         ]);
 
         $v['status'] = 'selesai';
+        $v['executed_by'] = auth()->id();
+        $v['executed_at'] = now();
 
         $maintenanceSchedule->update($v);
 
@@ -123,10 +135,26 @@ class MaintenanceScheduleController extends Controller
      */
     public function print(MaintenanceSchedule $maintenanceSchedule)
     {
-        $maintenanceSchedule->load(['equipment.room', 'technician']);
+        $maintenanceSchedule->load(['equipment.room', 'technician', 'approver', 'executor']);
 
         return Inertia::render('Admin/MaintenanceSchedules/Print', [
             'schedule' => $maintenanceSchedule
         ]);
+    }
+
+    public function approve(Request $request, MaintenanceSchedule $maintenanceSchedule)
+    {
+        $user = auth()->user();
+
+        if (empty($user->signature_path)) {
+            return back()->withErrors(['error' => 'Gagal menyetujui. Anda wajib meng-upload tanda tangan di menu Profil terlebih dahulu.']);
+        }
+
+        $maintenanceSchedule->update([
+            'room_approved_at' => now(),
+            'approved_by' => $user->id,
+        ]);
+
+        return back()->with('success', 'Pemeliharaan alat berhasil disetujui dan ditandatangani.');
     }
 }

@@ -90,7 +90,7 @@ export default function AuthenticatedLayout({ header, children }) {
                 icon: Calendar,
                 submenus: [
                     {
-                        name: "Jadwal Pemeliharaan",
+                        name: "Pemeliharaan",
                         route: "maintenance-schedules.index",
                         active: route().current("maintenance-schedules.*")
                     },
@@ -146,6 +146,12 @@ export default function AuthenticatedLayout({ header, children }) {
                 route: "reports.index",
                 icon: Ticket,
                 active: route().current("reports.*")
+            },
+            {
+                name: "Pemeliharaan",
+                route: "maintenance.index",
+                icon: Calendar,
+                active: route().current("maintenance.*")
             }
         ]
     };

@@ -36,7 +36,7 @@ export default function Print({ schedule }) {
         <div className="bg-white min-h-screen text-black font-sans">
             <Head title={`Cetak Laporan Pemeliharaan - ${schedule.equipment?.name}`} />
 
-            {/* HEADER KONTROL (Sembunyi saat dicetak) */}
+            {/* HEADER KONTROL */}
             <div className="print:hidden p-6 bg-gray-100 border-b border-gray-300 flex justify-between items-center mb-6">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-800">Cetak Laporan Pemeliharaan</h1>
@@ -57,18 +57,19 @@ export default function Print({ schedule }) {
             <div className="w-full max-w-4xl mx-auto p-8 bg-white text-sm leading-relaxed text-gray-900">
                 
                 {/* KOP SURAT RESMI */}
-                <div className="border-b-4 border-double border-black mb-6 flex items-center">
+                <div className="border-b-4 border-double border-black mb-4 flex items-center">
                     <img src="/logo_tanbu.png" alt="Logo RS" className="w-24 h-24 object-contain mr-2" onError={(e) => { e.target.style.display = 'none'; }} />
-                    <div className="text-center p-3 flex-1">
+                    <div className="text-center p-3">
                         <h3 className="text-lg font-bold uppercase tracking-tight">Pemerintah Kabupaten Tanah Bumbu</h3>
                         <h1 className="text-xl font-extrabold uppercase tracking-tight">UPTD RSUD dr. H. Andi Abdurrahman Noor</h1>
-                        <p className="text-xs font-semibold mt-1">Alamat: Jl. H. M. Amin KM. 10 RT. 03 Desa Sepunggur Kec. Kusan Tengah Kab. Tanah Bumbu Prov. Kalimantan Selatan KP 72273</p>
-                        <p className="text-xs font-semibold">email : <span className="text-blue-600 underline">rsud.tanahbumbu@gmail.com / rsud.tanbu@gmail.com</span> Telepon : 08115000266 / 05186070767</p>
+                        <p className="text-sm font-semibold">Alamat: Jl. H. M. Amin KM. 10 RT. 03 Desa Sepunggur 
+                            Kec. Kusan Tengah Kab. Tanah Bumbu  Prov. Kalimantan Selatan KP 72273 
+                            email : <span className="text-blue-600 underline">rsud tanahbumbu@gmail.com / rsud.tanbu@gmail.com</span> Telepon : 08115000266 / 05186070767</p>
                     </div>
                 </div>
 
-                <div className="text-center mb-6">
-                    <h2 className="text-lg font-bold underline uppercase tracking-wide">FORM PEMELIHARAAN RUTIN ALAT KESEHATAN</h2>
+                <div className="text-center mb-4">
+                    <h2 className="text-lg font-bold underline uppercase tracking-wide">LAPORAN PEMELIHARAAN ALAT KESEHATAN</h2>
                 </div>
 
                 {/* A. IDENTITAS ALAT */}
@@ -79,9 +80,9 @@ export default function Print({ schedule }) {
                             <tr><td className="w-48 py-1">Nama Alat</td><td className="w-4">:</td><td className="font-bold">{schedule.equipment?.name}</td></tr>
                             <tr><td className="py-1">Merek/Tipe</td><td>:</td><td>{schedule.equipment?.brand || '-'}</td></tr>
                             <tr><td className="py-1">Nomor Seri</td><td>:</td><td className="font-mono">{schedule.equipment?.serial_number || '-'}</td></tr>
-                            <tr><td className="py-1">Lokasi / Unit / Ruangan</td><td>:</td><td>{schedule.equipment?.room?.name || '-'}</td></tr>
+                            <tr><td className="py-1">Ruangan</td><td>:</td><td>{schedule.equipment?.room?.name || '-'}</td></tr>
                             <tr>
-                                <td className="py-1">Frekuensi Pemeliharaan</td><td>:</td>
+                                <td className="py-1">Frekuensi</td><td>:</td>
                                 <td className="flex gap-4">
                                     {['Harian', 'Mingguan', 'Bulanan', 'Triwulanan', 'Semesteran', 'Tahunan'].map(f => (
                                         <span key={f} className="flex items-center gap-1">
@@ -92,8 +93,8 @@ export default function Print({ schedule }) {
                                     ))}
                                 </td>
                             </tr>
-                            <tr><td className="py-1">Tanggal Pemeliharaan</td><td>:</td><td>{formatDate(schedule.scheduled_date)}</td></tr>
-                            <tr><td className="py-1">Teknisi / Petugas</td><td>:</td><td>{schedule.technician?.name}</td></tr>
+                            <tr><td className="py-1">Tanggal</td><td>:</td><td>{formatDate(schedule.scheduled_date)}</td></tr>
+                            <tr><td className="py-1">Teknisi/Petugas</td><td>:</td><td>{schedule.technician?.name}</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -193,26 +194,50 @@ export default function Print({ schedule }) {
                 {/* F. PENGESAHAN */}
                 <div className="break-inside-avoid">
                     <h3 className="font-bold text-md uppercase mb-4">F. Pengesahan</h3>
-                    <div className="grid grid-cols-2 gap-12 text-center text-sm">
-                        <div className="flex flex-col items-center">
-                            <p className="mb-16">Petugas Pemeliharaan</p>
-                            <div className="border-b border-black w-48 mb-1">
-                                <p className="font-bold uppercase">{schedule.technician?.name || '______________________'}</p>
-                            </div>
-                            <p>Tanda Tangan & Tanggal</p>
+
+                    <div className="grid grid-cols-2 text-center text-sm">
+                        <div></div>
+
+                        <div className="text-sm">
+                        Tanah Bumbu, {formatDate(schedule.executed_at)}
                         </div>
+
                         <div className="flex flex-col items-center">
-                            <p className="mb-16">Penanggung Jawab Ruangan</p>
-                            <div className="border-b border-black w-48 mb-1">
-                                <p className="font-bold uppercase">______________________</p>
-                            </div>
-                            <p>Tanda Tangan & Tanggal</p>
+                        <p className="mb-4">Petugas Pemeliharaan</p>
+                        <div className="h-16 flex items-center justify-center w-full mb-1">
+                            {schedule.status === 'selesai' && schedule.executor?.signature_path ? (
+                            <img src={`/storage/${schedule.executor.signature_path}`} alt="TTD Teknisi" className="max-h-16 object-contain mix-blend-multiply" />
+                            ) : (
+                            <div className="h-16"></div>
+                            )}
+                        </div>
+                        <div className="w-48 mb-1">
+                            <p className="font-bold uppercase text-center">
+                            {schedule.status === 'selesai' ? (schedule.executor?.name || schedule.technician?.name) : '______________________'}
+                            </p>
+                        </div>
+                        </div>
+
+                        <div className="flex flex-col items-center">
+                        <p className="mb-4">Penanggung Jawab Ruangan</p>
+                        <div className="h-16 flex items-center justify-center w-full mb-1">
+                            {schedule.room_approved_at && schedule.approver?.signature_path ? (
+                            <img src={`/storage/${schedule.approver.signature_path}`} alt="TTD Ruangan" className="max-h-16 object-contain mix-blend-multiply" />
+                            ) : (
+                            <div className="h-16"></div>
+                            )}
+                        </div>
+                        <div className="w-48 mb-1">
+                            <p className="font-bold uppercase text-center">
+                            {schedule.approver?.name || '______________________'}
+                            </p>
+                        </div>
                         </div>
                     </div>
                 </div>
 
-                <div className="mt-16 text-right text-[10px] text-gray-500 font-mono italic">
-                    Dicetak dari sistem SIAP PAK pada: {getPrintDate()}
+                <div className="mt-16 text-center text-[10px] text-gray-500 font-mono italic">
+                    Dicetak dari sistem SIMEDI pada: {getPrintDate()}
                 </div>
             </div>
         </div>
