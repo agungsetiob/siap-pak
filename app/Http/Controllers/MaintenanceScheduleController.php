@@ -140,6 +140,11 @@ class MaintenanceScheduleController extends Controller
 
     public function saveReport(Request $request, MaintenanceSchedule $maintenanceSchedule)
     {
+        $user = auth()->user();
+
+        if (empty($user->signature_path)) {
+            return back()->with('error', 'Gagal. Anda wajib meng-upload tanda tangan di menu Profil terlebih dahulu.');
+        }
         try {
             $v = $request->validate([
                 'frequency' => 'required|in:Harian,Mingguan,Bulanan,Triwulanan,Semesteran,Tahunan',
@@ -175,12 +180,12 @@ class MaintenanceScheduleController extends Controller
         ]);
     }
 
-    public function approve(Request $request, MaintenanceSchedule $maintenanceSchedule)
+    public function approve(MaintenanceSchedule $maintenanceSchedule)
     {
         $user = auth()->user();
 
         if (empty($user->signature_path)) {
-            return back()->withErrors(['error' => 'Gagal menyetujui. Anda wajib meng-upload tanda tangan di menu Profil terlebih dahulu.']);
+            return back()->with('error', 'Gagal menyetujui. Anda wajib meng-upload tanda tangan di menu Profil terlebih dahulu.');
         }
 
         $maintenanceSchedule->update([
