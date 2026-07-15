@@ -35,6 +35,7 @@ import { TableHeader } from "@tiptap/extension-table-header";
 import { TableCell } from "@tiptap/extension-table-cell";
 import FlashMessage from "@/Components/FlashMessage";
 import ConfirmModal from "@/Components/ConfirmModal";
+import { formatRupiah } from "@/Helpers/rupiah";
 
 const RichTextEditor = ({
     value,
@@ -467,7 +468,7 @@ export default function Show({ auth, report, flash }) {
                                 className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 text-sm bg-gradient-to-r from-gray-800 to-gray-700 text-white rounded-lg hover:from-gray-700 hover:to-gray-600 font-medium shadow-lg shadow-gray-500/20 transition-all duration-200 hover:shadow-xl hover:shadow-gray-500/30"
                             >
                                 <Printer className="w-4 h-4" />
-                                Cetak Dokumen
+                                Cetak
                             </button>
                             <Link
                                 href={route("reports.index")}
@@ -551,7 +552,7 @@ export default function Show({ auth, report, flash }) {
                         </div>
 
                         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow duration-200">
-                            <div className="px-5 py-4 bg-gradient-to-r from-purple-100 to-pink-100 border-b border-gray-200">
+                            <div className="px-5 py-4 bg-gradient-to-r from-purple-100 to-pink-100">
                                 <h3 className="text-sm font-bold text-gray-800 flex items-center gap-2">
                                     <Package className="w-4 h-4 text-purple-600" />
                                     Identitas Alat
@@ -809,10 +810,7 @@ export default function Show({ auth, report, flash }) {
                                                     Biaya
                                                 </p>
                                                 <p className="text-sm font-bold text-gray-900">
-                                                    Rp{" "}
-                                                    {new Intl.NumberFormat(
-                                                        "id-ID",
-                                                    ).format(report.cost)}
+                                                    {formatRupiah(report.cost)}
                                                 </p>
                                             </div>
                                         )}
@@ -933,7 +931,7 @@ export default function Show({ auth, report, flash }) {
                                     <div className="bg-gray-50 rounded-xl p-5 border border-gray-200 text-center">
                                         <div className="flex items-center justify-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
                                             <UserCheck className="w-4 h-4" />
-                                            Approve Admin
+                                            Approve Teknisi
                                         </div>
                                         <div className="min-h-[80px] flex items-center justify-center">
                                             {report.status === "selesai" ? (
@@ -979,7 +977,7 @@ export default function Show({ auth, report, flash }) {
                                                               log.status_snapshot ===
                                                               "selesai",
                                                       )?.user?.name ||
-                                                      "Admin IPSRS"
+                                                      "Teknisi"
                                                     : "Belum Diverifikasi"}
                                             </p>
                                             <p className="text-xs text-gray-400">
@@ -988,6 +986,14 @@ export default function Show({ auth, report, flash }) {
                                                     {report.status}
                                                 </span>
                                             </p>
+                                            {report.room_approved_at && (
+                                                <p className="text-xs text-green-600 font-mono font-bold mt-1">
+                                                    Selesai pada:{" "}
+                                                    {formatDate(
+                                                        report.resolved_at,
+                                                    )}
+                                                </p>
+                                            )}
                                         </div>
                                     </div>
                                 </div>

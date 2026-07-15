@@ -11,8 +11,8 @@ class FonnteService
     {
         $phone = preg_replace('/[^0-9]/', '', $phone);
 
-        if (str_starts_with($phone, '62')) {
-            $phone = '0' . substr($phone, 2);
+        if (str_starts_with($phone, '0')) {
+            $phone = '62' . substr($phone, 1);
         }
 
         $response = Http::withHeaders([
@@ -23,7 +23,10 @@ class FonnteService
         ]);
 
         if (!$response->successful()) {
-            Log::error('Fonnte Send Failed: ', $response->json() ?? []);
+            Log::error('Fonnte Send Failed', [
+                'status' => $response->status(),
+                'body'   => $response->body(),
+            ]);
         }
 
         return [

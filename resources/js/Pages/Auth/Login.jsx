@@ -53,7 +53,7 @@ export default function Login({ status, canResetPassword }) {
                             SIMEDI
                         </h1>
                         <p className="text-sm text-gray-500 mt-1">
-                            Sistem Informasi Medical Device
+                            Sistem Informasi Maintenance Medical Device
                         </p>
                     </div>
 

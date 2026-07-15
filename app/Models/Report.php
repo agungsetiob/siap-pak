@@ -21,7 +21,6 @@ class Report extends Model
         'external_technician',
         'cost',
         'status',
-        'estimated_completion',
         'resolved_at',
         'room_approved_at',
     ];
@@ -29,7 +28,6 @@ class Report extends Model
     protected function casts(): array
     {
         return [
-            'estimated_completion' => 'date',
             'resolved_at' => 'datetime',
             'cost' => 'integer',
             'room_approved_at' => 'datetime',

@@ -15,9 +15,27 @@ export default function AsyncSearchableSelect({
     const [options, setOptions] = useState([]);
     const [isOpen, setIsOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [resolvedValue, setResolvedValue] = useState(value || null);
     const dropdownRef = useRef(null);
 
-    const displayString = value ? displayValue(value) : "";
+    useEffect(() => {
+        if (value && value.id && !value.name) {
+            (async () => {
+                try {
+                    const res = await axios.get(`${fetchUrl}`, { params: { id: value.id } });
+                    const data = Array.isArray(res.data) ? res.data[0] : res.data;
+                    setResolvedValue(data);
+                } catch (err) {
+                    console.error("Gagal resolve value:", err);
+                    setResolvedValue(value);
+                }
+            })();
+        } else {
+            setResolvedValue(value);
+        }
+    }, [value, fetchUrl]);
+
+    const displayString = resolvedValue ? displayValue(resolvedValue) : "";
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -72,7 +90,7 @@ export default function AsyncSearchableSelect({
                         setIsOpen(true);
                         setSearch(""); 
                     }}
-                    readOnly={!isOpen && !!value}
+                    readOnly={!isOpen && !!resolvedValue}
                 />
 
                 <div className="absolute right-3 top-3 flex items-center gap-2">
@@ -90,7 +108,7 @@ export default function AsyncSearchableSelect({
                                 <div
                                     key={option.id || idx}
                                     className={`px-4 py-2.5 cursor-pointer hover:bg-purple-50 transition-colors duration-150 border-b border-gray-50 last:border-0 ${
-                                        value?.id === option.id ? "bg-purple-50 text-purple-700" : "text-gray-700"
+                                        resolvedValue?.id === option.id ? "bg-purple-50 text-purple-700" : "text-gray-700"
                                     }`}
                                     onClick={() => {
                                         onChange(option);
@@ -99,7 +117,7 @@ export default function AsyncSearchableSelect({
                                     }}
                                 >
                                     <div className="font-medium text-sm flex items-center gap-2">
-                                        {value?.id === option.id && <CheckCircle className="w-3.5 h-3.5 text-purple-600" />}
+                                        {resolvedValue?.id === option.id && <CheckCircle className="w-3.5 h-3.5 text-purple-600" />}
                                         {displayValue(option)}
                                     </div>
                                 </div>

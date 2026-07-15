@@ -19,7 +19,6 @@ return new class extends Migration
             $table->string('external_technician')->nullable();
             $table->unsignedBigInteger('cost')->default(0);
             $table->enum('status', ['menunggu', 'diproses', 'selesai', 'dibatalkan'])->default('menunggu');
-            $table->date('estimated_completion')->nullable();
             $table->timestamp('resolved_at')->nullable();
             $table->timestamps();
         });

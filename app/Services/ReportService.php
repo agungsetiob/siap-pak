@@ -83,7 +83,11 @@ class ReportService
             // --- 2. NOTIFIKASI WA KE RUANGAN PELAPOR ---
             if ($report->reporter->phone_number) {
                 $statusText = strtoupper($data['status']);
-                $message = "*Update Status SIMEDI*\n\nTiket: {$report->ticket_number}\nStatus saat ini: *{$statusText}*\nCatatan Admin: {$data['notes']}";
+                $cleanNotes = strip_tags($data['notes']);
+                $message = "*Update Status SIMEDI*\n\n"
+                    . "Tiket: {$report->ticket_number}\n"
+                    . "Status saat ini: *{$statusText}*\n"
+                    . "Catatan Admin: {$cleanNotes}";
                 $this->fonnteService->send($report->reporter->phone_number, $message);
             }
 

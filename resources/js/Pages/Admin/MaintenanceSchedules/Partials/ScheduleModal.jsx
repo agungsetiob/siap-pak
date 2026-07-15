@@ -46,7 +46,11 @@ export default function ScheduleModal({
                     <div className="md:col-span-2">
                         <AsyncSearchableSelect
                             fetchUrl={route("api.equipments.search")}
-                            value={data.selected_equipment || null}
+                            value={
+                                data.selected_equipment 
+                                    ? data.selected_equipment 
+                                    : (data.equipment_id ? { id: data.equipment_id } : null)
+                            }
                             onChange={(equipment) => {
                                 setData((prevData) => ({
                                     ...prevData,

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, useForm, router } from '@inertiajs/react';
 import { ChevronLeft, ClipboardCheck, Wrench, CheckCircle, Save, 
@@ -8,6 +8,8 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import InputLabel from '@/Components/InputLabel';
 import InputError from '@/Components/InputError';
 import { formatDate } from "@/Helpers/date";
+import FlashMessage from "@/Components/FlashMessage";
+import Modal from '@/Components/Modal';
 
 const CHECKLIST_ITEMS = [
     { key: 'fisik', label: 'Kondisi fisik alat' },
@@ -29,8 +31,13 @@ const MAINTENANCE_ACTIONS = [
     'Pelumasan (jika diperlukan)', 'Penggantian komponen', 'Pengisian/Penggantian baterai'
 ];
 
-export default function Report({ auth, schedule }) {
-    const isReadOnly = auth.user.role === 'ruangan';
+export default function Report({ auth, schedule, flash }) {
+    const [showApproveModal, setShowApproveModal] = useState(false);
+
+    const isReadOnly = (
+        auth.user.role === 'ruangan' ||
+        (schedule.approved_by !== null && schedule.room_approved_at !== null)
+    );
     const initializeChecklist = () => {
         if (schedule.checklist_results && schedule.checklist_results.fisik?.status !== undefined) {
             return schedule.checklist_results;
@@ -78,11 +85,21 @@ export default function Report({ auth, schedule }) {
         put(route('maintenance-schedules.saveReport', schedule.id));
     };
 
+    const handleApprove = () => {
+        setShowApproveModal(false);
+        router.post(route('maintenance-schedules.approve', schedule.id), {}, {
+            onError: (err) => { if(err.error) alert(err.error); }
+        });
+    };
+
     return (
         <AuthenticatedLayout user={auth.user} header={null}>
             <Head title="Laporan Pemeliharaan" />
 
-            <div className="py-2 max-w-8xl mx-auto sm:px-2 lg:px-2 space-y-6">
+            <div className="py-2">
+                <div className="max-w-8xl mx-auto sm:px-2 lg:px-2 space-y-6">
+
+                <FlashMessage flash={flash} />
                 
                 <div className="flex items-center justify-between bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
                     <div className="flex items-center gap-3">
@@ -293,13 +310,7 @@ export default function Report({ auth, schedule }) {
                                                     auth.user.role === 'ruangan' ? (
                                                         <button 
                                                             type="button"
-                                                            onClick={() => {
-                                                                if(confirm('Apakah alat sudah dipelihara dan berfungsi dengan baik? Tanda tangan Anda akan dibubuhkan.')){
-                                                                    router.post(route('maintenance-schedules.approve', schedule.id), {}, {
-                                                                        onError: (err) => { if(err.error) alert(err.error); }
-                                                                    });
-                                                                }
-                                                            }}
+                                                            onClick={() => setShowApproveModal(true)}
                                                             className="inline-flex items-center gap-2 bg-green-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-green-500/30 hover:bg-green-700 transition-all duration-200"
                                                         >
                                                             <ThumbsUp className="w-4 h-4" />
@@ -356,16 +367,53 @@ export default function Report({ auth, schedule }) {
                         </div>
                     </div>
 
-                    {auth.user.role !== 'ruangan' && (
+                    {auth.user.role == 'admin' && (
                         <PrimaryButton 
-                            disabled={processing} 
-                            className="fixed bottom-4 right-8 z-50 bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-3 text-base shadow-lg shadow-blue-500/30 hover:shadow-xl transition-all duration-200 rounded-xl"
+                            disabled={processing || isReadOnly} 
+                            className="fixed bottom-4 right-8 z-50 bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-3 text-base shadow-lg shadow-blue-500/30 hover:shadow-xl transition-all duration-200 rounded-xl disabled:opacity-70 disabled:cursor-not-allowed"
                         >
                             {processing ? 'Menyimpan...' : <span className="flex items-center gap-2"><Save className="w-5 h-5"/> Simpan Laporan</span>}
                         </PrimaryButton>
                     )}
                 </form>
+
+                {/* MODAL KONFIRMASI PERSETUJUAN */}
+                <Modal show={showApproveModal} onClose={() => setShowApproveModal(false)} maxWidth="sm">
+                    <div className="p-6">
+                        <div className="flex items-center gap-3 border-b pb-4 mb-6">
+                            <div className="p-2 bg-gradient-to-br from-green-500 to-teal-500 rounded-xl text-white">
+                                <ThumbsUp className="w-5 h-5" />
+                            </div>
+                            <div>
+                                <h2 className="text-xl font-bold text-gray-900">Konfirmasi Persetujuan</h2>
+                                <p className="text-sm text-gray-500">Tanda tangani untuk menyetujui pemeliharaan</p>
+                            </div>
+                        </div>
+
+                        <div className="mb-6">
+                            <p className="text-gray-700">Apakah alat sudah dipelihara dan berfungsi dengan baik? Tanda tangan Anda akan dibubuhkan.</p>
+                        </div>
+
+                        <div className="flex justify-end gap-3 bg-gray-50 -mx-6 -mb-6 p-4 rounded-b-2xl border-t border-gray-100">
+                            <button
+                                type="button"
+                                onClick={() => setShowApproveModal(false)}
+                                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors"
+                            >
+                                Batal
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleApprove}
+                                className="px-4 py-2 text-sm font-bold text-white bg-gradient-to-r from-green-600 to-teal-600 rounded-xl shadow-lg shadow-green-500/20 hover:from-green-700 hover:to-teal-700 transition-all duration-200"
+                            >
+                                Setujui
+                            </button>
+                        </div>
+                    </div>
+                </Modal>
             </div>
+        </div>
         </AuthenticatedLayout>
     );
 }

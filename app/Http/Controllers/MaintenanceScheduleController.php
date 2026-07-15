@@ -3,13 +3,23 @@
 namespace App\Http\Controllers;
 
 use App\Models\MaintenanceSchedule;
-use App\Models\Equipment;
 use App\Models\Technician;
+use App\Services\MaintenanceScheduleService;
+use App\Services\FonnteService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class MaintenanceScheduleController extends Controller
 {
+    protected $service;
+    protected $fonnteService;
+
+    public function __construct(MaintenanceScheduleService $service, FonnteService $fonnteService)
+    {
+        $this->service = $service;
+        $this->fonnteService = $fonnteService;
+    }
+
     public function index(Request $request)
     {
         $user = auth()->user();
@@ -20,7 +30,7 @@ class MaintenanceScheduleController extends Controller
             'executor'
         ]);
 
-        if ($request->filled('status')) {
+        if ($request->filled('status')) {   
             $query->where('status', $request->status);
         }
 
@@ -69,34 +79,55 @@ class MaintenanceScheduleController extends Controller
             'scheduled_date' => 'required|date|after_or_equal:today',
         ]);
 
-        MaintenanceSchedule::create($v);
+        $this->service->store($v);
         return back()->with('success', 'Jadwal pemeliharaan berhasil diatur.');
     }
 
     public function update(Request $request, MaintenanceSchedule $maintenanceSchedule)
     {
-        $v = $request->validate([
-            'equipment_id' => 'required|exists:equipments,id',
-            'technician_id' => 'required|exists:technicians,id',
-            'scheduled_date' => 'required|date',
-            'status' => 'required|in:menunggu,selesai,terlewat',
-        ]);
+        try {
+            $v = $request->validate([
+                'equipment_id' => 'required|exists:equipments,id',
+                'technician_id' => 'required|exists:technicians,id',
+                'scheduled_date' => 'required|date',
+                'status' => 'required|in:menunggu,selesai,terlewat',
+            ]);
 
-        $maintenanceSchedule->update($v);
-        return back()->with('success', 'Jadwal berhasil diperbarui.');
+            $this->service->update($maintenanceSchedule, $v);
+            return back()->with('success', 'Jadwal berhasil diperbarui.');
+        } catch (\RuntimeException $e) {
+            if ($e->getMessage() === 'approved') {
+                return back()->with('error', 'Jadwal sudah disetujui, tidak dapat diubah atau dihapus.');
+            }
+            throw $e;
+        }
     }
 
     public function updateStatus(Request $request, MaintenanceSchedule $maintenanceSchedule)
     {
-        $v = $request->validate(['status' => 'required|in:menunggu,selesai,terlewat']);
-        $maintenanceSchedule->update(['status' => $v['status']]);
-        return back()->with('success', 'Status pemeliharaan berhasil diubah.');
+        try {
+            $v = $request->validate(['status' => 'required|in:menunggu,selesai,terlewat']);
+            $this->service->updateStatus($maintenanceSchedule, $v['status']);
+            return back()->with('success', 'Status pemeliharaan berhasil diubah.');
+        } catch (\RuntimeException $e) {
+            if ($e->getMessage() === 'approved') {
+                return back()->with('error', 'Jadwal sudah disetujui, tidak dapat diubah atau dihapus.');
+            }
+            throw $e;
+        }
     }
 
     public function destroy(MaintenanceSchedule $maintenanceSchedule)
     {
-        $maintenanceSchedule->delete();
-        return back()->with('success', 'Jadwal pemeliharaan berhasil dihapus.');
+        try {
+            $this->service->destroy($maintenanceSchedule);
+            return back()->with('success', 'Jadwal pemeliharaan berhasil dihapus.');
+        } catch (\RuntimeException $e) {
+            if ($e->getMessage() === 'approved') {
+                return back()->with('error', 'Jadwal sudah disetujui, tidak dapat dihapus.');
+            }
+            throw $e;
+        }
     }
 
     public function reportForm(MaintenanceSchedule $maintenanceSchedule)
@@ -109,25 +140,27 @@ class MaintenanceScheduleController extends Controller
 
     public function saveReport(Request $request, MaintenanceSchedule $maintenanceSchedule)
     {
-        $v = $request->validate([
-            'frequency' => 'required|in:Harian,Mingguan,Bulanan,Triwulanan,Semesteran,Tahunan',
-            'checklist_results' => 'required|array',
-            'maintenance_actions' => 'nullable|array',
-            'action_other' => 'nullable|string',
-            'result_status' => 'required|in:layak,layak_dengan_catatan,tidak_layak',
-            'follow_up_notes' => 'nullable|string',
-            'notes' => 'nullable|string',
-            'executed_at' => 'nullable|date',
-        ]);
+        try {
+            $v = $request->validate([
+                'frequency' => 'required|in:Harian,Mingguan,Bulanan,Triwulanan,Semesteran,Tahunan',
+                'checklist_results' => 'required|array',
+                'maintenance_actions' => 'nullable|array',
+                'action_other' => 'nullable|string',
+                'result_status' => 'required|in:layak,layak_dengan_catatan,tidak_layak',
+                'follow_up_notes' => 'nullable|string',
+                'notes' => 'nullable|string',
+                'executed_at' => 'nullable|date',
+            ]);
 
-        $v['status'] = 'selesai';
-        $v['executed_by'] = auth()->id();
-        $v['executed_at'] = now();
-
-        $maintenanceSchedule->update($v);
-
-        return redirect()->route('maintenance-schedules.index')
-            ->with('success', 'Laporan pemeliharaan berhasil disimpan dan jadwal diselesaikan.');
+            $this->service->saveReport($maintenanceSchedule, $v, auth()->id());
+            return redirect()->route('maintenance-schedules.index')
+                ->with('success', 'Laporan pemeliharaan berhasil disimpan dan jadwal diselesaikan.');
+        } catch (\RuntimeException $e) {
+            if ($e->getMessage() === 'approved') {
+                return back()->with('error', 'Jadwal sudah disetujui, laporan tidak dapat diubah.');
+            }
+            throw $e;
+        }
     }
 
     /**
@@ -155,6 +188,17 @@ class MaintenanceScheduleController extends Controller
             'approved_by' => $user->id,
         ]);
 
+        if ($maintenanceSchedule->executor && $maintenanceSchedule->executor->phone_number) {
+            $message = "*Persetujuan Pemeliharaan SIMEDI*\n\n"
+                . "Alat: {$maintenanceSchedule->equipment->name}\n"
+                . "Ruangan: {$maintenanceSchedule->equipment->room->name}\n"
+                . "Status: DISETUJUI\n"
+                . "Disetujui oleh: {$user->name}\n\n"
+                . "Terima kasih atas pelaksanaan pemeliharaan.";
+            $this->fonnteService->send($maintenanceSchedule->executor->phone_number, $message);
+        }
+
         return back()->with('success', 'Pemeliharaan alat berhasil disetujui dan ditandatangani.');
     }
+
 }

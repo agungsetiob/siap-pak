@@ -24,7 +24,6 @@ class ReportFactory extends Factory
             'type' => $this->faker->randomElement(['kerusakan', 'pemeliharaan', 'kalibrasi']),
             'description' => $this->faker->sentence(),
             'status' => $this->faker->randomElement(['menunggu', 'diproses', 'selesai', 'dibatalkan']),
-            'estimated_completion' => $this->faker->dateTimeBetween('now', '+1 month'),
             'created_at' => $this->faker->dateTimeBetween('-3 months', 'now'),
             'updated_at' => $this->faker->dateTimeBetween('-3 months', 'now'),
         ];

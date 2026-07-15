@@ -141,7 +141,7 @@ export default function Admin({ auth, stats, recentReports, chartData, investmen
                                     {auth.user.name}
                                 </h3>
                                 <p className="text-blue-100 text-sm mt-1 max-w-xl">
-                                    Sistem Informasi Medical Device RSUD dr. H. Andi Abdurrahman Noor.
+                                    Sistem Informasi Maintenance Medical Device RSUD dr. H. Andi Abdurrahman Noor.
                                 </p>
                             </div>
                             <div className="flex flex-wrap gap-3">

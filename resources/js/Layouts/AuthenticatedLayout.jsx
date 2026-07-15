@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, usePage } from "@inertiajs/react";
 import {
     LayoutDashboard,
@@ -23,6 +23,12 @@ export default function AuthenticatedLayout({ header, children }) {
     const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
     const [expandedMenus, setExpandedMenus] = useState({});
+    const [floatingMenu, setFloatingMenu] = useState({
+        show: false,
+        item: null,
+        top: 0,
+    });
+    const closeTimeoutRef = useRef(null);
 
     const isAdmin = user?.role === "admin";
 
@@ -45,9 +51,9 @@ export default function AuthenticatedLayout({ header, children }) {
     }, []);
 
     const toggleSubmenu = (menuName) => {
-        setExpandedMenus(prev => ({
+        setExpandedMenus((prev) => ({
             ...prev,
-            [menuName]: !prev[menuName]
+            [menuName]: !prev[menuName],
         }));
     };
 
@@ -57,7 +63,7 @@ export default function AuthenticatedLayout({ header, children }) {
                 name: "Dashboard",
                 route: "dashboard",
                 icon: LayoutDashboard,
-                active: route().current("dashboard")
+                active: route().current("dashboard"),
             },
             {
                 name: "Manajemen Aset",
@@ -66,24 +72,24 @@ export default function AuthenticatedLayout({ header, children }) {
                     {
                         name: "Inventaris Alat",
                         route: "equipments.index",
-                        active: route().current("equipments.*")
+                        active: route().current("equipments.*"),
                     },
                     {
                         name: "Master Ruangan",
                         route: "rooms.index",
-                        active: route().current("rooms.*")
+                        active: route().current("rooms.*"),
                     },
                     {
                         name: "Master Vendor",
                         route: "vendors.index",
-                        active: route().current("vendors.*")
+                        active: route().current("vendors.*"),
                     },
                     {
                         name: "Master Teknisi",
                         route: "technicians.index",
-                        active: route().current("technicians.*")
-                    }
-                ]
+                        active: route().current("technicians.*"),
+                    },
+                ],
             },
             {
                 name: "Perawatan",
@@ -92,68 +98,68 @@ export default function AuthenticatedLayout({ header, children }) {
                     {
                         name: "Pemeliharaan",
                         route: "maintenance-schedules.index",
-                        active: route().current("maintenance-schedules.*")
+                        active: route().current("maintenance-schedules.*"),
                     },
                     {
                         name: "Kalibrasi",
                         route: "calibrations.index",
-                        active: route().current("calibrations.*")
-                    }
-                ]
+                        active: route().current("calibrations.*"),
+                    },
+                ],
             },
             {
                 name: "Laporan & Tiket",
                 icon: Ticket,
                 route: "reports.index",
-                active: route().current("reports.*")
+                active: route().current("reports.*"),
             },
             {
                 name: "Manajemen Pengguna",
                 icon: Users,
                 route: "users.index",
-                active: route().current("users.*")
+                active: route().current("users.*"),
             },
             {
                 name: "Aspak",
                 icon: Building2,
                 route: "#",
                 active: false,
-                comingSoon: true
+                comingSoon: true,
             },
             {
                 name: "RSOnline",
                 icon: Activity,
                 route: "#",
                 active: false,
-                comingSoon: true
-            }
+                comingSoon: true,
+            },
         ],
         user: [
             {
                 name: "Dashboard",
                 route: "dashboard",
                 icon: LayoutDashboard,
-                active: route().current("dashboard")
+                active: route().current("dashboard"),
             },
             {
                 name: "Inventaris Alat",
                 route: "equipments.index",
                 icon: Package,
-                active: route().current("equipments.*")
+                active: route().current("equipments.*"),
             },
             {
                 name: "Laporan & Tiket",
                 route: "reports.index",
                 icon: Ticket,
-                active: route().current("reports.*")
+                active: route().current("reports.*"),
             },
             {
                 name: "Pemeliharaan",
                 route: "maintenance.index",
                 icon: Calendar,
-                active: route().current("maintenance.*")
-            }
-        ]
+                active: route().current("maintenance.*"),
+            },
+        ],
     };
 
     const currentNavigation = isAdmin ? navigation.admin : navigation.user;
@@ -176,12 +182,18 @@ export default function AuthenticatedLayout({ header, children }) {
 
             {/* Sidebar */}
             <aside
-                className={`fixed top-0 left-0 h-full bg-white border-r border-gray-200 z-50 transition-all duration-300 ease-in-out ${isSidebarOpen ? "w-64" : "w-20"
-                    } ${isMobileSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
+                className={`fixed top-0 left-0 h-full bg-white border-r border-gray-200 z-50 transition-all duration-300 ease-in-out ${
+                    isSidebarOpen ? "w-64" : "w-20"
+                } ${isMobileSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
             >
                 {/* Logo */}
-                <div className={`h-16 flex items-center ${isSidebarOpen ? "px-6" : "px-4"} border-b border-gray-200`}>
-                    <Link href={route("dashboard")} className="flex items-center gap-3 group">
+                <div
+                    className={`h-16 flex items-center ${isSidebarOpen ? "px-6" : "px-4"} border-b border-gray-200`}
+                >
+                    <Link
+                        href={route("dashboard")}
+                        className="flex items-center gap-3 group"
+                    >
                         <div className="relative w-9 h-auto">
                             {isSidebarOpen ? (
                                 <img
@@ -190,8 +202,9 @@ export default function AuthenticatedLayout({ header, children }) {
                                     className="w-full h-full object-cover"
                                     onError={(e) => {
                                         e.target.onerror = null;
-                                        e.target.style.display = 'none';
-                                        e.target.parentElement.innerHTML = '<span className="relative">+</span>';
+                                        e.target.style.display = "none";
+                                        e.target.parentElement.innerHTML =
+                                            '<span className="relative">+</span>';
                                     }}
                                 />
                             ) : (
@@ -201,8 +214,9 @@ export default function AuthenticatedLayout({ header, children }) {
                                     className="w-full h-full object-cover"
                                     onError={(e) => {
                                         e.target.onerror = null;
-                                        e.target.style.display = 'none';
-                                        e.target.parentElement.innerHTML = '<span className="relative">+</span>';
+                                        e.target.style.display = "none";
+                                        e.target.parentElement.innerHTML =
+                                            '<span className="relative">+</span>';
                                     }}
                                 />
                             )}
@@ -216,47 +230,102 @@ export default function AuthenticatedLayout({ header, children }) {
                 </div>
 
                 {/* Navigation */}
-                <nav className="h-[calc(100vh-4rem)] overflow-y-auto overflow-x-hidden px-3 py-4">
+                <nav className="h-[calc(100vh-4rem)] overflow-y-auto px-3 py-4">
                     {currentNavigation.map((item, index) => {
                         const Icon = item.icon;
-                        const hasSubmenus = item.submenus && item.submenus.length > 0;
+                        const hasSubmenus =
+                            item.submenus && item.submenus.length > 0;
                         const isExpanded = expandedMenus[item.name] || false;
-                        const isActive = item.active || (hasSubmenus && item.submenus.some(sub => sub.active));
+                        const isActive =
+                            item.active ||
+                            (hasSubmenus &&
+                                item.submenus.some((sub) => sub.active));
                         const isComingSoon = item.comingSoon || false;
 
                         if (hasSubmenus) {
                             return (
-                                <div key={index} className="mb-1">
+                                <div
+                                    key={index}
+                                    className="mb-1"
+                                    onMouseEnter={(e) => {
+                                        if (!isSidebarOpen) {
+                                            if (closeTimeoutRef.current)
+                                                clearTimeout(
+                                                    closeTimeoutRef.current,
+                                                );
+
+                                            const rect =
+                                                e.currentTarget.getBoundingClientRect();
+                                            setFloatingMenu({
+                                                show: true,
+                                                item: item,
+                                                top: rect.top,
+                                            });
+                                        }
+                                    }}
+                                    onMouseLeave={() => {
+                                        if (!isSidebarOpen) {
+                                            closeTimeoutRef.current =
+                                                setTimeout(() => {
+                                                    setFloatingMenu({
+                                                        show: false,
+                                                        item: null,
+                                                        top: 0,
+                                                    });
+                                                }, 300);
+                                        }
+                                    }}
+                                >
                                     <button
-                                        onClick={() => toggleSubmenu(item.name)}
-                                        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${isActive
+                                        onClick={() => {
+                                            if (isSidebarOpen) {
+                                                toggleSubmenu(item.name);
+                                            } else {
+                                                setIsSidebarOpen(true);
+                                                setExpandedMenus((prev) => ({
+                                                    ...prev,
+                                                    [item.name]: true,
+                                                }));
+                                            }
+                                        }}
+                                        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+                                            isActive
                                                 ? "bg-blue-50 text-blue-700"
                                                 : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-                                            } ${!isSidebarOpen && "justify-center"}`}
-                                        title={!isSidebarOpen ? item.name : ""}
+                                        } ${!isSidebarOpen && "justify-center"}`}
                                     >
-                                        <Icon className={`w-5 h-5 flex-shrink-0 ${isActive ? "text-blue-600" : ""}`} />
+                                        <Icon
+                                            className={`w-5 h-5 flex-shrink-0 ${isActive ? "text-blue-600" : ""}`}
+                                        />
                                         {isSidebarOpen && (
                                             <>
-                                                <span className="flex-1 text-left text-sm font-medium">{item.name}</span>
-                                                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`} />
+                                                <span className="flex-1 text-left text-sm font-medium">
+                                                    {item.name}
+                                                </span>
+                                                <ChevronDown
+                                                    className={`w-4 h-4 transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`}
+                                                />
                                             </>
                                         )}
                                     </button>
+
                                     {isSidebarOpen && isExpanded && (
                                         <div className="ml-4 mt-1 space-y-1 border-l-2 border-gray-200 pl-3">
-                                            {item.submenus.map((sub, subIndex) => (
-                                                <Link
-                                                    key={subIndex}
-                                                    href={route(sub.route)}
-                                                    className={`block px-3 py-2 text-sm rounded-lg transition-all duration-200 ${sub.active
-                                                            ? "bg-blue-50 text-blue-700 font-medium"
-                                                            : "text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+                                            {item.submenus.map(
+                                                (sub, subIndex) => (
+                                                    <Link
+                                                        key={subIndex}
+                                                        href={route(sub.route)}
+                                                        className={`block px-3 py-2 text-sm rounded-lg transition-all duration-200 ${
+                                                            sub.active
+                                                                ? "bg-blue-50 text-blue-700 font-medium"
+                                                                : "text-gray-500 hover:bg-gray-100 hover:text-gray-700"
                                                         }`}
-                                                >
-                                                    {sub.name}
-                                                </Link>
-                                            ))}
+                                                    >
+                                                        {sub.name}
+                                                    </Link>
+                                                ),
+                                            )}
                                         </div>
                                     )}
                                 </div>
@@ -266,13 +335,16 @@ export default function AuthenticatedLayout({ header, children }) {
                         return (
                             <Link
                                 key={index}
-                                href={item.route === "#" ? "#" : route(item.route)}
-                                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 mb-1 ${isComingSoon
+                                href={
+                                    item.route === "#" ? "#" : route(item.route)
+                                }
+                                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 mb-1 ${
+                                    isComingSoon
                                         ? "text-gray-400 cursor-not-allowed opacity-60"
                                         : isActive
-                                            ? "bg-blue-50 text-blue-700"
-                                            : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-                                    } ${!isSidebarOpen && "justify-center"}`}
+                                          ? "bg-blue-50 text-blue-700"
+                                          : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                                } ${!isSidebarOpen && "justify-center"}`}
                                 title={!isSidebarOpen ? item.name : ""}
                                 onClick={(e) => {
                                     if (isComingSoon) {
@@ -282,10 +354,14 @@ export default function AuthenticatedLayout({ header, children }) {
                                     }
                                 }}
                             >
-                                <Icon className={`w-5 h-5 flex-shrink-0 ${isActive && !isComingSoon ? "text-blue-600" : ""}`} />
+                                <Icon
+                                    className={`w-5 h-5 flex-shrink-0 ${isActive && !isComingSoon ? "text-blue-600" : ""}`}
+                                />
                                 {isSidebarOpen && (
                                     <div className="flex items-center flex-1">
-                                        <span className={`text-sm font-medium ${isComingSoon ? "text-gray-600" : ""}`}>
+                                        <span
+                                            className={`text-sm font-medium ${isComingSoon ? "text-gray-600" : ""}`}
+                                        >
                                             {item.name}
                                         </span>
                                         {isComingSoon && (
@@ -302,14 +378,20 @@ export default function AuthenticatedLayout({ header, children }) {
                     {/* Bottom Section */}
                     <div className="absolute bottom-0 left-0 right-0 p-3 border-t border-gray-200 bg-white">
                         {/* User Profile in Sidebar */}
-                        <div className={`flex items-center gap-3 p-2 rounded-xl hover:bg-gray-50 transition-all duration-200 ${!isSidebarOpen && "justify-center"}`}>
+                        <div
+                            className={`flex items-center gap-3 p-2 rounded-xl hover:bg-gray-50 transition-all duration-200 ${!isSidebarOpen && "justify-center"}`}
+                        >
                             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
                                 {user?.name?.charAt(0).toUpperCase() || "U"}
                             </div>
                             {isSidebarOpen && (
                                 <div className="flex-1 min-w-0">
-                                    <div className="text-sm font-medium text-gray-800 truncate">{user?.name}</div>
-                                    <div className="text-xs text-gray-500 truncate">{user?.email}</div>
+                                    <div className="text-sm font-medium text-gray-800 truncate">
+                                        {user?.name}
+                                    </div>
+                                    <div className="text-xs text-gray-500 truncate">
+                                        {user?.email}
+                                    </div>
                                 </div>
                             )}
                         </div>
@@ -339,10 +421,15 @@ export default function AuthenticatedLayout({ header, children }) {
             </aside>
 
             {/* Main Content */}
-            <div className={`transition-all duration-300 ${isSidebarOpen ? "lg:ml-64" : "lg:ml-20"}`}>
+            <div
+                className={`transition-all duration-300 ${isSidebarOpen ? "lg:ml-64" : "lg:ml-20"}`}
+            >
                 {/* Top Navbar */}
-                <header className={`sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-gray-200 transition-all duration-300 ${isScrolled ? "shadow-sm" : ""
-                    }`}>
+                <header
+                    className={`sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-gray-200 transition-all duration-300 ${
+                        isScrolled ? "shadow-sm" : ""
+                    }`}
+                >
                     <div className="flex items-center justify-between h-16 px-4 sm:px-6">
                         <div className="flex items-center gap-3">
                             {/* Toggle Sidebar Button */}
@@ -394,11 +481,14 @@ export default function AuthenticatedLayout({ header, children }) {
                                         <div className="px-4 py-3 border-b border-gray-100">
                                             <div className="flex items-center justify-between">
                                                 <div>
-                                                    <h3 className="text-sm font-semibold text-gray-800">Notifikasi</h3>
+                                                    <h3 className="text-sm font-semibold text-gray-800">
+                                                        Notifikasi
+                                                    </h3>
                                                 </div>
                                                 {unreadCount > 0 && (
                                                     <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
-                                                        {unreadCount} belum dibaca
+                                                        {unreadCount} belum
+                                                        dibaca
                                                     </span>
                                                 )}
                                             </div>
@@ -407,48 +497,71 @@ export default function AuthenticatedLayout({ header, children }) {
                                         {notifications.length > 0 ? (
                                             <>
                                                 <div className="max-h-[400px] overflow-y-auto">
-                                                    {notifications.slice(0, 10).map((notif, index) => (
-                                                        <Link
-                                                            key={notif.id || index}
-                                                            href={route("notifications.read", notif.id)}
-                                                            className="block px-4 py-3 hover:bg-gray-50 border-b border-gray-50 last:border-0 transition-colors duration-150"
-                                                        >
-                                                            <div className="flex items-start gap-3">
-                                                                <div className="w-2 h-2 mt-1.5 rounded-full bg-blue-500 flex-shrink-0"></div>
-                                                                <div className="flex-1 min-w-0">
-                                                                    <div className="font-semibold text-sm text-gray-800 break-words">
-                                                                        {notif.data?.title || "Notifikasi"}
-                                                                    </div>
-                                                                    <div className="text-xs text-gray-500 mt-0.5 line-clamp-3 break-words">
-                                                                        {notif.data?.message || "Pesan notifikasi"}
-                                                                    </div>
-                                                                    <div className="text-[10px] text-gray-400 mt-1">
-                                                                        {notif.created_at
-                                                                            ? new Date(notif.created_at).toLocaleDateString('id-ID', {
-                                                                                day: 'numeric',
-                                                                                month: 'long',
-                                                                                year: 'numeric',
-                                                                                hour: '2-digit',
-                                                                                minute: '2-digit'
-                                                                            })
-                                                                            : "Baru saja"
-                                                                        }
+                                                    {notifications
+                                                        .slice(0, 10)
+                                                        .map((notif, index) => (
+                                                            <Link
+                                                                key={
+                                                                    notif.id ||
+                                                                    index
+                                                                }
+                                                                href={route(
+                                                                    "notifications.read",
+                                                                    notif.id,
+                                                                )}
+                                                                className="block px-4 py-3 hover:bg-gray-50 border-b border-gray-50 last:border-0 transition-colors duration-150"
+                                                            >
+                                                                <div className="flex items-start gap-3">
+                                                                    <div className="w-2 h-2 mt-1.5 rounded-full bg-blue-500 flex-shrink-0"></div>
+                                                                    <div className="flex-1 min-w-0">
+                                                                        <div className="font-semibold text-sm text-gray-800 break-words">
+                                                                            {notif
+                                                                                .data
+                                                                                ?.title ||
+                                                                                "Notifikasi"}
+                                                                        </div>
+                                                                        <div className="text-xs text-gray-500 mt-0.5 line-clamp-3 break-words">
+                                                                            {notif
+                                                                                .data
+                                                                                ?.message ||
+                                                                                "Pesan notifikasi"}
+                                                                        </div>
+                                                                        <div className="text-[10px] text-gray-400 mt-1">
+                                                                            {notif.created_at
+                                                                                ? new Date(
+                                                                                      notif.created_at,
+                                                                                  ).toLocaleDateString(
+                                                                                      "id-ID",
+                                                                                      {
+                                                                                          day: "numeric",
+                                                                                          month: "long",
+                                                                                          year: "numeric",
+                                                                                          hour: "2-digit",
+                                                                                          minute: "2-digit",
+                                                                                      },
+                                                                                  )
+                                                                                : "Baru saja"}
+                                                                        </div>
                                                                     </div>
                                                                 </div>
-                                                            </div>
-                                                        </Link>
-                                                    ))}
+                                                            </Link>
+                                                        ))}
                                                 </div>
 
                                                 {notifications.length > 10 && (
                                                     <div className="px-4 py-2 text-center text-xs text-gray-500 border-t border-gray-100">
-                                                        +{notifications.length - 10} notifikasi lainnya
+                                                        +
+                                                        {notifications.length -
+                                                            10}{" "}
+                                                        notifikasi lainnya
                                                     </div>
                                                 )}
 
                                                 <div className="border-t border-gray-100">
                                                     <Link
-                                                        href={route("notifications.markRead")}
+                                                        href={route(
+                                                            "notifications.markRead",
+                                                        )}
                                                         method="post"
                                                         as="button"
                                                         className="block w-full text-center px-4 py-3 text-sm font-medium text-blue-600 hover:bg-blue-50 transition-colors duration-150 rounded-b-lg"
@@ -460,8 +573,13 @@ export default function AuthenticatedLayout({ header, children }) {
                                         ) : (
                                             <div className="px-4 py-10 text-center">
                                                 <Bell className="w-14 h-14 mx-auto text-emerald-600 mb-3" />
-                                                <p className="text-sm font-medium text-gray-600">Tidak ada notifikasi</p>
-                                                <p className="text-xs text-gray-400 mt-1">Semua notifikasi akan muncul di sini</p>
+                                                <p className="text-sm font-medium text-gray-600">
+                                                    Tidak ada notifikasi
+                                                </p>
+                                                <p className="text-xs text-gray-400 mt-1">
+                                                    Semua notifikasi akan muncul
+                                                    di sini
+                                                </p>
                                             </div>
                                         )}
                                     </Dropdown.Content>
@@ -472,7 +590,8 @@ export default function AuthenticatedLayout({ header, children }) {
                             <div>
                                 <button className="flex items-center gap-2 p-2 rounded-xl hover:bg-gray-100 transition-all duration-200">
                                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-sm font-semibold">
-                                        {user?.name?.charAt(0).toUpperCase() || "U"}
+                                        {user?.name?.charAt(0).toUpperCase() ||
+                                            "U"}
                                     </div>
                                 </button>
                             </div>
@@ -482,10 +601,37 @@ export default function AuthenticatedLayout({ header, children }) {
 
                 {/* Page Content */}
                 <main className="p-4 sm:p-6">
-                    <div className="animate-fadeIn">
-                        {children}
-                    </div>
+                    <div className="animate-fadeIn">{children}</div>
                 </main>
+                {!isSidebarOpen && floatingMenu.show && floatingMenu.item && (
+                    <div
+                        className="fixed left-20 z-[100] w-48 bg-white rounded-xl shadow-xl border border-gray-200 py-2 animate-fadeIn"
+                        style={{ top: `${floatingMenu.top}px` }}
+                        onMouseEnter={() =>
+                            setFloatingMenu((prev) => ({ ...prev, show: true }))
+                        }
+                        onMouseLeave={() =>
+                            setFloatingMenu({ show: false, item: null, top: 0 })
+                        }
+                    >
+                        <div className="px-4 py-2 text-xs font-bold text-gray-400 uppercase tracking-wider border-b border-gray-100 mb-1">
+                            {floatingMenu.item.name}
+                        </div>
+                        {floatingMenu.item.submenus.map((sub, subIndex) => (
+                            <Link
+                                key={subIndex}
+                                href={route(sub.route)}
+                                className={`block px-4 py-2 text-sm transition-colors duration-150 ${
+                                    sub.active
+                                        ? "bg-blue-50 text-blue-700 font-medium"
+                                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                                }`}
+                            >
+                                {sub.name}
+                            </Link>
+                        ))}
+                    </div>
+                )}
                 <ComingSoonModal
                     show={showComingSoon}
                     onClose={() => setShowComingSoon(false)}
