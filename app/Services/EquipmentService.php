@@ -25,7 +25,10 @@ class EquipmentService
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('inventory_number', 'like', "%{$search}%");
+                    ->orWhere('inventory_number', 'like', "%{$search}%")
+                    ->orWhereHas('room', function ($roomQuery) use ($search) {
+                        $roomQuery->where('name', 'like', "%{$search}%");
+                    });
             });
         }
 

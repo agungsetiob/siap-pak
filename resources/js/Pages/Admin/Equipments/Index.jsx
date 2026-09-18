@@ -245,7 +245,7 @@ export default function Index({ auth, equipments, rooms, vendors, filters, flash
                                             </div>
                                             <input
                                                 type="text"
-                                                placeholder="Cari nama atau no. inventaris..."
+                                                placeholder="Cari nama/ruangan/no. inventaris.."
                                                 value={search}
                                                 onChange={(e) => setSearch(e.target.value)}
                                                 className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 text-sm"
